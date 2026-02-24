@@ -328,7 +328,17 @@ function SubjectCard({ subject, status, highlighted, highlightType, dimmed, isSe
     >
       <div style={{ display:"flex", alignItems:"flex-start", gap:"0.4rem" }}>
         <Dot status={status} />
-        <span style={{ fontSize:"0.82rem", fontWeight: highlighted ? 500 : 400, color: st.color, lineHeight:1.3, flex:1 }}>
+        <span
+          style={{
+            fontSize: "0.82rem",
+            fontWeight: highlighted ? 500 : 400,
+            color: st.color,
+            lineHeight: 1.3,
+            flex: 1,
+            wordBreak: "break-word",
+            overflowWrap: "anywhere",
+          }}
+        >
           {subject.name}
         </span>
       </div>
