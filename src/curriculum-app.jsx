@@ -334,7 +334,7 @@ function SubjectCard({ subject, status, highlighted, highlightType, dimmed, isSe
             fontWeight: highlighted ? 500 : 400,
             color: st.color,
             lineHeight: 1.3,
-            flex: 1,
+            flexShrink: 0,
             whiteSpace: "nowrap",     // evita que se quiebre en varias líneas
             overflow: "hidden",       // corta el contenido si es demasiado
             textOverflow: "ellipsis", // agrega "..." al final si se corta
@@ -355,7 +355,7 @@ function SubjectCard({ subject, status, highlighted, highlightType, dimmed, isSe
 /* ─── Year column ────────────────────────────────────────────────────────── */
 function YearColumn({ year, selectedId, highlightMap, dimmedIds, statusMap, onCardClick, onOpenMenu, onSetStatus, onDelete, registerRef }) {
   return (
-    <div style={{ display:"flex", flexDirection:"column", gap:"0.5rem", minWidth:0, flex:1 }}>
+    <div style={{ display:"flex", flexDirection:"column", gap:"0.5rem", flexShrink:0, minWidth:"300px" }}>
       <div style={{ paddingBottom:"0.5rem", borderBottom:"1px solid #D5D0C8", marginBottom:"0.25rem" }}>
         <div style={{ fontFamily:"'Playfair Display', serif", fontSize:"0.95rem", fontWeight:600 }}>{year.label}</div>
         <div style={{ fontSize:"0.65rem", color:"#bbb", marginTop:2, fontFamily:"'DM Mono', monospace" }}>
@@ -834,7 +834,18 @@ export default function App() {
 
         {/* Grid */}
         <main style={{ padding:"2rem", paddingBottom:"4rem" }}>
-          <div style={{ overflowX:"auto" }}><div ref={gridRef} style={{ display:"grid", gridTemplateColumns:"repeat(5, 1fr)", gap:"1.75rem", width:"100%" }}>
+          <div style={{ overflowX:"auto" }}>
+            <div
+              ref={gridRef}
+              style={{
+                display: "flex",
+                gap: "1rem",          // espacio entre años
+                overflowX: "auto",    // permite scroll horizontal
+                padding: "0.5rem",
+                alignItems: "flex-start",
+                width: "100%",
+              }}
+            >
             {data.years.map(year => (
               <YearColumn
                 key={year.id}
