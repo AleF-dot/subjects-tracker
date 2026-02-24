@@ -335,8 +335,9 @@ function SubjectCard({ subject, status, highlighted, highlightType, dimmed, isSe
             color: st.color,
             lineHeight: 1.3,
             flex: 1,
-            wordBreak: "break-word",
-            overflowWrap: "anywhere",
+            whiteSpace: "nowrap",     // evita que se quiebre en varias líneas
+            overflow: "hidden",       // corta el contenido si es demasiado
+            textOverflow: "ellipsis", // agrega "..." al final si se corta
           }}
         >
           {subject.name}
