@@ -328,20 +328,21 @@ function SubjectCard({ subject, status, highlighted, highlightType, dimmed, isSe
     >
       <div style={{ display:"flex", alignItems:"flex-start", gap:"0.4rem" }}>
         <Dot status={status} />
-        <span
-          style={{
-            fontSize: "0.82rem",
-            fontWeight: highlighted ? 500 : 400,
-            color: st.color,
-            lineHeight: 1.3,
-            flexShrink: 0,
-            whiteSpace: "nowrap",     // evita que se quiebre en varias líneas
-            overflow: "hidden",       // corta el contenido si es demasiado
-            textOverflow: "ellipsis", // agrega "..." al final si se corta
-          }}
-        >
-          {subject.name}
-        </span>
+        <div style={{ overflowX: "auto" }}>
+  <span
+    style={{
+      fontSize: "0.82rem",
+      fontWeight: highlighted ? 500 : 400,
+      color: st.color,
+      lineHeight: 1.3,
+      flexShrink: 0,
+      minWidth: 60,
+      whiteSpace: "nowrap",
+    }}
+  >
+    {subject.name}
+  </span>
+</div>
       </div>
       {isBloqueada && (
         <div style={{ fontSize:"0.62rem", color:"#EF4444", marginTop:3, marginLeft:11, fontStyle:"italic" }}>
