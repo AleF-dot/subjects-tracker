@@ -1,6 +1,6 @@
 import SubjectCard from "./SubjectCard";
 
-export default function YearColumn({ year, selectedId, highlightMap, dimmedIds, statusMap, onCardClick, onOpenMenu, onSetStatus, onDelete, registerRef, arrowFilter, onArrowFilterChange, selectedSubject }) {
+export default function YearColumn({ year, yearIndex, selectedId, highlightMap, dimmedIds, statusMap, onCardClick, onOpenMenu, onSetStatus, onDelete, registerRef, arrowFilter, onArrowFilterChange, selectedSubject }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", minWidth: 0, flex: 1 }}>
       <div style={{ paddingBottom: "0.5rem", borderBottom: "1px solid #D5D0C8", marginBottom: "0.25rem" }}>
@@ -33,6 +33,7 @@ export default function YearColumn({ year, selectedId, highlightMap, dimmedIds, 
               arrowFilter={s.id === selectedId ? arrowFilter : undefined}
               onArrowFilterChange={s.id === selectedId ? onArrowFilterChange : undefined}
               selectedSubject={s.id === selectedId ? selectedSubject : undefined}
+              yearIndex={yearIndex}
             />
           );
         })}

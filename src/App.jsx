@@ -174,9 +174,10 @@ export default function App() {
         <main style={{ padding: "2rem", paddingBottom: "4rem" }}>
           <div style={{ overflowX: "auto" }}>
             <div ref={gridRef} style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "1.75rem", width: "100%" }}>
-              {data.years.map(year => (
+              {data.years.map((year, yearIdx) => (
                 <YearColumn
                   key={year.id}
+                  yearIndex={yearIdx}
                   year={year}
                   selectedId={selectedId}
                   highlightMap={highlightMap}
