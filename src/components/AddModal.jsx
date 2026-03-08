@@ -11,7 +11,11 @@ const corrItemStyle = {
   background: "#EFECE6", borderRadius: "6px", padding: "0.4rem 0.65rem",
 };
 
-function CorrSection({ allSubjects, subjectsByYear, list, setList }) {
+// Colores consistentes con ArrowOverlay
+const COLORS_CURSAR = { regular: "#D97706", aprobada: "#059669" };
+const COLORS_FINAL  = { regular: "#3B82F6", aprobada: "#8B5CF6" };
+
+function CorrSection({ allSubjects, subjectsByYear, list, setList, forFinal }) {
   const [corrSub, setCorrSub] = useState("");
   const [corrType, setCorrType] = useState("regular");
 
@@ -49,10 +53,22 @@ function CorrSection({ allSubjects, subjectsByYear, list, setList }) {
           {list.map(c => {
             const sub = allSubjects.find(s => s.id === c.subjectId);
             const isReg = c.type === "regular";
+            const colors = forFinal ? COLORS_FINAL : COLORS_CURSAR;
+            const arrowColor = colors[c.type];
             return (
               <div key={c.subjectId} style={corrItemStyle}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ color: isReg ? "#D97706" : "#059669", fontSize: "0.85rem" }}>→</span>
+                  {forFinal ? (
+                    // Flecha punteada SVG para final, igual que en ArrowOverlay
+                    <svg width="18" height="10" viewBox="0 0 18 10" style={{ flexShrink: 0 }}>
+                      <line x1="0" y1="5" x2="11" y2="5"
+                        stroke={arrowColor} strokeWidth="1.8"
+                        strokeDasharray="3 2.5" strokeLinecap="round" />
+                      <polygon points="11,2 18,5 11,8" fill={arrowColor} />
+                    </svg>
+                  ) : (
+                    <span style={{ color: arrowColor, fontSize: "0.85rem", lineHeight: 1 }}>→</span>
+                  )}
                   <span style={{ fontSize: "0.73rem", color: "#555" }}>
                     {isReg ? "Regular" : "Aprobada"} · {sub?.name}
                   </span>
@@ -153,7 +169,7 @@ export default function AddModal({ open, onClose, data, onAdd, editSubject, onEd
             <label style={{ ...lbl, color: "#777", marginBottom: "0.6rem" }}>
               Para <strong>rendir final / aprobar</strong>
             </label>
-            <CorrSection allSubjects={allSubjects} subjectsByYear={subjectsByYear} list={corrFinalList} setList={setCorrFinalList} />
+            <CorrSection allSubjects={allSubjects} subjectsByYear={subjectsByYear} list={corrFinalList} setList={setCorrFinalList} forFinal />
           </div>
         )}
 
