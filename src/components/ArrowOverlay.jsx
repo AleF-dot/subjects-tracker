@@ -44,6 +44,7 @@ export default function ArrowOverlay({ arrows, animKey }) {
         const markerId  = `url(#${MARKER_ID[markerKey]})`;
         const len       = estimateLen(a.x1, a.y1, a.x2, a.y2, a.dir);
         const delay     = `${i * 0.07}s`;
+        const path      = buildPath(a.x1, a.y1, a.x2, a.y2, a.dir, a.rightEdge1, a.rightEdge2);
 
         if (isFinal) {
           // Flechas punteadas para final: no usamos strokeDashoffset para animar
@@ -52,7 +53,7 @@ export default function ArrowOverlay({ arrows, animKey }) {
           return (
             <path
               key={a.id}
-              d={buildPath(a.x1, a.y1, a.x2, a.y2, a.dir)}
+              d={path}
               fill="none"
               stroke={color}
               strokeWidth={1.8}
@@ -68,7 +69,7 @@ export default function ArrowOverlay({ arrows, animKey }) {
         return (
           <path
             key={a.id}
-            d={buildPath(a.x1, a.y1, a.x2, a.y2, a.dir)}
+            d={path}
             fill="none"
             stroke={color}
             strokeWidth={1.8}

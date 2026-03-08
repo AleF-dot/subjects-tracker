@@ -125,11 +125,11 @@ export default function SubjectCard({
                 background: "none", border: "none", cursor: "pointer",
                 padding: 0, lineHeight: 1,
                 color: menuOpen ? borderColor : st.dot,
-                fontSize: "0.5rem",
+                fontSize: "0.75rem",
                 transition: "color 0.15s, transform 0.2s",
                 transform: menuOpen ? "rotate(180deg)" : "rotate(0deg)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                width: "8px", height: "6px",
+                width: "12px", height: "10px",
               }}
               title={menuOpen ? "Cerrar menú" : "Abrir menú"}
             >

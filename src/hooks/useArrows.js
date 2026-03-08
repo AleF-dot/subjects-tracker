@@ -38,9 +38,9 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
     const next = corrs.map(c => {
       const el = getPoint(c.subjectId);
       if (!el) return null;
-      const { x1, y1, x2, y2, dir } = resolveArrowPoints(el, targetEl, c.offsetSide ?? 0);
+      const { x1, y1, x2, y2, dir, rightEdge1, rightEdge2 } = resolveArrowPoints(el, targetEl, c.offsetSide ?? 0);
       const uid = `${selectedId}-${c.subjectId}-${c.forFinal ? "final" : "cursar"}`;
-      return { id: uid, x1, y1, x2, y2, dir, type: c.type, forFinal: c.forFinal ?? false };
+      return { id: uid, x1, y1, x2, y2, dir, rightEdge1, rightEdge2, type: c.type, forFinal: c.forFinal ?? false };
     }).filter(Boolean);
 
     setArrows(next);
@@ -60,8 +60,8 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
       const el = getPoint(corrId);
       if (!el) return a;
       const corr = corrs.find(c => c.subjectId === corrId && (c.forFinal ? "final" : "cursar") === parts[parts.length - 1]);
-      const { x1, y1, x2, y2, dir } = resolveArrowPoints(el, targetEl, corr?.offsetSide ?? 0);
-      return { ...a, x1, y1, x2, y2, dir };
+      const { x1, y1, x2, y2, dir, rightEdge1, rightEdge2 } = resolveArrowPoints(el, targetEl, corr?.offsetSide ?? 0);
+      return { ...a, x1, y1, x2, y2, dir, rightEdge1, rightEdge2 };
     }));
   }, [selectedId, cardRefs, dotRefs]);
 
