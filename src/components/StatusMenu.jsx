@@ -2,12 +2,12 @@ import { useRef } from "react";
 import Dot from "./Dot";
 import { STATUS, STATUS_ORDER } from "../utils/constants";
 
-export default function StatusMenu({ anchor, current, onSelect, onDelete, onClose }) {
+export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete, onClose }) {
   const ref  = useRef(null);
   const rect = anchor?.getBoundingClientRect();
 
   const menuW = Math.max(rect?.width ?? 160, 170);
-  const menuH = 230;
+  const menuH = 270;
   const spaceBelow = rect ? window.innerHeight - rect.bottom : 999;
 
   const rawTop  = rect ? (spaceBelow > menuH ? rect.bottom + 6 : rect.top - menuH - 6) : 0;
@@ -36,8 +36,15 @@ export default function StatusMenu({ anchor, current, onSelect, onDelete, onClos
       ))}
       <button
         className="status-menu-item"
+        onClick={() => { onEdit(); onClose(); }}
+        style={{ borderTop: current !== null ? "1px solid #E0DAD0" : "none", color: "#555" }}
+      >
+        <span style={{ fontSize: "0.8rem" }}>✎</span> Editar materia
+      </button>
+      <button
+        className="status-menu-item"
         onClick={() => { onDelete(); onClose(); }}
-        style={{ borderTop: current !== null ? "1px solid #E0DAD0" : "none", color: "#b44" }}
+        style={{ color: "#b44" }}
       >
         <span style={{ fontSize: "0.8rem" }}>✕</span> Eliminar materia
       </button>

@@ -1,4 +1,5 @@
-export const STORAGE_KEY = "curriculum_v5";
+export const STORAGE_KEY = "curriculum_v6";
+export const PREV_STORAGE_KEY = "curriculum_v5";
 export const YEAR_LABELS = ["1er Año", "2do Año", "3er Año", "4to Año", "5to Año"];
 export const defaultData = { years: YEAR_LABELS.map((label, i) => ({ id: i + 1, label, subjects: [] })) };
 export const uid = () => Math.random().toString(36).slice(2, 9);

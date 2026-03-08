@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { STORAGE_KEY, defaultData } from "../utils/constants";
+import { STORAGE_KEY, PREV_STORAGE_KEY, defaultData } from "../utils/constants";
 import { computeStatus } from "../utils/statusLogic";
 import { uid } from "../utils/constants";
 
@@ -12,9 +12,49 @@ function loadFromStorage(key, fallback) {
   }
 }
 
+/**
+ * Migración suave: agrega campos nuevos a materias existentes sin tocar
+ * lo que el usuario ya tenía configurado.
+ */
+function migrateData(raw) {
+  if (!raw || !Array.isArray(raw.years)) return null;
+  return {
+    ...raw,
+    years: raw.years.map(y => ({
+      ...y,
+      subjects: (y.subjects ?? []).map(s => ({
+        correlativesParaFinal: [],   // nuevo campo — safe default
+        ...s,                         // datos del usuario sobrescriben el default
+      })),
+    })),
+  };
+}
+
+function loadData() {
+  // Intentar cargar v6 primero
+  const v6 = loadFromStorage(STORAGE_KEY, null);
+  if (v6) return migrateData(v6) ?? defaultData;
+
+  // Si no hay v6, intentar migrar desde v5
+  const v5 = loadFromStorage(PREV_STORAGE_KEY, null);
+  if (v5) {
+    const migrated = migrateData(v5);
+    if (migrated) return migrated;
+  }
+
+  return defaultData;
+}
+
+function loadStatusMap() {
+  // Intentar v6 primero, luego v5 como fallback
+  const v6 = loadFromStorage(STORAGE_KEY + "_status", null);
+  if (v6) return v6;
+  return loadFromStorage(PREV_STORAGE_KEY + "_status", {});
+}
+
 export function useCurriculumData() {
-  const [data, setData] = useState(() => loadFromStorage(STORAGE_KEY, defaultData));
-  const [statusMap, setStatusMap] = useState(() => loadFromStorage(STORAGE_KEY + "_status", {}));
+  const [data, setData] = useState(() => loadData());
+  const [statusMap, setStatusMap] = useState(() => loadStatusMap());
 
   // Persist on change
   useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }, [data]);
@@ -28,14 +68,28 @@ export function useCurriculumData() {
     effectiveStatus[s.id] = computeStatus(s, { ...effectiveStatus, ...statusMap });
   });
 
-  const addSubject = ({ yearId, name, correlatives }) => {
+  const addSubject = ({ yearId, name, correlatives, correlativesParaFinal }) => {
     setData(d => ({
       ...d,
       years: d.years.map(y =>
         y.id === yearId
-          ? { ...y, subjects: [...y.subjects, { id: uid(), name, correlatives }] }
+          ? { ...y, subjects: [...y.subjects, { id: uid(), name, correlatives, correlativesParaFinal: correlativesParaFinal ?? [] }] }
           : y
       ),
+    }));
+  };
+
+  const editSubject = ({ subjectId, yearId, name, correlatives, correlativesParaFinal }) => {
+    setData(d => ({
+      ...d,
+      years: d.years.map(y => ({
+        ...y,
+        subjects: y.subjects.map(s =>
+          s.id === subjectId
+            ? { ...s, name, correlatives, correlativesParaFinal: correlativesParaFinal ?? [] }
+            : s
+        ),
+      })),
     }));
   };
 
@@ -48,7 +102,8 @@ export function useCurriculumData() {
           ? y.subjects.filter(s => s.id !== subjectId)
           : y.subjects.map(s => ({
               ...s,
-              correlatives: (s.correlatives || []).filter(c => c.subjectId !== subjectId),
+              correlatives: (s.correlatives ?? []).filter(c => c.subjectId !== subjectId),
+              correlativesParaFinal: (s.correlativesParaFinal ?? []).filter(c => c.subjectId !== subjectId),
             })),
       })),
     }));
@@ -79,7 +134,8 @@ export function useCurriculumData() {
           const parsed = JSON.parse(ev.target.result);
           if (!parsed.years || !Array.isArray(parsed.years)) throw new Error();
           const { statusMap: sm, ...rest } = parsed;
-          setData(rest);
+          const migrated = migrateData(rest);
+          setData(migrated ?? rest);
           setStatusMap(sm ?? {});
           onSuccess?.();
         } catch { onError?.(); }
@@ -95,6 +151,7 @@ export function useCurriculumData() {
     effectiveStatus,
     allSubjects,
     addSubject,
+    editSubject,
     deleteSubject,
     setStatus,
     exportJSON,

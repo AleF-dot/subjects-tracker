@@ -17,7 +17,7 @@ import { useToast }          from "./hooks/useToast";
 export default function App() {
   const {
     data, effectiveStatus, allSubjects,
-    addSubject, deleteSubject, setStatus,
+    addSubject, editSubject, deleteSubject, setStatus,
     exportJSON, importJSON,
   } = useCurriculumData();
 
@@ -25,6 +25,7 @@ export default function App() {
 
   const [selectedId, setSelectedId] = useState(null);
   const [modalOpen, setModalOpen]   = useState(false);
+  const [editingSubject, setEditingSubject] = useState(null);
   const [menuAnchor, setMenuAnchor] = useState({ subjectId: null, el: null });
 
   const cardRefs = useRef({});
@@ -38,12 +39,22 @@ export default function App() {
   // Correlatives of the selected subject
   const selectedSubject = allSubjects.find(s => s.id === selectedId) ?? null;
   const correlatives    = selectedSubject?.correlatives ?? [];
+  const correlativesParaFinal = selectedSubject?.correlativesParaFinal ?? [];
+  const allCorrelatives = [
+    ...correlatives,
+    ...correlativesParaFinal.map(c => ({ ...c, forFinal: true })),
+  ];
 
-  const { arrows, animKey } = useArrows({ selectedId, correlatives, cardRefs, gridRef });
+  const { arrows, animKey } = useArrows({ selectedId, correlatives: allCorrelatives, cardRefs, gridRef });
 
   // Highlight map: subjects required by the selected one
   const highlightMap = {};
   correlatives.forEach(c => { highlightMap[c.subjectId] = { type: c.type }; });
+  correlativesParaFinal.forEach(c => {
+    if (!highlightMap[c.subjectId]) {
+      highlightMap[c.subjectId] = { type: c.type, forFinal: true };
+    }
+  });
 
   // Dim other subjects in the same year
   const selectedYear = data.years.find(y => y.subjects.some(s => s.id === selectedId));
@@ -98,6 +109,19 @@ export default function App() {
     showToast(`"${payload.name}" agregada`);
   };
 
+  const handleEdit = (payload) => {
+    editSubject(payload);
+    showToast(`"${payload.name}" actualizada ✓`);
+  };
+
+  const handleOpenEdit = (subjectId) => {
+    const subject = allSubjects.find(s => s.id === subjectId);
+    setEditingSubject(subject ?? null);
+    setModalOpen(true);
+    setSelectedId(null);
+    setMenuAnchor({ subjectId: null, el: null });
+  };
+
   const handleImport = () => importJSON(
     () => { setSelectedId(null); showToast("Plan importado ✓"); },
     () => showToast("Archivo inválido", "error")
@@ -120,7 +144,7 @@ export default function App() {
           counts={counts}
           onImport={handleImport}
           onExport={handleExport}
-          onNewSubject={() => setModalOpen(true)}
+          onNewSubject={() => { setEditingSubject(null); setModalOpen(true); }}
         />
 
         <Legend />
@@ -150,9 +174,11 @@ export default function App() {
 
       <AddModal
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={() => { setModalOpen(false); setEditingSubject(null); }}
         data={data}
         onAdd={handleAdd}
+        editSubject={editingSubject}
+        onEdit={handleEdit}
       />
 
       {toast && <Toast msg={toast.msg} type={toast.type} />}
@@ -169,6 +195,7 @@ export default function App() {
               anchor={menuAnchor.el}
               current={st === "bloqueada" ? null : st}
               onSelect={s => handleSetStatus(sid, s)}
+              onEdit={() => handleOpenEdit(sid)}
               onDelete={() => handleDelete(yearId, sid)}
               onClose={closeMenu}
             />

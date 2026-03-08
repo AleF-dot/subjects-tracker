@@ -9,12 +9,15 @@ export default function Legend() {
           <span style={{ color: s.color }}>{s.label}</span>
         </span>
       ))}
-      <span style={{ marginLeft: "auto", display: "flex", gap: "1rem" }}>
+      <span style={{ marginLeft: "auto", display: "flex", gap: "1rem", flexWrap: "wrap" }}>
         <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <span style={{ color: "#D97706", fontWeight: 700 }}>→</span> Regularizar
+          <span style={{ color: "#D97706", fontWeight: 700 }}>→</span> Para cursar (regular)
         </span>
         <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <span style={{ color: "#059669", fontWeight: 700 }}>→</span> Aprobar
+          <span style={{ color: "#059669", fontWeight: 700 }}>→</span> Para cursar (aprobada)
+        </span>
+        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <span style={{ color: "#9333EA", fontWeight: 700, opacity: 0.7 }}>╌→</span> Para final
         </span>
       </span>
     </div>
