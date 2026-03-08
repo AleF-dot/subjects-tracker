@@ -28,6 +28,7 @@ export default function App() {
   const [modalOpen, setModalOpen]   = useState(false);
   const [editingSubject, setEditingSubject] = useState(null);
   const [menuAnchor, setMenuAnchor] = useState({ subjectId: null, el: null });
+  const [arrowFilter, setArrowFilter] = useState("T"); // "T" | "C" | "A"
 
   const cardRefs = useRef({});
   const gridRef  = useRef(null);
@@ -59,7 +60,13 @@ export default function App() {
     ];
   })();
 
-  const { arrows, animKey } = useArrows({ selectedId, correlatives: allCorrelatives, cardRefs, gridRef });
+  const filteredCorrelatives = allCorrelatives.filter(c => {
+    if (arrowFilter === "C") return !c.forFinal;
+    if (arrowFilter === "A") return c.forFinal;
+    return true;
+  });
+
+  const { arrows, animKey } = useArrows({ selectedId, correlatives: filteredCorrelatives, cardRefs, gridRef });
 
   // Highlight map: subjects required by the selected one
   const highlightMap = {};
@@ -98,6 +105,7 @@ export default function App() {
   const handleCardClick = (id) => {
     setSelectedId(prev => {
       if (prev === id) { setMenuAnchor({ subjectId: null, el: null }); return null; }
+      setArrowFilter("T");
       return id;
     });
   };
@@ -179,6 +187,9 @@ export default function App() {
                   onSetStatus={handleSetStatus}
                   onDelete={handleDelete}
                   registerRef={registerRef}
+                  arrowFilter={arrowFilter}
+                  onArrowFilterChange={setArrowFilter}
+                  selectedSubject={selectedSubject}
                 />
               ))}
             </div>
