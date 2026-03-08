@@ -109,7 +109,7 @@ export default function SubjectCard({
         background: bgColor,
         border: `1px solid ${borderColor}`,
         borderRadius: "8px",
-        padding: "0.65rem 0.8rem 0.45rem 0.8rem",
+        padding: "0.65rem 0.8rem",
         opacity: dimmed ? 0.3 : 1,
         position: "relative",
         transition: "outline 0.12s, opacity 0.15s",
@@ -119,7 +119,27 @@ export default function SubjectCard({
       title={isBloqueada ? "Ver correlativas requeridas" : undefined}
     >
       <div style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem" }}>
-        <Dot status={status} dotRef={dotRef} />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, gap: "1px" }}>
+          <Dot status={status} dotRef={dotRef} />
+          {isSelected && (
+            <button
+              onClick={handleChevronClick}
+              style={{
+                background: "none", border: "none", cursor: "pointer",
+                padding: 0, lineHeight: 1,
+                color: menuOpen ? borderColor : st.dot,
+                fontSize: "0.5rem",
+                transition: "color 0.15s, transform 0.2s",
+                transform: menuOpen ? "rotate(180deg)" : "rotate(0deg)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                width: "8px", height: "6px",
+              }}
+              title={menuOpen ? "Cerrar menú" : "Abrir menú"}
+            >
+              ▾
+            </button>
+          )}
+        </div>
         <span style={{ fontSize: "0.82rem", fontWeight: 400, color: st.color, lineHeight: 1.3, flex: 1 }}>
           {subject.name}
         </span>
@@ -151,26 +171,7 @@ export default function SubjectCard({
         </div>
       )}
 
-      {/* Chevron debajo del dot — solo controla el menu */}
-      <div style={{ display: "flex", justifyContent: "flex-start", paddingLeft: "1px", marginTop: "0.18rem" }}>
-        <button
-          onClick={handleChevronClick}
-          style={{
-            background: "none", border: "none", cursor: "pointer",
-            padding: "0 2px", lineHeight: 1,
-            color: menuOpen ? borderColor : st.dot,
-            fontSize: "0.62rem",
-            opacity: isSelected ? 1 : 0.45,
-            transition: "opacity 0.15s, color 0.15s, transform 0.2s",
-            transform: menuOpen ? "rotate(180deg)" : "rotate(0deg)",
-            width: "10px",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}
-          title={menuOpen ? "Cerrar menú" : "Abrir menú"}
-        >
-          ▾
-        </button>
-      </div>
+
     </div>
   );
 }
