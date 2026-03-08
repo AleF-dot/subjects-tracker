@@ -8,9 +8,9 @@ const SolidArrow = ({ color }) => (
 );
 
 const DashArrow = ({ color }) => (
-  <svg width="22" height="10" style={{ display: "inline-block", verticalAlign: "middle", opacity: 0.8 }}>
+  <svg width="22" height="10" style={{ display: "inline-block", verticalAlign: "middle" }}>
     <line x1="0" y1="5" x2="16" y2="5" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeDasharray="4 3" />
-    <polygon points="13,2 20,5 13,8" fill={color} fillOpacity="0.8" />
+    <polygon points="13,2 20,5 13,8" fill={color} />
   </svg>
 );
 
@@ -31,10 +31,10 @@ export default function Legend() {
           <SolidArrow color="#059669" /> Aprobada (cursar)
         </span>
         <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <DashArrow color="#D97706" /> Regular (final)
+          <DashArrow color="#3B82F6" /> Regular (final)
         </span>
         <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <DashArrow color="#059669" /> Aprobada (final)
+          <DashArrow color="#8B5CF6" /> Aprobada (final)
         </span>
       </span>
     </div>

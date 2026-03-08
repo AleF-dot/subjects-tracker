@@ -1,16 +1,16 @@
 import { buildPath, estimateLen } from "../utils/arrowHelpers";
 
 // Color = tipo de requisito
-// Sólidas (para cursar): naranja fuerte / verde fuerte
-// Punteadas (para final): versión más apagada/azulada para distinguirlas
+// Sólidas (para cursar): naranja / verde
+// Punteadas (para final): azul / violeta — máxima diferenciación
 const TYPE_COLOR_CURSAR = { regular: "#D97706", aprobada: "#059669" };
-const TYPE_COLOR_FINAL  = { regular: "#9B6F2F", aprobada: "#1D6B5E" };
+const TYPE_COLOR_FINAL  = { regular: "#3B82F6", aprobada: "#8B5CF6" };
 
 const MARKERS = [
-  { id: "mAmberSolid",   color: "#D97706", opacity: 1    },
-  { id: "mAmberDash",    color: "#9B6F2F", opacity: 1    },
-  { id: "mEmeraldSolid", color: "#059669", opacity: 1    },
-  { id: "mEmeraldDash",  color: "#1D6B5E", opacity: 1    },
+  { id: "mAmberSolid",   color: "#D97706" },
+  { id: "mAmberDash",    color: "#3B82F6" },
+  { id: "mEmeraldSolid", color: "#059669" },
+  { id: "mEmeraldDash",  color: "#8B5CF6" },
 ];
 
 const MARKER_ID = {
@@ -30,7 +30,7 @@ export default function ArrowOverlay({ arrows, animKey }) {
       <defs>
         {MARKERS.map(m => (
           <marker key={m.id} id={m.id} markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto" markerUnits="userSpaceOnUse">
-            <path d="M0,1.5 L0,6.5 L7,4z" fill={m.color} fillOpacity={m.opacity} />
+            <path d="M0,1.5 L0,6.5 L7,4z" fill={m.color} />
           </marker>
         ))}
       </defs>

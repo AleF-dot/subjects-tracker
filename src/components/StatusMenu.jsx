@@ -34,7 +34,7 @@ export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete
       onClick={e => e.stopPropagation()}
       style={{ position: "fixed", top, left, width: menuW, zIndex: 800 }}
     >
-      {STATUS_ORDER.map(s => {
+      {(allowed.cursando || allowed.regular || allowed.aprobada) && STATUS_ORDER.map(s => {
         const blocked = !allowed[s];
         const isActive = current === s;
         return (
@@ -60,7 +60,7 @@ export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete
       <button
         className="status-menu-item"
         onClick={() => { onEdit(); onClose(); }}
-        style={{ borderTop: "1px solid #E0DAD0", color: "#555" }}
+        style={{ borderTop: (allowed.cursando || allowed.regular || allowed.aprobada) ? "1px solid #E0DAD0" : "none", color: "#555" }}
       >
         <span style={{ fontSize: "0.8rem" }}>✎</span> Editar materia
       </button>
