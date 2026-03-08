@@ -1,23 +1,14 @@
 import { useState, useRef, useCallback, useLayoutEffect, useEffect } from "react";
 import { resolveArrowPoints } from "../utils/arrowHelpers";
 
-/**
- * Manages arrow computation, animation key, and position recalculation
- * when the selected subject or layout changes.
- */
-export function useArrows({ selectedId, correlatives, cardRefs, gridRef }) {
+export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef }) {
   const [arrows, setArrows] = useState([]);
   const [animKey, setAnimKey] = useState(0);
   const rafRef = useRef(null);
 
-  // Store correlatives in a ref so callbacks don't need it as a dependency,
-  // preventing the infinite loop: correlatives (new array ref) → useCallback
-  // recreates → useLayoutEffect re-runs → setState → re-render → repeat.
   const correlativesRef = useRef(correlatives);
   useEffect(() => { correlativesRef.current = correlatives; }, [correlatives]);
 
-  // Recompute when filter changes: correlatives content changes but selectedId stays the same.
-  // We derive a stable key from the filtered set to detect actual changes.
   const filterKey = correlatives.map(c => `${c.subjectId}-${c.forFinal ? "f" : "c"}`).join(",");
   const prevFilterKeyRef = useRef(filterKey);
   useLayoutEffect(() => {
@@ -27,57 +18,59 @@ export function useArrows({ selectedId, correlatives, cardRefs, gridRef }) {
     correlativesRef.current = correlatives;
     cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => { computeArrows(); });
-  // computeArrows is stable (depends only on selectedId+cardRefs); filterKey and correlatives are the real triggers
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterKey, selectedId]);
 
   const computeArrows = useCallback(() => {
     const corrs = correlativesRef.current;
     if (!selectedId || corrs.length === 0) { setArrows([]); return; }
-    const targetEl = cardRefs.current[selectedId];
+
+    // Prefer dot elements; fall back to card center if dot not mounted yet
+    const getPoint = (id) => {
+      const dotEl = dotRefs?.current?.[id];
+      if (dotEl) return dotEl;
+      return cardRefs.current[id] ?? null;
+    };
+
+    const targetEl = getPoint(selectedId);
     if (!targetEl) { setArrows([]); return; }
-    const tRect = targetEl.getBoundingClientRect();
 
     const next = corrs.map(c => {
-      const el = cardRefs.current[c.subjectId];
+      const el = getPoint(c.subjectId);
       if (!el) return null;
-      const r = el.getBoundingClientRect();
-      const { x1, y1, x2, y2, dir } = resolveArrowPoints(r, tRect, c.offsetSide ?? 0);
+      const { x1, y1, x2, y2, dir } = resolveArrowPoints(el, targetEl, c.offsetSide ?? 0);
       const uid = `${selectedId}-${c.subjectId}-${c.forFinal ? "final" : "cursar"}`;
       return { id: uid, x1, y1, x2, y2, dir, type: c.type, forFinal: c.forFinal ?? false };
     }).filter(Boolean);
 
     setArrows(next);
-  }, [selectedId, cardRefs]);
+  }, [selectedId, cardRefs, dotRefs]);
 
   const recomputePositions = useCallback(() => {
     const corrs = correlativesRef.current;
     if (!selectedId || corrs.length === 0) { setArrows([]); return; }
-    const targetEl = cardRefs.current[selectedId];
+
+    const getPoint = (id) => dotRefs?.current?.[id] ?? cardRefs.current[id] ?? null;
+    const targetEl = getPoint(selectedId);
     if (!targetEl) return;
-    const tRect = targetEl.getBoundingClientRect();
 
     setArrows(prev => prev.map(a => {
-      // ID format: `${selectedId}-${subjectId}-cursar` or `-final`
       const parts = a.id.replace(`${selectedId}-`, "").split("-");
-      const corrId = parts.slice(0, -1).join("-"); // everything except last segment
-      const el = cardRefs.current[corrId];
+      const corrId = parts.slice(0, -1).join("-");
+      const el = getPoint(corrId);
       if (!el) return a;
       const corr = corrs.find(c => c.subjectId === corrId && (c.forFinal ? "final" : "cursar") === parts[parts.length - 1]);
-      const r = el.getBoundingClientRect();
-      const { x1, y1, x2, y2, dir } = resolveArrowPoints(r, tRect, corr?.offsetSide ?? 0);
+      const { x1, y1, x2, y2, dir } = resolveArrowPoints(el, targetEl, corr?.offsetSide ?? 0);
       return { ...a, x1, y1, x2, y2, dir };
     }));
-  }, [selectedId, cardRefs]);
+  }, [selectedId, cardRefs, dotRefs]);
 
-  // Initial draw when selection changes
   useLayoutEffect(() => {
     if (!selectedId) { setArrows([]); return; }
     rafRef.current = requestAnimationFrame(() => { computeArrows(); setAnimKey(k => k + 1); });
     return () => cancelAnimationFrame(rafRef.current);
   }, [selectedId, computeArrows]);
 
-  // Recompute on resize / scroll
   useEffect(() => {
     const onResize = () => {
       cancelAnimationFrame(rafRef.current);
@@ -86,7 +79,7 @@ export function useArrows({ selectedId, correlatives, cardRefs, gridRef }) {
     const ro = new ResizeObserver(onResize);
     if (gridRef.current) ro.observe(gridRef.current);
     window.addEventListener("resize", onResize);
-    return () => { ro.disconnect(); window.removeEventListener("resize", onResize); };
+    return () => { ro.disconnect(); window.removeEventListener("resize", onResize); }
   }, [recomputePositions, gridRef]);
 
   useEffect(() => {

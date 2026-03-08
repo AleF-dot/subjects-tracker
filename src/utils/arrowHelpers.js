@@ -42,31 +42,39 @@ export function estimateLen(x1, y1, x2, y2, dir) {
 }
 
 /**
- * Determines the arrow direction and attachment points
- * between a correlative element and the target element.
- * offsetSide: 0 = no offset, 1 = offset downward slightly (for overlapping arrows to same target)
+ * Returns center {x, y} of a DOM element relative to viewport.
  */
-export function resolveArrowPoints(corrRect, targetRect, offsetSide = 0) {
-  const SAME_THRESH = 40;
-  const VERT_OFFSET = offsetSide * 8; // pixels to shift vertically when two arrows share same pair
-  const corrCenterX = corrRect.left + corrRect.width / 2;
-  const targCenterX = targetRect.left + targetRect.width / 2;
+function elCenter(el) {
+  const r = el.getBoundingClientRect();
+  return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+}
 
-  let x1, y1, x2, y2, dir;
+/**
+ * Determines the arrow direction and attachment points between two dots.
+ * corrDot / targetDot: DOM elements of the dot spans.
+ * offsetSide: vertical offset for overlapping arrows.
+ */
+export function resolveArrowPoints(corrDotEl, targetDotEl, offsetSide = 0) {
+  const VERT_OFFSET = offsetSide * 10;
 
-  if (Math.abs(corrCenterX - targCenterX) < SAME_THRESH) {
+  const c = elCenter(corrDotEl);
+  const t = elCenter(targetDotEl);
+
+  const cx = c.x;
+  const tx = t.x;
+
+  let dir;
+  if (Math.abs(cx - tx) < 40) {
+    dir = "same";
+  } else if (cx < tx) {
     dir = "ltr";
-    x1 = corrRect.right;   y1 = corrRect.top + corrRect.height / 2 + VERT_OFFSET;
-    x2 = targetRect.left;  y2 = targetRect.top + targetRect.height / 2 + VERT_OFFSET;
-  } else if (corrCenterX < targCenterX) {
-    dir = "ltr";
-    x1 = corrRect.right;   y1 = corrRect.top + corrRect.height / 2 + VERT_OFFSET;
-    x2 = targetRect.left;  y2 = targetRect.top + targetRect.height / 2 + VERT_OFFSET;
   } else {
     dir = "rtl";
-    x1 = corrRect.left;    y1 = corrRect.top + corrRect.height / 2 + VERT_OFFSET;
-    x2 = targetRect.right; y2 = targetRect.top + targetRect.height / 2 + VERT_OFFSET;
   }
 
-  return { x1, y1, x2, y2, dir };
+  return {
+    x1: c.x, y1: c.y + VERT_OFFSET,
+    x2: t.x, y2: t.y + VERT_OFFSET,
+    dir,
+  };
 }

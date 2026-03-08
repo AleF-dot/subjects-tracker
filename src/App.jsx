@@ -33,11 +33,17 @@ export default function App() {
   const [exitingIds, setExitingIds] = useState(() => new Set());
 
   const cardRefs = useRef({});
+  const dotRefs  = useRef({});
   const gridRef  = useRef(null);
 
   const registerRef = useCallback((id, el) => {
     if (el) cardRefs.current[id] = el;
     else    delete cardRefs.current[id];
+  }, []);
+
+  const registerDotRef = useCallback((id, el) => {
+    if (el) dotRefs.current[id] = el;
+    else    delete dotRefs.current[id];
   }, []);
 
   // Correlatives of the selected subject
@@ -68,7 +74,7 @@ export default function App() {
     return true;
   });
 
-  const { arrows, animKey } = useArrows({ selectedId, correlatives: filteredCorrelatives, cardRefs, gridRef });
+  const { arrows, animKey } = useArrows({ selectedId, correlatives: filteredCorrelatives, cardRefs, dotRefs, gridRef });
 
   // Highlight map: subjects required by the selected one
   const highlightMap = {};
@@ -90,13 +96,20 @@ export default function App() {
 
   // Click outside grid/menu → deselect
   const menuPortalRef = useRef(null);
+  const menuAnchorRef = useRef({ subjectId: null, el: null });
+  // Keep ref in sync with state so the mousedown closure sees fresh value
+  menuAnchorRef.current = menuAnchor;
   useEffect(() => {
     const fn = e => {
-      const inGrid = gridRef.current?.contains(e.target);
       const inMenu = menuPortalRef.current?.contains(e.target);
+      const inGrid = gridRef.current?.contains(e.target);
+      // Cerrar menu si click fuera del menu (aunque sea dentro del grid)
+      if (!inMenu && menuAnchorRef.current.subjectId) {
+        setMenuAnchor({ subjectId: null, el: null });
+      }
+      // Deseleccionar si click fuera del grid Y fuera del menu
       if (!inGrid && !inMenu) {
         setSelectedId(null);
-        setMenuAnchor({ subjectId: null, el: null });
       }
     };
     document.addEventListener("mousedown", fn);
@@ -106,7 +119,9 @@ export default function App() {
   /* ── Handlers ── */
   const handleCardClick = (id) => {
     setSelectedId(prev => {
-      if (prev === id) { setMenuAnchor({ subjectId: null, el: null }); return null; }
+      if (prev === id) return null; // deseleccionar
+      // Cerrar menu si estaba abierto para otra card
+      setMenuAnchor(m => m.subjectId && m.subjectId !== id ? { subjectId: null, el: null } : m);
       setArrowFilter("T");
       return id;
     });
@@ -197,9 +212,11 @@ export default function App() {
                   onSetStatus={handleSetStatus}
                   onDelete={handleDelete}
                   registerRef={registerRef}
+                  registerDotRef={registerDotRef}
                   arrowFilter={arrowFilter}
                   onArrowFilterChange={setArrowFilter}
                   selectedSubject={selectedSubject}
+                  menuOpenId={menuAnchor.subjectId}
                   newIds={newIds}
                   exitingIds={exitingIds}
                 />

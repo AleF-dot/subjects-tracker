@@ -1,9 +1,9 @@
 import SubjectCard from "./SubjectCard";
 
 export default function YearColumn({
-  year, selectedId, highlightMap, dimmedIds, statusMap,
+  year, selectedId, menuOpenId, highlightMap, dimmedIds, statusMap,
   onCardClick, onOpenMenu, onSetStatus, onDelete,
-  registerRef, arrowFilter, onArrowFilterChange, selectedSubject,
+  registerRef, registerDotRef, arrowFilter, onArrowFilterChange, selectedSubject,
   newIds, exitingIds,
 }) {
   return (
@@ -30,11 +30,13 @@ export default function YearColumn({
               highlightType={hlEntry?.forFinal ? `forFinal-${hlEntry.type}` : hlEntry?.type}
               dimmed={dimmedIds.has(s.id)}
               isSelected={s.id === selectedId}
+              menuOpen={s.id === menuOpenId}
               onCardClick={onCardClick}
               onOpenMenu={onOpenMenu}
               onSetStatus={onSetStatus}
               onDelete={(id) => onDelete(year.id, id)}
               cardRef={el => registerRef(s.id, el)}
+              dotRef={el => registerDotRef(s.id, el)}
               arrowFilter={s.id === selectedId ? arrowFilter : undefined}
               onArrowFilterChange={s.id === selectedId ? onArrowFilterChange : undefined}
               selectedSubject={s.id === selectedId ? selectedSubject : undefined}
