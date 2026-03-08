@@ -13,6 +13,7 @@ import Toast         from "./components/Toast";
 import { useCurriculumData } from "./hooks/useCurriculumData";
 import { useArrows }         from "./hooks/useArrows";
 import { useToast }          from "./hooks/useToast";
+import { canAprobar }        from "./utils/statusLogic";
 
 export default function App() {
   const {
@@ -201,6 +202,8 @@ export default function App() {
         const sid    = menuAnchor.subjectId;
         const st     = effectiveStatus[sid];
         const yearId = data.years.find(y => y.subjects.some(s => s.id === sid))?.id;
+        const subject = allSubjects.find(s => s.id === sid);
+        const puedeAprobar = subject ? canAprobar(subject, effectiveStatus) : true;
         const closeMenu = () => { setMenuAnchor({ subjectId: null, el: null }); setSelectedId(null); };
         return createPortal(
           <div ref={menuPortalRef}>
@@ -211,6 +214,7 @@ export default function App() {
               onEdit={() => handleOpenEdit(sid)}
               onDelete={() => handleDelete(yearId, sid)}
               onClose={closeMenu}
+              puedeAprobar={puedeAprobar}
             />
           </div>,
           document.body

@@ -2,7 +2,7 @@ import { useRef } from "react";
 import Dot from "./Dot";
 import { STATUS, STATUS_ORDER } from "../utils/constants";
 
-export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete, onClose }) {
+export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete, onClose, puedeAprobar = true }) {
   const ref  = useRef(null);
   const rect = anchor?.getBoundingClientRect();
 
@@ -23,17 +23,24 @@ export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete
       onClick={e => e.stopPropagation()}
       style={{ position: "fixed", top, left, width: menuW, zIndex: 800 }}
     >
-      {current !== null && STATUS_ORDER.map(s => (
-        <button
-          key={s}
-          className={`status-menu-item${current === s ? " active" : ""}`}
-          onClick={() => { onSelect(s); onClose(); }}
-        >
-          <Dot status={s} />
-          <span style={{ color: STATUS[s].color }}>{STATUS[s].label}</span>
-          {current === s && <span style={{ marginLeft: "auto", fontSize: "0.65rem", color: "#bbb" }}>✓</span>}
-        </button>
-      ))}
+      {current !== null && STATUS_ORDER.map(s => {
+        const blocked = s === "aprobada" && !puedeAprobar;
+        return (
+          <button
+            key={s}
+            className={`status-menu-item${current === s ? " active" : ""}`}
+            onClick={() => { if (!blocked) { onSelect(s); onClose(); } }}
+            disabled={blocked}
+            title={blocked ? "Correlativas para final incompletas" : undefined}
+            style={blocked ? { opacity: 0.4, cursor: "not-allowed" } : {}}
+          >
+            <Dot status={s} />
+            <span style={{ color: STATUS[s].color }}>{STATUS[s].label}</span>
+            {current === s && <span style={{ marginLeft: "auto", fontSize: "0.65rem", color: "#bbb" }}>✓</span>}
+            {blocked && <span style={{ marginLeft: "auto", fontSize: "0.62rem", color: "#aaa" }}>correlativas pendientes</span>}
+          </button>
+        );
+      })}
       <button
         className="status-menu-item"
         onClick={() => { onEdit(); onClose(); }}
