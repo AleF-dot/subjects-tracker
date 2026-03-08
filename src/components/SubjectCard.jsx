@@ -14,15 +14,18 @@ export default function SubjectCard({
   const [pulsing, setPulsing] = useState(false);
   const [flashing, setFlashing] = useState(false);
   const prevStatusRef = useRef(status);
+  const prevSelectedRef = useRef(isSelected);
 
   const st = STATUS[status];
   const isBloqueada = status === "bloqueada";
 
-  // Pulso al seleccionar
+  // Pulso SOLO al transición false→true de isSelected, no en re-renders
   useEffect(() => {
-    if (isSelected) {
+    const wasSelected = prevSelectedRef.current;
+    prevSelectedRef.current = isSelected;
+    if (!wasSelected && isSelected) {
       setPulsing(true);
-      const t = setTimeout(() => setPulsing(false), 500);
+      const t = setTimeout(() => setPulsing(false), 220);
       return () => clearTimeout(t);
     }
   }, [isSelected]);
@@ -31,7 +34,7 @@ export default function SubjectCard({
   useEffect(() => {
     if (prevStatusRef.current !== status) {
       setFlashing(true);
-      const t = setTimeout(() => setFlashing(false), 400);
+      const t = setTimeout(() => setFlashing(false), 350);
       prevStatusRef.current = status;
       return () => clearTimeout(t);
     }
@@ -53,6 +56,15 @@ export default function SubjectCard({
     }
   };
 
+  const handleBadgeClick = (e) => {
+    e.stopPropagation();
+    setBadgePressed(true);
+    setTimeout(() => setBadgePressed(false), 120);
+    const idx = filterOptions.indexOf(arrowFilter);
+    const next = filterOptions[(idx + 1) % filterOptions.length];
+    onArrowFilterChange(next);
+  };
+
   const borderColor = highlighted
     ? (highlightType === "forFinal-regular"
         ? "#3B82F6"
@@ -69,7 +81,6 @@ export default function SubjectCard({
         : (highlightType === "regular" ? "#FDE68A" : "#A7F3D0"))
     : st.bg;
 
-  // Badge T/C/A
   const hasCursar  = isSelected && selectedSubject && (selectedSubject.correlatives ?? []).length > 0;
   const hasAprobar = isSelected && selectedSubject && (selectedSubject.correlativesParaFinal ?? []).length > 0;
   const filterOptions = isSelected
@@ -77,33 +88,21 @@ export default function SubjectCard({
     : [];
   const showBadge = filterOptions.length > 1;
 
-  const handleBadgeClick = (e) => {
-    e.stopPropagation();
-    setBadgePressed(true);
-    setTimeout(() => setBadgePressed(false), 120);
-    const idx = filterOptions.indexOf(arrowFilter);
-    const next = filterOptions[(idx + 1) % filterOptions.length];
-    onArrowFilterChange(next);
-  };
-
-  // CSS classes
   const classes = [
     "subject-card",
     isBloqueada ? "bloqueada" : "",
-    isNew ? "card-enter" : "",
-    isExiting ? "card-exit" : "",
-    pulsing && isSelected ? "card-selected-pulse" : "",
-    flashing ? "card-status-flash" : "",
+    isNew     ? "card-enter"       : "",
+    isExiting ? "card-exit"        : "",
+    flashing  ? "card-status-flash": "",
   ].filter(Boolean).join(" ");
 
-  // --pulse-color via inline style based on status
-  const pulseColor = {
-    cursando:  "rgba(59,130,246,0.45)",
-    regular:   "rgba(245,158,11,0.45)",
-    aprobada:  "rgba(16,185,129,0.45)",
-    bloqueada: "rgba(239,68,68,0.45)",
-    disponible:"rgba(107,114,128,0.35)",
-  }[status] ?? "rgba(0,0,0,0.2)";
+  // outline no se corta por overflow de parents — reemplaza box-shadow para el glow
+  // El pulso también usa outline via animación CSS
+  const outlineStyle = isSelected && !isBloqueada && pulsing
+    ? { outline: `3px solid ${borderColor}`, outlineOffset: "2px" }
+    : isSelected && !isBloqueada
+    ? { outline: `2px solid ${borderColor}`, outlineOffset: "1px" }
+    : { outline: "none" };
 
   return (
     <div
@@ -111,16 +110,14 @@ export default function SubjectCard({
       data-subject-id={subject.id}
       className={classes}
       style={{
-        "--pulse-color": pulseColor,
         background: bgColor,
         border: `1px solid ${borderColor}`,
         borderRadius: "8px",
         padding: "0.65rem 0.8rem",
         opacity: dimmed ? 0.3 : 1,
-        boxShadow: isSelected && !isBloqueada
-          ? `0 0 0 2px ${borderColor}, 0 4px 12px ${borderColor}55`
-          : "none",
         position: "relative",
+        transition: "outline 0.12s, opacity 0.15s",
+        ...outlineStyle,
       }}
       onClick={handleClick}
       title={isBloqueada ? "Ver correlativas requeridas" : undefined}
@@ -129,7 +126,7 @@ export default function SubjectCard({
         <Dot status={status} />
         <span style={{
           fontSize: "0.82rem",
-          fontWeight: highlighted ? 600 : 400,
+          fontWeight: 400,
           color: st.color,
           lineHeight: 1.3,
           flex: 1,

@@ -20,80 +20,55 @@ export default function GlobalStyles() {
       @keyframes menuIn    { from { opacity: 0; transform: translateY(-4px) scale(.98) } to { opacity: 1; transform: translateY(0) scale(1) } }
       @keyframes drawPath  { to { stroke-dashoffset: 0 } }
 
-      /* Pulso al seleccionar — ring que se expande y desvanece */
-      @keyframes selectPulse {
-        0%   { box-shadow: 0 0 0 0px var(--pulse-color, rgba(59,130,246,0.5)); }
-        50%  { box-shadow: 0 0 0 6px var(--pulse-color, rgba(59,130,246,0)); }
-        100% { box-shadow: 0 0 0 6px var(--pulse-color, rgba(59,130,246,0)); }
-      }
-
-      /* Pop de entrada al agregar */
+      /* Entrada al agregar — pop elástico */
       @keyframes cardEnter {
-        0%   { opacity: 0; transform: scale(0.82) translateY(8px); }
-        65%  { opacity: 1; transform: scale(1.04) translateY(-2px); }
+        0%   { opacity: 0; transform: scale(0.82) translateY(6px); }
+        65%  { opacity: 1; transform: scale(1.03) translateY(-1px); }
         100% { opacity: 1; transform: scale(1) translateY(0); }
       }
 
-      /* Pop de salida al eliminar */
+      /* Salida al eliminar */
       @keyframes cardExit {
-        0%   { opacity: 1; transform: scale(1); max-height: 120px; margin-bottom: 0; }
-        30%  { opacity: 1; transform: scale(1.05); }
-        100% { opacity: 0; transform: scale(0.75) translateY(-6px); max-height: 0; margin-bottom: -0.4rem; }
+        0%   { opacity: 1; transform: scale(1);    max-height: 120px; padding-top: 0.65rem; padding-bottom: 0.65rem; margin-bottom: 0; }
+        25%  { opacity: 1; transform: scale(1.04); }
+        100% { opacity: 0; transform: scale(0.78) translateY(-4px); max-height: 0; padding-top: 0; padding-bottom: 0; margin-bottom: -0.4rem; }
       }
 
-      /* Flash de color al cambiar status */
+      /* Flash de status */
       @keyframes statusFlash {
-        0%   { filter: brightness(1); }
-        25%  { filter: brightness(1.18) saturate(1.4); }
-        100% { filter: brightness(1); }
-      }
-
-      /* Shimmer sutil al hover */
-      @keyframes shimmer {
-        0%   { background-position: -200% center; }
-        100% { background-position: 200% center; }
+        0%   { filter: brightness(1) saturate(1); }
+        30%  { filter: brightness(1.15) saturate(1.5); }
+        100% { filter: brightness(1) saturate(1); }
       }
 
       /* ── Subject cards ─────────────────────────────────────────────── */
       .subject-card {
         cursor: pointer;
         user-select: none;
-        transition: filter 0.15s, transform 0.18s, opacity 0.18s, box-shadow 0.2s;
+        transition: filter 0.15s, transform 0.15s, opacity 0.15s;
         position: relative;
         will-change: transform;
       }
       .subject-card:hover {
-        filter: brightness(0.94) saturate(1.1);
+        filter: brightness(0.93) saturate(1.1);
         transform: translateY(-1px);
       }
       .subject-card:active {
-        transform: scale(0.97) translateY(0);
-        filter: brightness(0.9);
+        transform: scale(0.97);
+        filter: brightness(0.88);
         transition: transform 0.07s, filter 0.07s;
       }
-      .subject-card.bloqueada:hover {
-        filter: brightness(0.94);
-        transform: translateY(-1px);
-      }
 
-      /* Clase aplicada al seleccionar — pulso único */
-      .subject-card.card-selected-pulse {
-        animation: selectPulse 0.45s ease-out forwards;
-      }
-
-      /* Entrada al agregar */
       .subject-card.card-enter {
-        animation: cardEnter 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        animation: cardEnter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
       }
 
-      /* Salida al eliminar */
       .subject-card.card-exit {
-        animation: cardExit 0.28s ease-in forwards;
+        animation: cardExit 0.26s ease-in forwards;
         pointer-events: none;
         overflow: hidden;
       }
 
-      /* Flash tras cambio de status */
       .subject-card.card-status-flash {
         animation: statusFlash 0.35s ease-out forwards;
       }
@@ -111,10 +86,7 @@ export default function GlobalStyles() {
         transition: background 0.1s, transform 0.1s; border: none; background: transparent;
         width: 100%; text-align: left;
       }
-      .status-menu-item:hover {
-        background: #F5F2EC;
-        transform: translateX(2px);
-      }
+      .status-menu-item:hover { background: #F5F2EC; transform: translateX(2px); }
       .status-menu-item:active { transform: translateX(2px) scale(0.98); }
       .status-menu-item.active { background: #F0EDE7; font-weight: 500; }
       .status-menu-item + .status-menu-item { border-top: 1px solid #F0EDE7; }
@@ -127,7 +99,7 @@ export default function GlobalStyles() {
         transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
       }
       .btn-primary:hover { background: #333; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.18); }
-      .btn-primary:active { transform: translateY(0) scale(0.97); box-shadow: none; }
+      .btn-primary:active { transform: scale(0.97); box-shadow: none; }
 
       .btn-ghost {
         background: transparent; color: #888; border: 1px solid #D5D0C8;
@@ -135,7 +107,7 @@ export default function GlobalStyles() {
         cursor: pointer; letter-spacing: 0.03em; transition: all 0.15s;
       }
       .btn-ghost:hover { border-color: #999; color: #444; transform: translateY(-1px); }
-      .btn-ghost:active { transform: translateY(0); }
+      .btn-ghost:active { transform: scale(0.97); }
 
       /* ── Inputs ────────────────────────────────────────────────────── */
       .input-field {
@@ -153,7 +125,7 @@ export default function GlobalStyles() {
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%23999' d='M5 7L0 2h10z'/%3E%3C/svg%3E");
         background-repeat: no-repeat; background-position: right 0.8rem center;
       }
-      .select-field:focus { border-color: #999; }
+      .select-menu-item:focus { border-color: #999; }
       .select-field option { background: #F5F2EC; }
     `}</style>
   );
