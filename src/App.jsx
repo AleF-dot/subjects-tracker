@@ -77,12 +77,12 @@ export default function App() {
     }
   });
 
-  // Dim other subjects in the same year
-  const selectedYear = data.years.find(y => y.subjects.some(s => s.id === selectedId));
-  const dimmedIds    = new Set();
-  if (selectedYear) {
-    selectedYear.subjects.forEach(s => {
-      if (s.id !== selectedId && !highlightMap[s.id]) dimmedIds.add(s.id);
+  const dimmedIds = new Set();
+  if (selectedId) {
+    data.years.forEach(y => {
+      y.subjects.forEach(s => {
+        if (s.id !== selectedId && !highlightMap[s.id]) dimmedIds.add(s.id);
+      });
     });
   }
 

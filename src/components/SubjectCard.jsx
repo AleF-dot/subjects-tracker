@@ -32,10 +32,18 @@ export default function SubjectCard({ subject, status, highlighted, highlightTyp
   };
 
   const borderColor = highlighted
-    ? (highlightType === "regular" ? "#F59E0B" : "#10B981")
+    ? (highlightType === "forFinal-regular"
+        ? "#3B82F6"
+        : highlightType === "forFinal-aprobada"
+        ? "#8B5CF6"
+        : (highlightType === "regular" ? "#F59E0B" : "#10B981"))
     : st.border;
   const bgColor = highlighted
-    ? (highlightType === "regular" ? "#FEF9EC" : "#ECFDF5")
+    ? (highlightType === "forFinal-regular"
+        ? "#EFF6FF"
+        : highlightType === "forFinal-aprobada"
+        ? "#F5F3FF"
+        : (highlightType === "regular" ? "#FEF9EC" : "#ECFDF5"))
     : st.bg;
 
   // Compute which filter options are available for this subject

@@ -22,7 +22,7 @@ export default function YearColumn({ year, selectedId, highlightMap, dimmedIds, 
               subject={s}
               status={status}
               highlighted={!!hlEntry}
-              highlightType={hlEntry?.type}
+              highlightType={hlEntry?.forFinal ? `forFinal-${hlEntry.type}` : hlEntry?.type}
               dimmed={dimmedIds.has(s.id)}
               isSelected={s.id === selectedId}
               onCardClick={onCardClick}

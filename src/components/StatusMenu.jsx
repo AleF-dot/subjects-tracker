@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState, useLayoutEffect } from "react";
 import Dot from "./Dot";
 import { STATUS, STATUS_ORDER } from "../utils/constants";
 
@@ -19,14 +19,22 @@ export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete
   const allowed = allowedStatuses ?? { disponible: true, cursando: true, regular: true, aprobada: true };
 
   const menuW = Math.max(rect?.width ?? 160, 170);
-  const menuH = 290;
   const spaceBelow = rect ? window.innerHeight - rect.bottom : 999;
 
-  const rawTop  = rect ? (spaceBelow > menuH ? rect.bottom + 6 : rect.top - menuH - 6) : 0;
+  // Render first below (or off-screen) to measure real height, then reposition.
+  const [measuredH, setMeasuredH] = useState(null);
+  useLayoutEffect(() => {
+    if (ref.current) setMeasuredH(ref.current.offsetHeight);
+  });
+
+  const menuH = measuredH ?? 999; // before measurement, assume fits below
+  const opensUp = rect ? spaceBelow < menuH + 6 : false;
+
+  const rawTop  = rect ? (opensUp ? rect.top - menuH - 6 : rect.bottom + 6) : 0;
   const rawLeft = rect ? rect.left : 0;
 
-  const top  = Math.max(8, Math.min(rawTop,  window.innerHeight - menuH - 8));
-  const left = Math.max(8, Math.min(rawLeft, window.innerWidth  - menuW  - 8));
+  const top  = measuredH ? Math.max(8, Math.min(rawTop, window.innerHeight - menuH - 8)) : -9999;
+  const left = Math.max(8, Math.min(rawLeft, window.innerWidth - menuW - 8));
 
   return (
     <div
