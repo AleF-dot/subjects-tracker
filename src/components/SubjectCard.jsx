@@ -1,19 +1,41 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Dot from "./Dot";
 import { STATUS } from "../utils/constants";
 
-// Color fijo del badge — neutro, independiente del status
-const BADGE_COLOR = "#C1694F"; 
+const BADGE_COLOR = "#C1694F";
 
 export default function SubjectCard({
   subject, status, highlighted, highlightType, dimmed, isSelected,
   onCardClick, onOpenMenu, cardRef, arrowFilter, onArrowFilterChange,
-  selectedSubject,
+  selectedSubject, isNew, isExiting,
 }) {
   const innerRef = useRef(null);
   const [badgePressed, setBadgePressed] = useState(false);
+  const [pulsing, setPulsing] = useState(false);
+  const [flashing, setFlashing] = useState(false);
+  const prevStatusRef = useRef(status);
+
   const st = STATUS[status];
   const isBloqueada = status === "bloqueada";
+
+  // Pulso al seleccionar
+  useEffect(() => {
+    if (isSelected) {
+      setPulsing(true);
+      const t = setTimeout(() => setPulsing(false), 500);
+      return () => clearTimeout(t);
+    }
+  }, [isSelected]);
+
+  // Flash al cambiar status
+  useEffect(() => {
+    if (prevStatusRef.current !== status) {
+      setFlashing(true);
+      const t = setTimeout(() => setFlashing(false), 400);
+      prevStatusRef.current = status;
+      return () => clearTimeout(t);
+    }
+  }, [status]);
 
   const setRef = (el) => {
     innerRef.current = el;
@@ -41,10 +63,10 @@ export default function SubjectCard({
 
   const bgColor = highlighted
     ? (highlightType === "forFinal-regular"
-        ? "#EFF6FF"
+        ? "#DBEAFE"
         : highlightType === "forFinal-aprobada"
-        ? "#F5F3FF"
-        : (highlightType === "regular" ? "#FEF9EC" : "#ECFDF5"))
+        ? "#EDE9FE"
+        : (highlightType === "regular" ? "#FDE68A" : "#A7F3D0"))
     : st.bg;
 
   // Badge T/C/A
@@ -57,7 +79,6 @@ export default function SubjectCard({
 
   const handleBadgeClick = (e) => {
     e.stopPropagation();
-    // Animación de press
     setBadgePressed(true);
     setTimeout(() => setBadgePressed(false), 120);
     const idx = filterOptions.indexOf(arrowFilter);
@@ -65,20 +86,41 @@ export default function SubjectCard({
     onArrowFilterChange(next);
   };
 
+  // CSS classes
+  const classes = [
+    "subject-card",
+    isBloqueada ? "bloqueada" : "",
+    isNew ? "card-enter" : "",
+    isExiting ? "card-exit" : "",
+    pulsing && isSelected ? "card-selected-pulse" : "",
+    flashing ? "card-status-flash" : "",
+  ].filter(Boolean).join(" ");
+
+  // --pulse-color via inline style based on status
+  const pulseColor = {
+    cursando:  "rgba(59,130,246,0.45)",
+    regular:   "rgba(245,158,11,0.45)",
+    aprobada:  "rgba(16,185,129,0.45)",
+    bloqueada: "rgba(239,68,68,0.45)",
+    disponible:"rgba(107,114,128,0.35)",
+  }[status] ?? "rgba(0,0,0,0.2)";
+
   return (
     <div
       ref={setRef}
       data-subject-id={subject.id}
-      className={`subject-card${isBloqueada ? " bloqueada" : ""}`}
+      className={classes}
       style={{
+        "--pulse-color": pulseColor,
         background: bgColor,
         border: `1px solid ${borderColor}`,
         borderRadius: "8px",
         padding: "0.65rem 0.8rem",
-        opacity: dimmed ? 0.35 : 1,
-        boxShadow: isSelected && !isBloqueada ? `0 0 0 2px ${borderColor}88` : "none",
+        opacity: dimmed ? 0.3 : 1,
+        boxShadow: isSelected && !isBloqueada
+          ? `0 0 0 2px ${borderColor}, 0 4px 12px ${borderColor}55`
+          : "none",
         position: "relative",
-        transition: "opacity 0.15s, box-shadow 0.15s",
       }}
       onClick={handleClick}
       title={isBloqueada ? "Ver correlativas requeridas" : undefined}
@@ -87,7 +129,7 @@ export default function SubjectCard({
         <Dot status={status} />
         <span style={{
           fontSize: "0.82rem",
-          fontWeight: highlighted ? 500 : 400,
+          fontWeight: highlighted ? 600 : 400,
           color: st.color,
           lineHeight: 1.3,
           flex: 1,
@@ -129,7 +171,7 @@ export default function SubjectCard({
         )}
       </div>
       {isBloqueada && (
-        <div style={{ fontSize: "0.62rem", color: "#EF4444", marginTop: 3, marginLeft: 11, fontStyle: "italic" }}>
+        <div style={{ fontSize: "0.62rem", color: "#DC2626", marginTop: 3, marginLeft: 11, fontStyle: "italic" }}>
           Correlativas pendientes
         </div>
       )}

@@ -69,14 +69,16 @@ export function useCurriculumData() {
   });
 
   const addSubject = ({ yearId, name, correlatives, correlativesParaFinal }) => {
+    const newId = uid();
     setData(d => ({
       ...d,
       years: d.years.map(y =>
         y.id === yearId
-          ? { ...y, subjects: [...y.subjects, { id: uid(), name, correlatives, correlativesParaFinal: correlativesParaFinal ?? [] }] }
+          ? { ...y, subjects: [...y.subjects, { id: newId, name, correlatives, correlativesParaFinal: correlativesParaFinal ?? [] }] }
           : y
       ),
     }));
+    return newId;
   };
 
   const editSubject = ({ subjectId, yearId, name, correlatives, correlativesParaFinal }) => {

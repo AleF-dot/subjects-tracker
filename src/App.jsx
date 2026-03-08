@@ -29,6 +29,8 @@ export default function App() {
   const [editingSubject, setEditingSubject] = useState(null);
   const [menuAnchor, setMenuAnchor] = useState({ subjectId: null, el: null });
   const [arrowFilter, setArrowFilter] = useState("T"); // "T" | "C" | "A"
+  const [newIds, setNewIds]         = useState(() => new Set());
+  const [exitingIds, setExitingIds] = useState(() => new Set());
 
   const cardRefs = useRef({});
   const gridRef  = useRef(null);
@@ -120,15 +122,23 @@ export default function App() {
   };
 
   const handleDelete = (yearId, subjectId) => {
-    deleteSubject(yearId, subjectId);
+    // Animar salida primero, luego borrar
+    setExitingIds(s => new Set([...s, subjectId]));
     setSelectedId(null);
     setMenuAnchor({ subjectId: null, el: null });
-    showToast("Materia eliminada", "error");
+    setTimeout(() => {
+      deleteSubject(yearId, subjectId);
+      setExitingIds(s => { const n = new Set(s); n.delete(subjectId); return n; });
+      showToast("Materia eliminada", "error");
+    }, 280);
   };
 
   const handleAdd = (payload) => {
-    addSubject(payload);
+    const newId = addSubject(payload);
     showToast(`"${payload.name}" agregada`);
+    // Marcar como nueva para animar entrada; limpiar después
+    setNewIds(s => new Set([...s, newId]));
+    setTimeout(() => setNewIds(s => { const n = new Set(s); n.delete(newId); return n; }), 400);
   };
 
   const handleEdit = (payload) => {
@@ -190,6 +200,8 @@ export default function App() {
                   arrowFilter={arrowFilter}
                   onArrowFilterChange={setArrowFilter}
                   selectedSubject={selectedSubject}
+                  newIds={newIds}
+                  exitingIds={exitingIds}
                 />
               ))}
             </div>
