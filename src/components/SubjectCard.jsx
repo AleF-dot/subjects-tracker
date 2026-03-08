@@ -43,21 +43,18 @@ export default function SubjectCard({
     if (typeof cardRef === "function") cardRef(el);
   };
 
-  // Card click → solo selección, sin tocar el menu
+  // Card click → selecciona Y abre el menú
   const handleClick = (e) => {
     e.stopPropagation();
+    if (menuOpen) return; // ya está abierto, no hacer nada
     onCardClick(subject.id);
+    onOpenMenu(subject.id, innerRef.current);
   };
 
-  // Chevron → solo togglea el menu, la selección no cambia
+  // Chevron → solo cierra el menú (aparece solo cuando menuOpen)
   const handleChevronClick = (e) => {
     e.stopPropagation();
-    if (menuOpen) {
-      onOpenMenu(null, null);
-    } else {
-      if (!isSelected) onCardClick(subject.id);
-      onOpenMenu(subject.id, innerRef.current);
-    }
+    onOpenMenu(null, null);
   };
 
   const hasCursar  = isSelected && selectedSubject && (selectedSubject.correlatives ?? []).length > 0;

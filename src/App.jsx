@@ -119,7 +119,9 @@ export default function App() {
   /* ── Handlers ── */
   const handleCardClick = (id) => {
     setSelectedId(prev => {
-      if (prev === id) return null; // deseleccionar
+      // Si ya estaba seleccionada, no hacer toggle — el cierre lo maneja
+      // el chevron o el click outside; re-clickear la card solo reabre el menú
+      if (prev === id) return id;
       // Cerrar menu si estaba abierto para otra card
       setMenuAnchor(m => m.subjectId && m.subjectId !== id ? { subjectId: null, el: null } : m);
       setArrowFilter("T");
