@@ -1,14 +1,16 @@
 import { buildPath, estimateLen } from "../utils/arrowHelpers";
 
-// Color = tipo de requisito  (naranja = regular, verde = aprobada)
-// Trazo = propósito           (sólido = para cursar, punteado = para final)
-const TYPE_COLOR = { regular: "#D97706", aprobada: "#059669" };
+// Color = tipo de requisito
+// Sólidas (para cursar): naranja fuerte / verde fuerte
+// Punteadas (para final): versión más apagada/azulada para distinguirlas
+const TYPE_COLOR_CURSAR = { regular: "#D97706", aprobada: "#059669" };
+const TYPE_COLOR_FINAL  = { regular: "#9B6F2F", aprobada: "#1D6B5E" };
 
 const MARKERS = [
   { id: "mAmberSolid",   color: "#D97706", opacity: 1    },
-  { id: "mAmberDash",    color: "#D97706", opacity: 0.75 },
+  { id: "mAmberDash",    color: "#9B6F2F", opacity: 1    },
   { id: "mEmeraldSolid", color: "#059669", opacity: 1    },
-  { id: "mEmeraldDash",  color: "#059669", opacity: 0.75 },
+  { id: "mEmeraldDash",  color: "#1D6B5E", opacity: 1    },
 ];
 
 const MARKER_ID = {
@@ -34,8 +36,10 @@ export default function ArrowOverlay({ arrows, animKey }) {
       </defs>
 
       {arrows.map((a, i) => {
-        const color     = TYPE_COLOR[a.type] ?? "#D97706";
         const isFinal   = !!a.forFinal;
+        const color     = isFinal
+          ? (TYPE_COLOR_FINAL[a.type]  ?? "#9B6F2F")
+          : (TYPE_COLOR_CURSAR[a.type] ?? "#D97706");
         const markerKey = `${a.type}-${isFinal ? "final" : "cursar"}`;
         const markerId  = `url(#${MARKER_ID[markerKey]})`;
         const len       = estimateLen(a.x1, a.y1, a.x2, a.y2, a.dir);
@@ -53,7 +57,6 @@ export default function ArrowOverlay({ arrows, animKey }) {
               stroke={color}
               strokeWidth={1.8}
               strokeLinecap="round"
-              strokeOpacity={0.75}
               strokeDasharray="5 4"
               markerEnd={markerId}
               style={{ animation: `fadeIn 0.4s ease ${delay} both` }}

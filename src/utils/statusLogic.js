@@ -57,3 +57,29 @@ export function canAprobar(subject, statusMap) {
   }
   return true;
 }
+
+/**
+ * Checks correlatives para cursar/regularizar.
+ * "cursando" requires nothing (you can always start attending).
+ * "regular" requires all correlatives type "regular" → regular|aprobada, type "aprobada" → aprobada.
+ * Returns { cursando: bool, regular: bool, aprobada: bool }
+ */
+export function computeAllowedStatuses(subject, statusMap) {
+  const corrs = subject.correlatives ?? [];
+
+  // cursando: siempre permitido (podés anotarte aunque no tengas correlativas)
+  const cursando = true;
+
+  // regular: necesita las correlativas de cursar satisfechas
+  let regular = true;
+  for (const c of corrs) {
+    const dep = statusMap[c.subjectId] ?? "disponible";
+    if (c.type === "regular" && !(dep === "regular" || dep === "aprobada")) { regular = false; break; }
+    if (c.type === "aprobada" && dep !== "aprobada") { regular = false; break; }
+  }
+
+  // aprobada: correlativas de cursar + correlativas para final
+  const aprobada = regular && canAprobar(subject, statusMap);
+
+  return { cursando, regular, aprobada };
+}

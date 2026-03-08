@@ -2,12 +2,23 @@ import { useRef } from "react";
 import Dot from "./Dot";
 import { STATUS, STATUS_ORDER } from "../utils/constants";
 
-export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete, onClose, puedeAprobar = true }) {
+// Mensaje explicativo por cada estado bloqueado
+const BLOCK_REASON = {
+  cursando:  null, // nunca bloqueado
+  regular:   "correlativas para cursar incompletas",
+  aprobada:  "correlativas para final incompletas",
+};
+
+export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete, onClose, allowedStatuses }) {
   const ref  = useRef(null);
   const rect = anchor?.getBoundingClientRect();
 
+  // allowedStatuses: { cursando: bool, regular: bool, aprobada: bool }
+  // Si no se pasa (materia sin correlativas) todo habilitado
+  const allowed = allowedStatuses ?? { cursando: true, regular: true, aprobada: true };
+
   const menuW = Math.max(rect?.width ?? 160, 170);
-  const menuH = 270;
+  const menuH = 290;
   const spaceBelow = rect ? window.innerHeight - rect.bottom : 999;
 
   const rawTop  = rect ? (spaceBelow > menuH ? rect.bottom + 6 : rect.top - menuH - 6) : 0;
@@ -23,28 +34,33 @@ export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete
       onClick={e => e.stopPropagation()}
       style={{ position: "fixed", top, left, width: menuW, zIndex: 800 }}
     >
-      {current !== null && STATUS_ORDER.map(s => {
-        const blocked = s === "aprobada" && !puedeAprobar;
+      {STATUS_ORDER.map(s => {
+        const blocked = !allowed[s];
+        const isActive = current === s;
         return (
           <button
             key={s}
-            className={`status-menu-item${current === s ? " active" : ""}`}
+            className={`status-menu-item${isActive ? " active" : ""}`}
             onClick={() => { if (!blocked) { onSelect(s); onClose(); } }}
             disabled={blocked}
-            title={blocked ? "Correlativas para final incompletas" : undefined}
-            style={blocked ? { opacity: 0.4, cursor: "not-allowed" } : {}}
+            title={blocked ? BLOCK_REASON[s] : undefined}
+            style={blocked ? { opacity: 0.38, cursor: "not-allowed" } : {}}
           >
             <Dot status={s} />
             <span style={{ color: STATUS[s].color }}>{STATUS[s].label}</span>
-            {current === s && <span style={{ marginLeft: "auto", fontSize: "0.65rem", color: "#bbb" }}>✓</span>}
-            {blocked && <span style={{ marginLeft: "auto", fontSize: "0.62rem", color: "#aaa" }}>correlativas pendientes</span>}
+            {isActive && <span style={{ marginLeft: "auto", fontSize: "0.65rem", color: "#bbb" }}>✓</span>}
+            {blocked && !isActive && (
+              <span style={{ marginLeft: "auto", fontSize: "0.58rem", color: "#bbb", textAlign: "right", maxWidth: 90 }}>
+                {BLOCK_REASON[s]}
+              </span>
+            )}
           </button>
         );
       })}
       <button
         className="status-menu-item"
         onClick={() => { onEdit(); onClose(); }}
-        style={{ borderTop: current !== null ? "1px solid #E0DAD0" : "none", color: "#555" }}
+        style={{ borderTop: "1px solid #E0DAD0", color: "#555" }}
       >
         <span style={{ fontSize: "0.8rem" }}>✎</span> Editar materia
       </button>
