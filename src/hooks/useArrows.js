@@ -31,7 +31,6 @@ export function useArrows({ selectedId, correlatives, cardRefs, gridRef }) {
       const uid = `${selectedId}-${c.subjectId}-${c.forFinal ? "final" : "cursar"}`;
       return { id: uid, x1, y1, x2, y2, dir, type: c.type, forFinal: c.forFinal ?? false };
     }).filter(Boolean);
-    }).filter(Boolean);
 
     setArrows(next);
   }, [selectedId, cardRefs]);
