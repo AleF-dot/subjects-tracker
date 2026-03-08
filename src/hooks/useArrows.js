@@ -16,6 +16,21 @@ export function useArrows({ selectedId, correlatives, cardRefs, gridRef }) {
   const correlativesRef = useRef(correlatives);
   useEffect(() => { correlativesRef.current = correlatives; }, [correlatives]);
 
+  // Recompute when filter changes: correlatives content changes but selectedId stays the same.
+  // We derive a stable key from the filtered set to detect actual changes.
+  const filterKey = correlatives.map(c => `${c.subjectId}-${c.forFinal ? "f" : "c"}`).join(",");
+  const prevFilterKeyRef = useRef(filterKey);
+  useLayoutEffect(() => {
+    if (!selectedId) return;
+    if (filterKey === prevFilterKeyRef.current) return;
+    prevFilterKeyRef.current = filterKey;
+    correlativesRef.current = correlatives;
+    cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => { computeArrows(); });
+  // computeArrows is stable (depends only on selectedId+cardRefs); filterKey and correlatives are the real triggers
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterKey, selectedId]);
+
   const computeArrows = useCallback(() => {
     const corrs = correlativesRef.current;
     if (!selectedId || corrs.length === 0) { setArrows([]); return; }
