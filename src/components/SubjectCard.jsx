@@ -1,22 +1,17 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Dot from "./Dot";
 import { STATUS } from "../utils/constants";
 
-// Paleta de colores por año para dar identidad visual a cada card
-const YEAR_ACCENT_COLORS = [
-  { strip: "#6366F1", stripBg: "rgba(99,102,241,0.06)" },   // 1er año – índigo
-  { strip: "#0EA5E9", stripBg: "rgba(14,165,233,0.06)" },   // 2do año – sky
-  { strip: "#10B981", stripBg: "rgba(16,185,129,0.06)" },   // 3er año – emerald
-  { strip: "#F59E0B", stripBg: "rgba(245,158,11,0.06)" },   // 4to año – amber
-  { strip: "#EC4899", stripBg: "rgba(236,72,153,0.06)" },   // 5to año – pink
-];
+// Color fijo del badge — neutro, independiente del status
+const BADGE_COLOR = "#C1694F"; 
 
 export default function SubjectCard({
   subject, status, highlighted, highlightType, dimmed, isSelected,
   onCardClick, onOpenMenu, cardRef, arrowFilter, onArrowFilterChange,
-  selectedSubject, yearIndex,
+  selectedSubject,
 }) {
   const innerRef = useRef(null);
+  const [badgePressed, setBadgePressed] = useState(false);
   const st = STATUS[status];
   const isBloqueada = status === "bloqueada";
 
@@ -52,11 +47,6 @@ export default function SubjectCard({
         : (highlightType === "regular" ? "#FEF9EC" : "#ECFDF5"))
     : st.bg;
 
-  // Año accent — solo cuando no está highlighted ni bloqueada
-  const accent = (!highlighted && !isBloqueada && yearIndex !== undefined)
-    ? YEAR_ACCENT_COLORS[yearIndex % YEAR_ACCENT_COLORS.length]
-    : null;
-
   // Badge T/C/A
   const hasCursar  = isSelected && selectedSubject && (selectedSubject.correlatives ?? []).length > 0;
   const hasAprobar = isSelected && selectedSubject && (selectedSubject.correlativesParaFinal ?? []).length > 0;
@@ -67,25 +57,13 @@ export default function SubjectCard({
 
   const handleBadgeClick = (e) => {
     e.stopPropagation();
+    // Animación de press
+    setBadgePressed(true);
+    setTimeout(() => setBadgePressed(false), 120);
     const idx = filterOptions.indexOf(arrowFilter);
     const next = filterOptions[(idx + 1) % filterOptions.length];
     onArrowFilterChange(next);
   };
-
-  // Color del badge refleja el filtro activo
-  const badgeColor =
-    arrowFilter === "C" ? "#F59E0B" :
-    arrowFilter === "A" ? "#8B5CF6" :
-    borderColor;
-
-  // Borde izquierdo de color de año (3px) o borde normal (1px)
-  const borderLeft = accent
-    ? `3px solid ${accent.strip}`
-    : `1px solid ${borderColor}`;
-
-  const background = accent && !isSelected
-    ? `linear-gradient(to right, ${accent.stripBg} 0%, ${bgColor} 45%)`
-    : bgColor;
 
   return (
     <div
@@ -93,9 +71,8 @@ export default function SubjectCard({
       data-subject-id={subject.id}
       className={`subject-card${isBloqueada ? " bloqueada" : ""}`}
       style={{
-        background,
+        background: bgColor,
         border: `1px solid ${borderColor}`,
-        borderLeft,
         borderRadius: "8px",
         padding: "0.65rem 0.8rem",
         opacity: dimmed ? 0.35 : 1,
@@ -124,9 +101,9 @@ export default function SubjectCard({
               width: "20px",
               height: "20px",
               borderRadius: "4px",
-              border: `1.5px solid ${badgeColor}`,
-              background: badgeColor + "22",
-              color: badgeColor,
+              border: `1.5px solid ${BADGE_COLOR}`,
+              background: badgePressed ? BADGE_COLOR : BADGE_COLOR + "18",
+              color: badgePressed ? "#fff" : BADGE_COLOR,
               fontSize: "0.6rem",
               fontWeight: 700,
               cursor: "pointer",
@@ -138,7 +115,8 @@ export default function SubjectCard({
               fontFamily: "'DM Mono', monospace",
               flexShrink: 0,
               marginLeft: "auto",
-              transition: "border-color 0.12s, color 0.12s, background 0.12s",
+              transform: badgePressed ? "scale(0.88)" : "scale(1)",
+              transition: "transform 0.1s, background 0.1s, color 0.1s",
             }}
             title={
               arrowFilter === "T" ? "Todas las flechas" :
