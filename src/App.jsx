@@ -40,10 +40,23 @@ export default function App() {
   const selectedSubject = allSubjects.find(s => s.id === selectedId) ?? null;
   const correlatives    = selectedSubject?.correlatives ?? [];
   const correlativesParaFinal = selectedSubject?.correlativesParaFinal ?? [];
-  const allCorrelatives = [
-    ...correlatives,
-    ...correlativesParaFinal.map(c => ({ ...c, forFinal: true })),
-  ];
+  const allCorrelatives = (() => {
+    // Armamos la lista combinada con IDs únicos para que el arrow hook
+    // no duplique y para poder diferenciar cursar vs final cuando apuntan
+    // a la misma materia.
+    const cursarIds = new Set(correlatives.map(c => c.subjectId));
+    const finalItems = correlativesParaFinal.map(c => ({
+      ...c,
+      forFinal: true,
+      // Si esta materia YA aparece en correlatives (cursar), marcamos offset
+      // para que arrowHelpers pueda separar los trazos lateralmente.
+      offsetSide: cursarIds.has(c.subjectId) ? 1 : 0,
+    }));
+    return [
+      ...correlatives.map(c => ({ ...c, forFinal: false, offsetSide: 0 })),
+      ...finalItems,
+    ];
+  })();
 
   const { arrows, animKey } = useArrows({ selectedId, correlatives: allCorrelatives, cardRefs, gridRef });
 

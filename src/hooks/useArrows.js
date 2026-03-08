@@ -27,8 +27,10 @@ export function useArrows({ selectedId, correlatives, cardRefs, gridRef }) {
       const el = cardRefs.current[c.subjectId];
       if (!el) return null;
       const r = el.getBoundingClientRect();
-      const { x1, y1, x2, y2, dir } = resolveArrowPoints(r, tRect);
-      return { id: `${selectedId}-${c.subjectId}`, x1, y1, x2, y2, dir, type: c.type };
+      const { x1, y1, x2, y2, dir } = resolveArrowPoints(r, tRect, c.offsetSide ?? 0);
+      const uid = `${selectedId}-${c.subjectId}-${c.forFinal ? "final" : "cursar"}`;
+      return { id: uid, x1, y1, x2, y2, dir, type: c.type, forFinal: c.forFinal ?? false };
+    }).filter(Boolean);
     }).filter(Boolean);
 
     setArrows(next);
@@ -42,11 +44,14 @@ export function useArrows({ selectedId, correlatives, cardRefs, gridRef }) {
     const tRect = targetEl.getBoundingClientRect();
 
     setArrows(prev => prev.map(a => {
-      const corrId = a.id.replace(`${selectedId}-`, "");
+      // ID format: `${selectedId}-${subjectId}-cursar` or `-final`
+      const parts = a.id.replace(`${selectedId}-`, "").split("-");
+      const corrId = parts.slice(0, -1).join("-"); // everything except last segment
       const el = cardRefs.current[corrId];
       if (!el) return a;
+      const corr = corrs.find(c => c.subjectId === corrId && (c.forFinal ? "final" : "cursar") === parts[parts.length - 1]);
       const r = el.getBoundingClientRect();
-      const { x1, y1, x2, y2, dir } = resolveArrowPoints(r, tRect);
+      const { x1, y1, x2, y2, dir } = resolveArrowPoints(r, tRect, corr?.offsetSide ?? 0);
       return { ...a, x1, y1, x2, y2, dir };
     }));
   }, [selectedId, cardRefs]);
