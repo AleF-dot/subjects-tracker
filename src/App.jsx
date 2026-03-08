@@ -214,7 +214,7 @@ export default function App() {
         const st     = effectiveStatus[sid];
         const yearId = data.years.find(y => y.subjects.some(s => s.id === sid))?.id;
         const subject = allSubjects.find(s => s.id === sid);
-        const allowedStatuses = subject ? computeAllowedStatuses(subject, effectiveStatus) : { cursando: true, regular: true, aprobada: true };
+        const allowedStatuses = subject ? computeAllowedStatuses(subject, effectiveStatus) : { disponible: true, cursando: true, regular: true, aprobada: true };
         const closeMenu = () => { setMenuAnchor({ subjectId: null, el: null }); setSelectedId(null); };
         return createPortal(
           <div ref={menuPortalRef}>

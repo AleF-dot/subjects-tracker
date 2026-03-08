@@ -44,8 +44,8 @@ export function computeAllowedStatuses(subject, statusMap) {
     if (c.type === "aprobada" && dep !== "aprobada") { cursarOk = false; break; }
   }
 
-  if (!cursarOk) return { cursando: false, regular: false, aprobada: false };
+  if (!cursarOk) return { disponible: false, cursando: false, regular: false, aprobada: false };
 
   const aprobada = canAprobar(subject, statusMap);
-  return { cursando: true, regular: true, aprobada };
+  return { disponible: true, cursando: true, regular: true, aprobada };
 }

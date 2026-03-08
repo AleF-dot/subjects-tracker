@@ -4,7 +4,8 @@ import { STATUS, STATUS_ORDER } from "../utils/constants";
 
 // Mensaje explicativo por cada estado bloqueado
 const BLOCK_REASON = {
-  cursando:  null, // nunca bloqueado
+  disponible: null,
+  cursando:  null,
   regular:   "correlativas para cursar incompletas",
   aprobada:  "correlativas para final incompletas",
 };
@@ -15,7 +16,7 @@ export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete
 
   // allowedStatuses: { cursando: bool, regular: bool, aprobada: bool }
   // Si no se pasa (materia sin correlativas) todo habilitado
-  const allowed = allowedStatuses ?? { cursando: true, regular: true, aprobada: true };
+  const allowed = allowedStatuses ?? { disponible: true, cursando: true, regular: true, aprobada: true };
 
   const menuW = Math.max(rect?.width ?? 160, 170);
   const menuH = 290;
@@ -34,7 +35,7 @@ export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete
       onClick={e => e.stopPropagation()}
       style={{ position: "fixed", top, left, width: menuW, zIndex: 800 }}
     >
-      {(allowed.cursando || allowed.regular || allowed.aprobada) && STATUS_ORDER.map(s => {
+      {(allowed.disponible || allowed.cursando || allowed.regular || allowed.aprobada) && STATUS_ORDER.map(s => {
         const blocked = !allowed[s];
         const isActive = current === s;
         return (
@@ -60,7 +61,7 @@ export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete
       <button
         className="status-menu-item"
         onClick={() => { onEdit(); onClose(); }}
-        style={{ borderTop: (allowed.cursando || allowed.regular || allowed.aprobada) ? "1px solid #E0DAD0" : "none", color: "#555" }}
+        style={{ borderTop: (allowed.disponible || allowed.cursando || allowed.regular || allowed.aprobada) ? "1px solid #E0DAD0" : "none", color: "#555" }}
       >
         <span style={{ fontSize: "0.8rem" }}>✎</span> Editar materia
       </button>
