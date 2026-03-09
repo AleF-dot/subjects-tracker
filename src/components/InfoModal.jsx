@@ -11,7 +11,7 @@ export default function InfoModal() {
   const handleShare = async () => {
     const url = window.location.href;
     if (navigator.share) {
-      try { await navigator.share({ title: "Subjects Tracker", text: "Seguí tu plan de estudios y correlatividades — URN / UTN", url }); } catch (_) {}
+      try { await navigator.share({ title: "Subjects Tracker", text: "Seguí tu plan de estudios y correlatividades — UNR / UTN", url }); } catch (_) {}
     } else {
       await navigator.clipboard.writeText(url);
       setCopied(true);
@@ -78,7 +78,7 @@ export default function InfoModal() {
         <div style={{ display: "flex", flexDirection: "column" }}>
 
           {section("Acerca de", <>
-            {prose("Subjects Tracker es una herramienta gratuita para estudiantes universitarios de la URN y UTN. Permite visualizar y gestionar el plan de estudios y sus correlatividades.")}
+            {prose("Subjects Tracker es una herramienta gratuita para estudiantes universitarios de la UNR y UTN. Permite visualizar y gestionar el plan de estudios y sus correlatividades.")}
           </>)}
 
           {section("Privacidad", <>

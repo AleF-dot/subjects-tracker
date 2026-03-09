@@ -20,14 +20,14 @@ export default function EmptyState({ onNewSubject }) {
         fontWeight: 700, letterSpacing: "-0.02em",
         marginBottom: "0.6rem", color: "#2C2A25",
       }}>
-        Tu plan de estudios no tiene materias aún
+        Tu plan de estudios no tiene materias todavía
       </h2>
 
       <p style={{
         fontSize: "0.85rem", color: "#999", lineHeight: 1.6,
         maxWidth: "340px", marginBottom: "2rem",
       }}>
-        Agregá tus materias, definí correlatividades y visualizá qué podés cursar o rendir en cada momento.
+        Agregá tus materias, definí correlatividades y visualizá qué podés cursar o rendir en el momento.
       </p>
 
       <button
