@@ -6,19 +6,15 @@ export default function Header({ counts, onImport, onExport, onNewSubject }) {
 
   const handleShare = async () => {
     const url = window.location.href;
-    const shareData = {
-      title: "Subjects Tracker",
-      text: "Seguí tu plan de estudios y correlatividades — URN / UTN",
-      url,
-    };
     if (navigator.share) {
-      try { await navigator.share(shareData); } catch (_) {}
+      try { await navigator.share({ title: "Subjects Tracker", text: "Seguí tu plan de estudios — URN / UTN", url }); } catch (_) {}
     } else {
       await navigator.clipboard.writeText(url);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
   };
+
   return (
     <header style={{ borderBottom: "1px solid #D5D0C8", padding: "1.5rem 2rem", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
       <div>
@@ -40,11 +36,17 @@ export default function Header({ counts, onImport, onExport, onNewSubject }) {
           </div>
         ))}
         <div style={{ width: 1, height: 32, background: "#D5D0C8" }} />
-        <div style={{ display: "flex", gap: "0.5rem" }}>
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
           <button className="btn-ghost" onClick={onImport} style={{ fontSize: "0.76rem", padding: "0.55rem 0.95rem" }}>↓ Importar</button>
           <button className="btn-ghost" onClick={onExport} style={{ fontSize: "0.76rem", padding: "0.55rem 0.95rem" }}>↑ Exportar</button>
-          <button className="btn-ghost" onClick={handleShare} style={{ fontSize: "0.76rem", padding: "0.55rem 0.95rem" }}>
-            {copied ? "✓ Copiado" : "⤴ Compartir"}
+          {/* Compartir: solo ícono, sin texto, para no romper el layout en mobile */}
+          <button
+            className="btn-ghost"
+            onClick={handleShare}
+            title={copied ? "¡Copiado!" : "Compartir"}
+            style={{ fontSize: "1rem", padding: "0.45rem 0.65rem", lineHeight: 1 }}
+          >
+            {copied ? "✓" : "⤴"}
           </button>
           <button className="btn-primary" onClick={onNewSubject}>+ Nueva materia</button>
         </div>

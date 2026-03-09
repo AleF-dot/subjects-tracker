@@ -6,6 +6,18 @@ const MAIL = "subjectstracker@gmail.com";
 export default function InfoModal() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", message: "" });
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try { await navigator.share({ title: "Subjects Tracker", text: "Seguí tu plan de estudios y correlatividades — URN / UTN", url }); } catch (_) {}
+    } else {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   const section = (title, children) => (
     <div style={{ marginBottom: "1.25rem" }}>
@@ -64,6 +76,16 @@ export default function InfoModal() {
 
       <Modal open={open} onClose={() => setOpen(false)} title="Info / Privacidad">
         <div style={{ display: "flex", flexDirection: "column" }}>
+
+          {section("Compartir", <>
+            <button
+              className="btn-ghost"
+              onClick={handleShare}
+              style={{ fontSize: "0.78rem", padding: "0.5rem 1rem", width: "100%" }}
+            >
+              {copied ? "✓ Link copiado" : "⤴ Compartir Subjects Tracker"}
+            </button>
+          </>)}
 
           {section("Acerca de", <>
             {prose("Subjects Tracker es una herramienta gratuita para estudiantes universitarios de la URN y UTN. Permite visualizar y gestionar el plan de estudios y sus correlatividades.")}
