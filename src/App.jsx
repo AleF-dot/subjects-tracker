@@ -9,6 +9,7 @@ import ArrowOverlay  from "./components/ArrowOverlay";
 import StatusMenu    from "./components/StatusMenu";
 import AddModal      from "./components/AddModal";
 import Toast         from "./components/Toast";
+import EmptyState    from "./components/EmptyState";
 import InfoModal     from "./components/InfoModal";
 
 import { useCurriculumData } from "./hooks/useCurriculumData";
@@ -195,6 +196,9 @@ export default function App() {
         <Legend />
 
         <main style={{ padding: "2rem", paddingBottom: "4rem" }}>
+          {allSubjects.length === 0 ? (
+            <EmptyState onNewSubject={() => { setEditingSubject(null); setModalOpen(true); }} />
+          ) : (
           <div style={{ overflowX: "auto", overflowY: "visible", padding: "4px 4px", WebkitOverflowScrolling: "touch" }}>
             <div ref={gridRef} style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(160px, 1fr))", gap: "1.75rem", minWidth: "860px" }}>
               {data.years.map((year) => (
@@ -221,6 +225,8 @@ export default function App() {
               ))}
             </div>
           </div>
+          </div>
+          )}
         </main>
       </div>
 
