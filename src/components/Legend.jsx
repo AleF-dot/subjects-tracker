@@ -16,14 +16,16 @@ const DashArrow = ({ color }) => (
 
 export default function Legend() {
   return (
-    <div style={{ padding: "0.65rem 2rem", borderBottom: "1px solid #EAE6DF", fontSize: "0.68rem", color: "#999", display: "flex", gap: "1.25rem", flexWrap: "wrap", alignItems: "center" }}>
-      {Object.entries(STATUS).map(([key, s]) => (
-        <span key={key} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <span style={{ width: 7, height: 7, borderRadius: "50%", background: s.dot, display: "inline-block" }} />
-          <span style={{ color: s.color }}>{s.label}</span>
-        </span>
-      ))}
-      <span style={{ marginLeft: "auto", display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+    <div style={{ padding: "0.55rem 2rem", borderBottom: "1px solid #EAE6DF", fontSize: "0.68rem", color: "#999", display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+      <div style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap", alignItems: "center" }}>
+        {Object.entries(STATUS).map(([key, s]) => (
+          <span key={key} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <span style={{ width: 7, height: 7, borderRadius: "50%", background: s.dot, display: "inline-block" }} />
+            <span style={{ color: s.color }}>{s.label}</span>
+          </span>
+        ))}
+      </div>
+      <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
         <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
           <SolidArrow color="#D97706" /> Regulares necesarias para cursar
         </span>
@@ -36,7 +38,7 @@ export default function Legend() {
         <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
           <DashArrow color="#7C3AED" /> Aprobadas necesarias para aprobación
         </span>
-      </span>
+      </div>
     </div>
   );
 }

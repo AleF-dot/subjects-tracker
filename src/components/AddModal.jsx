@@ -67,7 +67,11 @@ function CorrSection({ allSubjects, subjectsByYear, list, setList, forFinal }) {
                       <polygon points="11,2 18,5 11,8" fill={arrowColor} />
                     </svg>
                   ) : (
-                    <span style={{ color: arrowColor, fontSize: "0.85rem", lineHeight: 1 }}>→</span>
+                    <svg width="18" height="10" viewBox="0 0 18 10" style={{ flexShrink: 0 }}>
+                      <line x1="0" y1="5" x2="11" y2="5"
+                        stroke={arrowColor} strokeWidth="1.8" strokeLinecap="round" />
+                      <polygon points="11,2 18,5 11,8" fill={arrowColor} />
+                    </svg>
                   )}
                   <span style={{ fontSize: "0.73rem", color: "#555" }}>
                     {isReg ? "Regular" : "Aprobada"} · {sub?.name}
