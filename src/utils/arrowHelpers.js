@@ -1,5 +1,6 @@
 export const ARROW_OFFSET = 7;
 const DOT_RADIUS = 4; // dot = 8px diámetro
+const MARKER_LEN = 7;  // largo del triángulo SVG (M0→L7)
 
 export function buildPath(x1, y1, x2, y2, dir, rightEdge1, rightEdge2) {
   const ox = rightEdge1 ?? x1;
@@ -69,7 +70,7 @@ export function resolveArrowPoints(corrDotEl, targetDotEl, offsetSide = 0) {
   
   
   
-  const x2 = dir === "same" ? t.x + DOT_RADIUS : t.x - DOT_RADIUS;
+  const x2 = dir === "same" ? t.x + DOT_RADIUS + MARKER_LEN : t.x - DOT_RADIUS - MARKER_LEN;
   const y2 = t.y + VERT_OFFSET;
 
   return {

@@ -29,7 +29,7 @@ export default function ArrowOverlay({ arrows, animKey }) {
     >
       <defs>
         {MARKERS.map(m => (
-          <marker key={m.id} id={m.id} markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+          <marker key={m.id} id={m.id} markerWidth="8" markerHeight="8" refX="0" refY="4" orient="auto" markerUnits="userSpaceOnUse">
             <path d="M0,1.5 L0,6.5 L7,4z" fill={m.color} />
           </marker>
         ))}
