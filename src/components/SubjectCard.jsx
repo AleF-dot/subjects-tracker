@@ -102,51 +102,55 @@ export default function SubjectCard({
     >
       <div style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem" }}>
 
-        {/* Columna izquierda: siempre el mismo tamaño en el layout.
-            El botón chevron es absolute dentro de ella para no mover nada. */}
-        <div style={{ position: "relative", flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center" }}>
+        {/* Columna izquierda: tamaño fijo siempre.
+            El espacio del chevron está reservado aunque no sea visible,
+            para que el layout no salte al seleccionar.
+            Botón y chevron visual son ambos absolute → no afectan el flujo. */}
+        <div style={{
+          position: "relative", flexShrink: 0,
+          display: "flex", flexDirection: "column", alignItems: "center",
+          // Altura mínima = dot (8px) + gap (3px) + chevron (≈14px)
+          minHeight: "25px",
+        }}>
           <Dot status={status} dotRef={dotRef} />
 
+          {/* Chevron visual: siempre en el DOM, invisible cuando no seleccionada */}
+          <span
+            style={{
+              position: "absolute",
+              top: "14px",   // justo debajo del dot (8px) + gap (3px) ≈ 11px, centrado
+              left: "50%", transform: `translateX(-50%) rotate(${menuOpen ? 180 : 0}deg)`,
+              fontSize: "0.9rem",
+              lineHeight: 1,
+              color: menuOpen ? borderColor : st.dot,
+              transition: "transform 0.2s, color 0.15s, opacity 0.15s",
+              opacity: isSelected ? 1 : 0,
+              pointerEvents: "none",
+              zIndex: 2,
+            }}
+          >
+            ▾
+          </span>
+
+          {/* Botón invisible: solo presente cuando seleccionada */}
           {isSelected && (
-            <>
-              {/* Área cliqueable: cubre toda la altura de la card usando
-                  inset absoluto. No afecta el flujo del documento. */}
-              <button
-                onClick={handleChevronClick}
-                title={menuOpen ? "Cerrar menú" : "Abrir menú"}
-                style={{
-                  position: "absolute",
-                  // Extenderse hasta los bordes de la card (padding 0.65rem = ~10px)
-                  top: "calc(-0.65rem - 1px)",
-                  bottom: "calc(-0.65rem - 1px)",
-                  // Ancho generoso: desde el borde izquierdo de la card
-                  left: "calc(-0.8rem - 1px)",
-                  right: "-4px",
-                  background: "none", border: "none", cursor: "pointer",
-                  borderRadius: "8px 0 0 8px",
-                  // Hover sutil
-                  transition: "background 0.15s",
-                  zIndex: 1,
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = "rgba(0,0,0,0.04)"}
-                onMouseLeave={e => e.currentTarget.style.background = "none"}
-              />
-              {/* Chevron visual: encima del botón, no interactivo */}
-              <span
-                style={{
-                  fontSize: "0.9rem",
-                  lineHeight: 1,
-                  color: menuOpen ? borderColor : st.dot,
-                  transform: menuOpen ? "rotate(180deg)" : "rotate(0deg)",
-                  transition: "transform 0.2s, color 0.15s",
-                  marginTop: "3px",
-                  pointerEvents: "none",
-                  position: "relative", zIndex: 2,
-                }}
-              >
-                ▾
-              </span>
-            </>
+            <button
+              onClick={handleChevronClick}
+              title={menuOpen ? "Cerrar menú" : "Abrir menú"}
+              style={{
+                position: "absolute",
+                top: "calc(-0.65rem - 1px)",
+                bottom: "calc(-0.65rem - 1px)",
+                left: "calc(-0.8rem - 1px)",
+                right: "-4px",
+                background: "none", border: "none", cursor: "pointer",
+                borderRadius: "8px 0 0 8px",
+                transition: "background 0.15s",
+                zIndex: 1,
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = "rgba(0,0,0,0.04)"}
+              onMouseLeave={e => e.currentTarget.style.background = "none"}
+            />
           )}
         </div>
 
