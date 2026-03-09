@@ -15,13 +15,21 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
 
   const filterKey = correlatives.map(c => `${c.subjectId}-${c.forFinal ? "f" : "c"}`).join(",");
   const prevFilterKeyRef = useRef(filterKey);
+  const filterTimerRef = useRef(null);
   useLayoutEffect(() => {
     if (!selectedId) return;
     if (filterKey === prevFilterKeyRef.current) return;
     prevFilterKeyRef.current = filterKey;
     correlativesRef.current = correlatives;
+    // Animar salida de las flechas actuales, luego redibujar con el nuevo filtro
+    clearTimeout(filterTimerRef.current);
     cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(() => { computeArrows(); });
+    setExiting(true);
+    filterTimerRef.current = setTimeout(() => {
+      setExiting(false);
+      setAnimKey(k => k + 1);
+      rafRef.current = requestAnimationFrame(() => { computeArrows(); });
+    }, EXIT_DURATION);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterKey, selectedId]);
 

@@ -13,7 +13,7 @@ const corrItemStyle = {
 
 // Colores consistentes con ArrowOverlay
 const COLORS_CURSAR = { regular: "#D97706", aprobada: "#059669" };
-const COLORS_FINAL  = { regular: "#3B82F6", aprobada: "#8B5CF6" };
+const COLORS_FINAL  = { regular: "#EC4899", aprobada: "#8B5CF6" };
 
 function CorrSection({ allSubjects, subjectsByYear, list, setList, forFinal }) {
   const [corrSub, setCorrSub] = useState("");
@@ -173,7 +173,7 @@ export default function AddModal({ open, onClose, data, onAdd, editSubject, onEd
         {allSubjects.length > 0 && (
           <div style={{ borderTop: "1px solid #E0DAD0", paddingTop: "0.85rem" }}>
             <label style={{ ...lbl, color: "#777", marginBottom: "0.6rem" }}>
-              Para <strong>rendir final / aprobar</strong>
+              Para <strong>aprobar</strong>
             </label>
             <CorrSection allSubjects={allSubjects} subjectsByYear={subjectsByYear} list={corrFinalList} setList={setCorrFinalList} forFinal />
           </div>

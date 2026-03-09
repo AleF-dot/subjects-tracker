@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import Dot from "./Dot";
 import { STATUS } from "../utils/constants";
 
-const BADGE_COLOR = "#C1694F";
+const BADGE_COLOR = "#E53E3E";
 
 export default function SubjectCard({
   subject, status, highlighted, highlightType, dimmed, isSelected, menuOpen,
@@ -58,13 +58,13 @@ export default function SubjectCard({
   };
 
   const borderColor = highlighted
-    ? (highlightType === "forFinal-regular"  ? "#3B82F6"
+    ? (highlightType === "forFinal-regular"  ? "#EC4899"
       : highlightType === "forFinal-aprobada" ? "#8B5CF6"
       : highlightType === "regular"           ? "#F59E0B" : "#10B981")
     : st.border;
 
   const bgColor = highlighted
-    ? (highlightType === "forFinal-regular"  ? "#DBEAFE"
+    ? (highlightType === "forFinal-regular"  ? "#FCE7F3"
       : highlightType === "forFinal-aprobada" ? "#EDE9FE"
       : highlightType === "regular"           ? "#FDE68A" : "#A7F3D0")
     : st.bg;
@@ -172,7 +172,7 @@ export default function SubjectCard({
               transform: badgePressed ? "scale(0.88)" : "scale(1)",
               transition: "transform 0.1s, background 0.1s, color 0.1s",
             }}
-            title={arrowFilter === "T" ? "Todas las flechas" : arrowFilter === "C" ? "Solo para cursar" : "Solo para rendir final"}
+            title={arrowFilter === "T" ? "Todas las flechas" : arrowFilter === "C" ? "Solo para cursar" : "Solo para aprobar"}
           >
             {arrowFilter}
           </button>

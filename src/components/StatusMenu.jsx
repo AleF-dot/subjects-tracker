@@ -7,7 +7,7 @@ const BLOCK_REASON = {
   disponible: null,
   cursando:  "correlativas para cursar incompletas",
   regular:   "correlativas para cursar incompletas",
-  aprobada:  "correlativas para final incompletas",
+  aprobada:  "correlativas para aprobar incompletas",
 };
 
 export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete, onClose, allowedStatuses }) {

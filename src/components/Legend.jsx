@@ -25,16 +25,16 @@ export default function Legend() {
       ))}
       <span style={{ marginLeft: "auto", display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
         <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <SolidArrow color="#D97706" /> Regular (cursar)
+          <SolidArrow color="#D97706" /> Regulares necesarias para cursar
         </span>
         <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <SolidArrow color="#059669" /> Aprobada (cursar)
+          <SolidArrow color="#059669" /> Aprobadas necesarias para cursar
         </span>
         <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <DashArrow color="#3B82F6" /> Regular (final)
+          <DashArrow color="#EC4899" /> Regulares necesarias para aprobación
         </span>
         <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <DashArrow color="#8B5CF6" /> Aprobada (final)
+          <DashArrow color="#8B5CF6" /> Aprobadas necesarias para aprobación
         </span>
       </span>
     </div>
