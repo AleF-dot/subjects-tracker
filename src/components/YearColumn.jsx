@@ -2,7 +2,7 @@ import SubjectCard from "./SubjectCard";
 
 export default function YearColumn({
   year, selectedId, menuOpenId, highlightMap, dimmedIds, statusMap,
-  onCardClick, onOpenMenu, onSetStatus, onDelete,
+  onCardClick, onChevronToggle, onSetStatus, onDelete,
   registerRef, registerDotRef, arrowFilter, onArrowFilterChange, selectedSubject,
   newIds, exitingIds,
 }) {
@@ -32,7 +32,7 @@ export default function YearColumn({
               isSelected={s.id === selectedId}
               menuOpen={s.id === menuOpenId}
               onCardClick={onCardClick}
-              onOpenMenu={onOpenMenu}
+              onChevronToggle={onChevronToggle}
               onSetStatus={onSetStatus}
               onDelete={(id) => onDelete(year.id, id)}
               cardRef={el => registerRef(s.id, el)}

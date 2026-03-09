@@ -13,7 +13,7 @@ import Toast         from "./components/Toast";
 import { useCurriculumData } from "./hooks/useCurriculumData";
 import { useArrows }         from "./hooks/useArrows";
 import { useToast }          from "./hooks/useToast";
-import { canAprobar, computeAllowedStatuses }        from "./utils/statusLogic";
+import { canAprobar, computeAllowedStatuses } from "./utils/statusLogic";
 
 export default function App() {
   const {
@@ -28,7 +28,7 @@ export default function App() {
   const [modalOpen, setModalOpen]   = useState(false);
   const [editingSubject, setEditingSubject] = useState(null);
   const [menuAnchor, setMenuAnchor] = useState({ subjectId: null, el: null });
-  const [arrowFilter, setArrowFilter] = useState("T"); // "T" | "C" | "A"
+  const [arrowFilter, setArrowFilter] = useState("T");
   const [newIds, setNewIds]         = useState(() => new Set());
   const [exitingIds, setExitingIds] = useState(() => new Set());
 
@@ -46,20 +46,14 @@ export default function App() {
     else    delete dotRefs.current[id];
   }, []);
 
-  // Correlatives of the selected subject
   const selectedSubject = allSubjects.find(s => s.id === selectedId) ?? null;
   const correlatives    = selectedSubject?.correlatives ?? [];
   const correlativesParaFinal = selectedSubject?.correlativesParaFinal ?? [];
   const allCorrelatives = (() => {
-    // Armamos la lista combinada con IDs únicos para que el arrow hook
-    // no duplique y para poder diferenciar cursar vs final cuando apuntan
-    // a la misma materia.
     const cursarIds = new Set(correlatives.map(c => c.subjectId));
     const finalItems = correlativesParaFinal.map(c => ({
       ...c,
       forFinal: true,
-      // Si esta materia YA aparece en correlatives (cursar), marcamos offset
-      // para que arrowHelpers pueda separar los trazos lateralmente.
       offsetSide: cursarIds.has(c.subjectId) ? 1 : 0,
     }));
     return [
@@ -76,7 +70,6 @@ export default function App() {
 
   const { arrows, animKey } = useArrows({ selectedId, correlatives: filteredCorrelatives, cardRefs, dotRefs, gridRef });
 
-  // Highlight map: subjects required by the selected one
   const highlightMap = {};
   correlatives.forEach(c => { highlightMap[c.subjectId] = { type: c.type }; });
   correlativesParaFinal.forEach(c => {
@@ -94,42 +87,47 @@ export default function App() {
     });
   }
 
-  // Click outside grid/menu → deselect
+  // Listener global en "click" (no mousedown) para no competir con stopPropagation de React.
+  // Cualquier click que no fue detenido por una card/chevron/menú → cierra todo.
   const menuPortalRef = useRef(null);
-  const menuAnchorRef = useRef({ subjectId: null, el: null });
-  // Keep ref in sync with state so the mousedown closure sees fresh value
-  menuAnchorRef.current = menuAnchor;
+
   useEffect(() => {
     const fn = e => {
       const inMenu = menuPortalRef.current?.contains(e.target);
-      const inGrid = gridRef.current?.contains(e.target);
-      // Cerrar menu si click fuera del menu (aunque sea dentro del grid)
-      if (!inMenu && menuAnchorRef.current.subjectId) {
-        setMenuAnchor({ subjectId: null, el: null });
-      }
-      // Deseleccionar si click fuera del grid Y fuera del menu
-      if (!inGrid && !inMenu) {
-        setSelectedId(null);
-      }
+      if (inMenu) return;
+      // Llegó acá → el click no fue stopPropagation'd por ninguna card ni chevron
+      setMenuAnchor({ subjectId: null, el: null });
+      setSelectedId(null);
     };
-    document.addEventListener("mousedown", fn);
-    return () => document.removeEventListener("mousedown", fn);
+    document.addEventListener("click", fn);
+    return () => document.removeEventListener("click", fn);
   }, []);
 
   /* ── Handlers ── */
-  const handleCardClick = (id) => {
+
+  // Llamado por card click (no chevron).
+  // - Card nueva (o distinta) → seleccionar + abrir menú
+  // - Card ya seleccionada → deseleccionar + cerrar menú
+  const handleCardClick = (id, cardEl) => {
     setSelectedId(prev => {
-      // Si ya estaba seleccionada, no hacer toggle — el cierre lo maneja
-      // el chevron o el click outside; re-clickear la card solo reabre el menú
-      if (prev === id) return id;
-      // Cerrar menu si estaba abierto para otra card
-      setMenuAnchor(m => m.subjectId && m.subjectId !== id ? { subjectId: null, el: null } : m);
+      if (prev === id) {
+        setMenuAnchor({ subjectId: null, el: null });
+        return null;
+      }
       setArrowFilter("T");
+      setMenuAnchor({ subjectId: id, el: cardEl });
       return id;
     });
   };
 
-  const handleOpenMenu = (subjectId, el) => setMenuAnchor({ subjectId, el });
+  // Llamado exclusivamente por el chevron: toggle del menú, selección intacta.
+  const handleChevronToggle = (subjectId, cardEl) => {
+    setMenuAnchor(prev =>
+      prev.subjectId === subjectId
+        ? { subjectId: null, el: null }
+        : { subjectId, el: cardEl }
+    );
+  };
 
   const handleSetStatus = (subjectId, newStatus) => {
     setStatus(subjectId, newStatus);
@@ -139,7 +137,6 @@ export default function App() {
   };
 
   const handleDelete = (yearId, subjectId) => {
-    // Animar salida primero, luego borrar
     setExitingIds(s => new Set([...s, subjectId]));
     setSelectedId(null);
     setMenuAnchor({ subjectId: null, el: null });
@@ -153,7 +150,6 @@ export default function App() {
   const handleAdd = (payload) => {
     const newId = addSubject(payload);
     showToast(`"${payload.name}" agregada`);
-    // Marcar como nueva para animar entrada; limpiar después
     setNewIds(s => new Set([...s, newId]));
     setTimeout(() => setNewIds(s => { const n = new Set(s); n.delete(newId); return n; }), 400);
   };
@@ -178,7 +174,6 @@ export default function App() {
 
   const handleExport = () => { exportJSON(); showToast("JSON exportado"); };
 
-  // Stats for header
   const counts = Object.values(effectiveStatus).reduce((acc, s) => {
     acc[s] = (acc[s] || 0) + 1; return acc;
   }, {});
@@ -210,7 +205,7 @@ export default function App() {
                   dimmedIds={dimmedIds}
                   statusMap={effectiveStatus}
                   onCardClick={handleCardClick}
-                  onOpenMenu={handleOpenMenu}
+                  onChevronToggle={handleChevronToggle}
                   onSetStatus={handleSetStatus}
                   onDelete={handleDelete}
                   registerRef={registerRef}
@@ -239,16 +234,17 @@ export default function App() {
 
       {toast && <Toast msg={toast.msg} type={toast.type} />}
 
-      {/* Status menu rendered as portal to escape overflow/transform contexts */}
       {menuAnchor.subjectId && menuAnchor.el && (() => {
-        const sid    = menuAnchor.subjectId;
-        const st     = effectiveStatus[sid];
-        const yearId = data.years.find(y => y.subjects.some(s => s.id === sid))?.id;
+        const sid     = menuAnchor.subjectId;
+        const st      = effectiveStatus[sid];
+        const yearId  = data.years.find(y => y.subjects.some(s => s.id === sid))?.id;
         const subject = allSubjects.find(s => s.id === sid);
-        const allowedStatuses = subject ? computeAllowedStatuses(subject, effectiveStatus) : { disponible: true, cursando: true, regular: true, aprobada: true };
-        const closeMenu = () => { setMenuAnchor({ subjectId: null, el: null }); setSelectedId(null); };
+        const allowedStatuses = subject
+          ? computeAllowedStatuses(subject, effectiveStatus)
+          : { disponible: true, cursando: true, regular: true, aprobada: true };
+        const closeMenu = () => setMenuAnchor({ subjectId: null, el: null });
         return createPortal(
-          <div ref={menuPortalRef}>
+          <div ref={menuPortalRef} onClick={e => e.stopPropagation()}>
             <StatusMenu
               anchor={menuAnchor.el}
               current={st === "bloqueada" ? null : st}

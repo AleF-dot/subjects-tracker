@@ -6,12 +6,11 @@ const BADGE_COLOR = "#C1694F";
 
 export default function SubjectCard({
   subject, status, highlighted, highlightType, dimmed, isSelected, menuOpen,
-  onCardClick, onOpenMenu, cardRef, dotRef, arrowFilter, onArrowFilterChange,
+  onCardClick, onChevronToggle, cardRef, dotRef, arrowFilter, onArrowFilterChange,
   selectedSubject, isNew, isExiting,
 }) {
   const innerRef = useRef(null);
   const [badgePressed, setBadgePressed] = useState(false);
-  const [pulsing, setPulsing] = useState(false);
   const [flashing, setFlashing] = useState(false);
   const prevStatusRef = useRef(status);
   const prevSelectedRef = useRef(isSelected);
@@ -20,13 +19,7 @@ export default function SubjectCard({
   const isBloqueada = status === "bloqueada";
 
   useEffect(() => {
-    const wasSelected = prevSelectedRef.current;
     prevSelectedRef.current = isSelected;
-    if (!wasSelected && isSelected) {
-      setPulsing(true);
-      const t = setTimeout(() => setPulsing(false), 220);
-      return () => clearTimeout(t);
-    }
   }, [isSelected]);
 
   useEffect(() => {
@@ -43,21 +36,17 @@ export default function SubjectCard({
     if (typeof cardRef === "function") cardRef(el);
   };
 
-  // Card click → selecciona Y abre el menú
+  // Card click: stopPropagation para que el listener global no lo interprete
+  // como click-fuera y deseleccione justo después de seleccionar.
   const handleClick = (e) => {
     e.stopPropagation();
-    onCardClick(subject.id);
-    if (!menuOpen) onOpenMenu(subject.id, innerRef.current);
+    onCardClick(subject.id, innerRef.current);
   };
 
-  // Chevron → toggle puro del menú, la selección no cambia
+  // Chevron: stopPropagation para lo mismo. Solo llama al toggle del menú.
   const handleChevronClick = (e) => {
     e.stopPropagation();
-    if (menuOpen) {
-      onOpenMenu(null, null);
-    } else {
-      onOpenMenu(subject.id, innerRef.current);
-    }
+    onChevronToggle(subject.id, innerRef.current);
   };
 
   const hasCursar  = isSelected && selectedSubject && (selectedSubject.correlatives ?? []).length > 0;
@@ -77,15 +66,15 @@ export default function SubjectCard({
   };
 
   const borderColor = highlighted
-    ? (highlightType === "forFinal-regular" ? "#3B82F6"
+    ? (highlightType === "forFinal-regular"  ? "#3B82F6"
       : highlightType === "forFinal-aprobada" ? "#8B5CF6"
-      : highlightType === "regular" ? "#F59E0B" : "#10B981")
+      : highlightType === "regular"           ? "#F59E0B" : "#10B981")
     : st.border;
 
   const bgColor = highlighted
-    ? (highlightType === "forFinal-regular" ? "#DBEAFE"
+    ? (highlightType === "forFinal-regular"  ? "#DBEAFE"
       : highlightType === "forFinal-aprobada" ? "#EDE9FE"
-      : highlightType === "regular" ? "#FDE68A" : "#A7F3D0")
+      : highlightType === "regular"           ? "#FDE68A" : "#A7F3D0")
     : st.bg;
 
   const classes = [
@@ -119,20 +108,31 @@ export default function SubjectCard({
       title={isBloqueada ? "Ver correlativas requeridas" : undefined}
     >
       <div style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem" }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, gap: "1px" }}>
+
+        {/* Zona izquierda: dot + chevron con área de toque ampliada */}
+        <div
+          style={{
+            display: "flex", flexDirection: "column", alignItems: "center",
+            flexShrink: 0, gap: "1px",
+            // Área de toque más generosa para el chevron
+            minWidth: "20px",
+          }}
+        >
           <Dot status={status} dotRef={dotRef} />
           {isSelected && (
             <button
               onClick={handleChevronClick}
               style={{
                 background: "none", border: "none", cursor: "pointer",
-                padding: 0, lineHeight: 1,
+                // Padding generoso → área clickeable más grande
+                padding: "4px 6px",
+                margin: "-4px -6px",
+                lineHeight: 1,
                 color: menuOpen ? borderColor : st.dot,
                 fontSize: "0.75rem",
                 transition: "color 0.15s, transform 0.2s",
                 transform: menuOpen ? "rotate(180deg)" : "rotate(0deg)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                width: "12px", height: "10px",
               }}
               title={menuOpen ? "Cerrar menú" : "Abrir menú"}
             >
@@ -140,9 +140,11 @@ export default function SubjectCard({
             </button>
           )}
         </div>
+
         <span style={{ fontSize: "0.82rem", fontWeight: 400, color: st.color, lineHeight: 1.3, flex: 1 }}>
           {subject.name}
         </span>
+
         {showBadge && (
           <button
             onClick={handleBadgeClick}
@@ -170,8 +172,6 @@ export default function SubjectCard({
           Correlativas pendientes
         </div>
       )}
-
-
     </div>
   );
 }
