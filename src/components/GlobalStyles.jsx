@@ -73,6 +73,18 @@ export default function GlobalStyles() {
         animation: statusFlash 0.35s ease-out forwards;
       }
 
+
+      /* ── Chevron button (franja izquierda de la card seleccionada) ─── */
+      .chevron-btn {
+        transition: background 0.12s;
+      }
+      .chevron-btn:hover {
+        background: rgba(0,0,0,0.06) !important;
+      }
+      .chevron-btn:active {
+        background: rgba(0,0,0,0.13) !important;
+        transition: background 0.05s;
+      }
       /* ── Status menu ───────────────────────────────────────────────── */
       .status-menu {
         position: fixed; z-index: 800; background: #fff;

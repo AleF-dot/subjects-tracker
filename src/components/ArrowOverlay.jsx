@@ -1,8 +1,5 @@
 import { buildPath, estimateLen } from "../utils/arrowHelpers";
 
-// Color = tipo de requisito
-// Sólidas (para cursar): naranja / verde
-// Punteadas (para final): azul / violeta — máxima diferenciación
 const TYPE_COLOR_CURSAR = { regular: "#D97706", aprobada: "#059669" };
 const TYPE_COLOR_FINAL  = { regular: "#3B82F6", aprobada: "#8B5CF6" };
 
@@ -36,20 +33,19 @@ export default function ArrowOverlay({ arrows, animKey }) {
       </defs>
 
       {arrows.map((a, i) => {
-        const isFinal   = !!a.forFinal;
-        const color     = isFinal
+        const isFinal  = !!a.forFinal;
+        const color    = isFinal
           ? (TYPE_COLOR_FINAL[a.type]  ?? "#9B6F2F")
           : (TYPE_COLOR_CURSAR[a.type] ?? "#D97706");
         const markerKey = `${a.type}-${isFinal ? "final" : "cursar"}`;
         const markerId  = `url(#${MARKER_ID[markerKey]})`;
-        const len       = estimateLen(a.x1, a.y1, a.x2, a.y2, a.dir);
         const delay     = `${i * 0.07}s`;
         const path      = buildPath(a.x1, a.y1, a.x2, a.y2, a.dir, a.rightEdge1, a.rightEdge2);
 
+        // Ambos tipos usan pathLength="1" + strokeDashoffset para la animación de dibujo.
+        // Las punteadas expresan su patrón en unidades relativas al pathLength (0..1),
+        // así strokeDashoffset funciona igual en ambos casos.
         if (isFinal) {
-          // Flechas punteadas para final: no usamos strokeDashoffset para animar
-          // porque ya está ocupado por el patrón de guiones.
-          // En cambio animamos opacity de 0 → 1.
           return (
             <path
               key={a.id}
@@ -58,14 +54,15 @@ export default function ArrowOverlay({ arrows, animKey }) {
               stroke={color}
               strokeWidth={1.8}
               strokeLinecap="round"
-              strokeDasharray="5 4"
+              pathLength="1"
+              strokeDasharray="0.06 0.04"
+              strokeDashoffset="1"
               markerEnd={markerId}
-              style={{ animation: `fadeIn 0.4s ease ${delay} both` }}
+              style={{ animation: `drawPath 0.5s cubic-bezier(0.4,0,0.2,1) ${delay} forwards` }}
             />
           );
         }
 
-        // Flechas sólidas para cursar: animación de dibujo con dashoffset
         return (
           <path
             key={a.id}
@@ -74,8 +71,9 @@ export default function ArrowOverlay({ arrows, animKey }) {
             stroke={color}
             strokeWidth={1.8}
             strokeLinecap="round"
-            strokeDasharray={len}
-            strokeDashoffset={len}
+            pathLength="1"
+            strokeDasharray="1"
+            strokeDashoffset="1"
             markerEnd={markerId}
             style={{ animation: `drawPath 0.5s cubic-bezier(0.4,0,0.2,1) ${delay} forwards` }}
           />

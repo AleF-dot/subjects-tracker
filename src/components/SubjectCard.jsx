@@ -136,6 +136,7 @@ export default function SubjectCard({
           {isSelected && (
             <button
               onClick={handleChevronClick}
+              className="chevron-btn"
               title={menuOpen ? "Cerrar menú" : "Abrir menú"}
               style={{
                 position: "absolute",
@@ -148,8 +149,6 @@ export default function SubjectCard({
                 transition: "background 0.15s",
                 zIndex: 1,
               }}
-              onMouseEnter={e => e.currentTarget.style.background = "rgba(0,0,0,0.04)"}
-              onMouseLeave={e => e.currentTarget.style.background = "none"}
             />
           )}
         </div>
