@@ -77,6 +77,14 @@ export default function InfoModal() {
       <Modal open={open} onClose={() => setOpen(false)} title="Info / Privacidad">
         <div style={{ display: "flex", flexDirection: "column" }}>
 
+          {section("Acerca de", <>
+            {prose("Subjects Tracker es una herramienta gratuita para estudiantes universitarios de la URN y UTN. Permite visualizar y gestionar el plan de estudios y sus correlatividades.")}
+          </>)}
+
+          {section("Privacidad", <>
+            {prose("Todos tus datos se guardan exclusivamente en el almacenamiento local de tu navegador (localStorage). No se envía ninguna información a servidores externos. En modo incógnito o al limpiar los datos del navegador, el progreso se pierde.")}
+          </>)}
+
           {section("Compartir", <>
             <button
               className="btn-ghost"
@@ -85,14 +93,6 @@ export default function InfoModal() {
             >
               {copied ? "✓ Link copiado" : "⤴ Compartir Subjects Tracker"}
             </button>
-          </>)}
-
-          {section("Acerca de", <>
-            {prose("Subjects Tracker es una herramienta gratuita para estudiantes universitarios de la URN y UTN. Permite visualizar y gestionar el plan de estudios y sus correlatividades.")}
-          </>)}
-
-          {section("Privacidad", <>
-            {prose("Todos tus datos se guardan exclusivamente en el almacenamiento local de tu navegador (localStorage). No se envía ninguna información a servidores externos. En modo incógnito o al limpiar los datos del navegador, el progreso se pierde.")}
           </>)}
 
           {section("Contacto", <>
