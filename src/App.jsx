@@ -9,6 +9,7 @@ import ArrowOverlay  from "./components/ArrowOverlay";
 import StatusMenu    from "./components/StatusMenu";
 import AddModal      from "./components/AddModal";
 import Toast         from "./components/Toast";
+import InfoModal     from "./components/InfoModal";
 
 import { useCurriculumData } from "./hooks/useCurriculumData";
 import { useArrows }         from "./hooks/useArrows";
@@ -233,6 +234,18 @@ export default function App() {
       />
 
       {toast && <Toast msg={toast.msg} type={toast.type} />}
+
+      <footer style={{
+        position: "fixed", bottom: 0, left: 0, right: 0,
+        display: "flex", justifyContent: "center", alignItems: "center",
+        padding: "0.4rem",
+        background: "linear-gradient(to top, #F5F2EC 60%, transparent)",
+        zIndex: 400, pointerEvents: "none",
+      }}>
+        <div style={{ pointerEvents: "auto" }}>
+          <InfoModal />
+        </div>
+      </footer>
 
       {menuAnchor.subjectId && menuAnchor.el && (() => {
         const sid     = menuAnchor.subjectId;
