@@ -58,13 +58,13 @@ export default function SubjectCard({
   };
 
   const borderColor = highlighted
-    ? (highlightType === "forFinal-regular"  ? "#0891B2"
-      : highlightType === "forFinal-aprobada" ? "#8B5CF6"
+    ? (highlightType === "forFinal-regular"  ? "#06B6D4"
+      : highlightType === "forFinal-aprobada" ? "#7C3AED"
       : highlightType === "regular"           ? "#F59E0B" : "#10B981")
     : st.border;
 
   const bgColor = highlighted
-    ? (highlightType === "forFinal-regular"  ? "#E0F2FE"
+    ? (highlightType === "forFinal-regular"  ? "#ECFEFF"
       : highlightType === "forFinal-aprobada" ? "#EDE9FE"
       : highlightType === "regular"           ? "#FDE68A" : "#A7F3D0")
     : st.bg;

@@ -5,7 +5,7 @@ const MAIL = "subjectstracker@gmail.com";
 
 export default function InfoModal() {
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [form, setForm] = useState({ name: "", message: "" });
 
   const section = (title, children) => (
     <div style={{ marginBottom: "1.25rem" }}>
@@ -35,7 +35,7 @@ export default function InfoModal() {
   const mailtoHref = () => {
     const subject = encodeURIComponent(`Subjects Tracker – Reporte de ${form.name || "usuario"}`);
     const body = encodeURIComponent(
-      `Nombre: ${form.name}\nMail: ${form.email}\n\n${form.message}`
+      `Nombre: ${form.name}\n\n${form.message}`
     );
     return `mailto:${MAIL}?subject=${subject}&body=${body}`;
   };
@@ -104,15 +104,6 @@ export default function InfoModal() {
                 placeholder="Tu nombre"
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                onFocus={e => e.target.style.borderColor = "#9CA3AF"}
-                onBlur={e => e.target.style.borderColor = "#D5D0C8"}
-              />
-              <input
-                style={inputStyle}
-                placeholder="Tu email (opcional)"
-                type="email"
-                value={form.email}
-                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                 onFocus={e => e.target.style.borderColor = "#9CA3AF"}
                 onBlur={e => e.target.style.borderColor = "#D5D0C8"}
               />

@@ -31,10 +31,10 @@ export default function Legend() {
           <SolidArrow color="#059669" /> Aprobadas necesarias para cursar
         </span>
         <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <DashArrow color="#0891B2" /> Regulares necesarias para aprobación
+          <DashArrow color="#06B6D4" /> Regulares necesarias para aprobación
         </span>
         <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <DashArrow color="#8B5CF6" /> Aprobadas necesarias para aprobación
+          <DashArrow color="#7C3AED" /> Aprobadas necesarias para aprobación
         </span>
       </span>
     </div>
