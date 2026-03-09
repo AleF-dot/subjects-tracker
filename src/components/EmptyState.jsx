@@ -20,7 +20,7 @@ export default function EmptyState({ onNewSubject }) {
         fontWeight: 700, letterSpacing: "-0.02em",
         marginBottom: "0.6rem", color: "#2C2A25",
       }}>
-        Tu plan de estudios te espera
+        Tu plan de estudios no tiene materias aún
       </h2>
 
       <p style={{
