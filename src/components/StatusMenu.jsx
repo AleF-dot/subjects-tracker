@@ -57,9 +57,9 @@ export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete
           >
             <Dot status={s} />
             <span style={{ color: STATUS[s].color }}>{STATUS[s].label}</span>
-            {isActive && <span style={{ marginLeft: "auto", fontSize: "0.65rem", color: "#bbb" }}>✓</span>}
+            {isActive && <span style={{ marginLeft: "auto", fontSize: "0.65rem", color: "var(--text-faint)" }}>✓</span>}
             {blocked && !isActive && (
-              <span style={{ marginLeft: "auto", fontSize: "0.58rem", color: "#bbb", textAlign: "right", maxWidth: 90 }}>
+              <span style={{ marginLeft: "auto", fontSize: "0.58rem", color: "var(--text-faint)", textAlign: "right", maxWidth: 90 }}>
                 {BLOCK_REASON[s]}
               </span>
             )}
@@ -69,14 +69,14 @@ export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete
       <button
         className="status-menu-item"
         onClick={() => { onEdit(); onClose(); }}
-        style={{ borderTop: (allowed.disponible || allowed.cursando || allowed.regular || allowed.aprobada) ? "1px solid #E0DAD0" : "none", color: "#555" }}
+        style={{ borderTop: (allowed.disponible || allowed.cursando || allowed.regular || allowed.aprobada) ? "1px solid #E0DAD0" : "none", color: "var(--text-secondary)" }}
       >
         <span style={{ fontSize: "0.8rem" }}>✎</span> Editar materia
       </button>
       <button
         className="status-menu-item"
         onClick={() => { onDelete(); onClose(); }}
-        style={{ color: "#b44" }}
+        style={{ color: "var(--status-bloqueada-dot)" }}
       >
         <span style={{ fontSize: "0.8rem" }}>✕</span> Eliminar materia
       </button>

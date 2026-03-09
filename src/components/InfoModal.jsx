@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useTheme } from "../context/ThemeContext";
 import Modal from "./Modal";
 
 const MAIL = "subjectstracker@gmail.com";
 
 export default function InfoModal() {
   const [open, setOpen] = useState(false);
+  const { dark, toggle } = useTheme();
   const [form, setForm] = useState({ name: "", message: "" });
   const [copied, setCopied] = useState(false);
 
@@ -23,7 +25,7 @@ export default function InfoModal() {
     <div style={{ marginBottom: "1.25rem" }}>
       <div style={{
         fontSize: "0.6rem", letterSpacing: "0.14em", textTransform: "uppercase",
-        color: "#aaa", fontFamily: "'DM Mono', monospace", marginBottom: "0.45rem",
+        color: "var(--text-muted)", fontFamily: "'DM Mono', monospace", marginBottom: "0.45rem",
       }}>
         {title}
       </div>
@@ -32,14 +34,14 @@ export default function InfoModal() {
   );
 
   const prose = (text) => (
-    <p style={{ fontSize: "0.78rem", color: "#666", lineHeight: 1.6, margin: 0 }}>{text}</p>
+    <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", lineHeight: 1.6, margin: 0 }}>{text}</p>
   );
 
   const inputStyle = {
     width: "100%", boxSizing: "border-box",
-    background: "#EFECE6", border: "1px solid #D5D0C8",
+    background: "var(--bg-elevated)", border: "1px solid var(--border)",
     borderRadius: "7px", padding: "0.55rem 0.7rem",
-    fontSize: "0.78rem", color: "#444",
+    fontSize: "0.78rem", color: "var(--text-primary)",
     outline: "none", fontFamily: "inherit",
     transition: "border-color 0.15s",
   };
@@ -63,13 +65,13 @@ export default function InfoModal() {
         onClick={() => setOpen(true)}
         style={{
           background: "none", border: "none", cursor: "pointer",
-          fontSize: "0.65rem", color: "#bbb", letterSpacing: "0.08em",
+          fontSize: "0.65rem", color: "var(--text-faint)", letterSpacing: "0.08em",
           textTransform: "uppercase", fontFamily: "'DM Mono', monospace",
           padding: "0.3rem 0.6rem", borderRadius: "4px",
           transition: "color 0.15s",
         }}
-        onMouseEnter={e => e.currentTarget.style.color = "#888"}
-        onMouseLeave={e => e.currentTarget.style.color = "#bbb"}
+        onMouseEnter={e => e.currentTarget.style.color = "var(--text-muted)"}
+        onMouseLeave={e => e.currentTarget.style.color = "var(--text-faint)"}
       >
         Info / Privacidad
       </button>
@@ -85,6 +87,40 @@ export default function InfoModal() {
             {prose("Todos los datos se guardan exclusivamente en el almacenamiento local del navegador. No se envía ninguna información a servidores externos. En modo incógnito o al limpiar los datos del navegador, estos se perderán.")}
           </>)}
 
+          {section("Apariencia", <>
+            <button
+              onClick={toggle}
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                width: "100%", background: "var(--bg-elevated)",
+                border: "1px solid var(--border)", borderRadius: "8px",
+                padding: "0.6rem 0.8rem", cursor: "pointer",
+                transition: "background 0.15s",
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
+              onMouseLeave={e => e.currentTarget.style.background = "var(--bg-elevated)"}
+            >
+              <span style={{ fontSize: "0.78rem", color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                {dark ? "🌙" : "☀️"} {dark ? "Modo oscuro" : "Modo claro"}
+              </span>
+              <span style={{
+                width: "36px", height: "20px", borderRadius: "10px",
+                background: dark ? "var(--btn-primary-bg)" : "var(--border)",
+                position: "relative", display: "inline-block",
+                transition: "background 0.2s", flexShrink: 0,
+              }}>
+                <span style={{
+                  position: "absolute", top: "3px",
+                  left: dark ? "19px" : "3px",
+                  width: "14px", height: "14px", borderRadius: "50%",
+                  background: dark ? "var(--btn-primary-fg)" : "var(--bg-card)",
+                  transition: "left 0.2s",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+                }} />
+              </span>
+            </button>
+          </>)}
+
           {section("Compartir", <>
             <button
               className="btn-ghost"
@@ -98,21 +134,21 @@ export default function InfoModal() {
           {section("Contacto", <>
             <div style={{
               display: "flex", alignItems: "center", gap: "0.5rem",
-              background: "#EFECE6", borderRadius: "8px", padding: "0.55rem 0.8rem",
+              background: "var(--bg-elevated)", borderRadius: "8px", padding: "0.55rem 0.8rem",
             }}>
-              <span style={{ fontSize: "0.75rem", color: "#555", flex: 1, fontFamily: "'DM Mono', monospace" }}>
+              <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", flex: 1, fontFamily: "'DM Mono', monospace" }}>
                 {MAIL}
               </span>
               <a
                 href={`mailto:${MAIL}`}
                 style={{
-                  fontSize: "0.7rem", color: "#fff", background: "#6B7280",
+                  fontSize: "0.7rem", color: "#fff", background: "var(--text-muted)",
                   borderRadius: "5px", padding: "0.3rem 0.65rem",
                   textDecoration: "none", flexShrink: 0,
                   transition: "background 0.15s",
                 }}
-                onMouseEnter={e => e.currentTarget.style.background = "#4B5563"}
-                onMouseLeave={e => e.currentTarget.style.background = "#6B7280"}
+                onMouseEnter={e => e.currentTarget.style.background = "var(--text-secondary)"}
+                onMouseLeave={e => e.currentTarget.style.background = "var(--text-muted)"}
               >
                 Abrir mail
               </a>
@@ -126,16 +162,16 @@ export default function InfoModal() {
                 placeholder="Tu nombre"
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                onFocus={e => e.target.style.borderColor = "#9CA3AF"}
-                onBlur={e => e.target.style.borderColor = "#D5D0C8"}
+                onFocus={e => e.target.style.borderColor = "var(--text-muted)"}
+                onBlur={e => e.target.style.borderColor = "var(--border)"}
               />
               <textarea
                 style={{ ...inputStyle, resize: "vertical", minHeight: "90px", lineHeight: 1.5 }}
                 placeholder="Describí el problema o sugerencia..."
                 value={form.message}
                 onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
-                onFocus={e => e.target.style.borderColor = "#9CA3AF"}
-                onBlur={e => e.target.style.borderColor = "#D5D0C8"}
+                onFocus={e => e.target.style.borderColor = "var(--text-muted)"}
+                onBlur={e => e.target.style.borderColor = "var(--border)"}
               />
               <button
                 className="btn-primary"
@@ -145,13 +181,13 @@ export default function InfoModal() {
               >
                 Enviar →
               </button>
-              <p style={{ fontSize: "0.62rem", color: "#bbb", margin: 0, lineHeight: 1.4 }}>
+              <p style={{ fontSize: "0.62rem", color: "var(--text-faint)", margin: 0, lineHeight: 1.4 }}>
                 Se abrirá tu cliente de correo con el mensaje listo para enviar.
               </p>
             </div>
           </>)}
 
-          <p style={{ fontSize: "0.62rem", color: "#ccc", margin: "0.25rem 0 0", textAlign: "center", fontFamily: "'DM Mono', monospace" }}>
+          <p style={{ fontSize: "0.62rem", color: "var(--text-ghost)", margin: "0.25rem 0 0", textAlign: "center", fontFamily: "'DM Mono', monospace" }}>
             v1.0 · {new Date().getFullYear()}
           </p>
         </div>

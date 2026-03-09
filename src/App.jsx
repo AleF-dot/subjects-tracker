@@ -185,7 +185,7 @@ export default function App() {
       <GlobalStyles />
       <ArrowOverlay arrows={arrows} animKey={animKey} exiting={exiting} />
 
-      <div style={{ minHeight: "100vh", background: "#F5F2EC" }}>
+      <div style={{ minHeight: "100vh", background: "var(--bg-card)" }}>
         <Header
           counts={counts}
           onImport={handleImport}
@@ -244,7 +244,7 @@ export default function App() {
         position: "fixed", bottom: 0, left: 0, right: 0,
         display: "flex", justifyContent: "center", alignItems: "center",
         padding: "0.4rem",
-        background: "linear-gradient(to top, #F5F2EC 60%, transparent)",
+        background: "linear-gradient(to top, var(--bg) 60%, transparent)",
         zIndex: 400, pointerEvents: "none",
       }}>
         <div style={{ pointerEvents: "auto" }}>

@@ -3,12 +3,86 @@ export default function GlobalStyles() {
     <style>{`
       @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap');
 
+      /* ── Theme tokens ───────────────────────────────────────────────── */
+      :root, [data-theme="light"] {
+        --bg:           #F5F2EC;
+        --bg-card:      #F5F2EC;
+        --bg-elevated:  #EFECE6;
+        --bg-hover:     #E8E4DC;
+        --border:       #D5D0C8;
+        --border-soft:  #EAE6DF;
+        --border-menu:  #E0DAD0;
+        --text-primary: #1a1a1a;
+        --text-secondary: #555;
+        --text-muted:   #888;
+        --text-faint:   #bbb;
+        --text-ghost:   #ccc;
+        --btn-primary-bg: #1a1a1a;
+        --btn-primary-fg: #F5F2EC;
+        --btn-primary-hover: #333;
+        --menu-bg:      #fff;
+        --menu-hover:   #F5F2EC;
+        --menu-active:  #F0EDE7;
+        --modal-backdrop: rgba(20,18,14,0.5);
+        --scrollbar:    #c8c2b6;
+        /* status */
+        --status-disponible-bg: #E5E7EB; --status-disponible-border: #9CA3AF; --status-disponible-dot: #6B7280; --status-disponible-color: #4B5563;
+        --status-cursando-bg:   #BFDBFE; --status-cursando-border:   #3B82F6; --status-cursando-dot:   #2563EB; --status-cursando-color:   #0259A8;
+        --status-regular-bg:    #FDE68A; --status-regular-border:    #F59E0B; --status-regular-dot:    #D97706; --status-regular-color:    #92400E;
+        --status-aprobada-bg:   #A7F3D0; --status-aprobada-border:   #10B981; --status-aprobada-dot:   #059669; --status-aprobada-color:   #064E3B;
+        --status-bloqueada-bg:  #FECACA; --status-bloqueada-border:  #EF4444; --status-bloqueada-dot:  #DC2626; --status-bloqueada-color:  #7F1D1D;
+        /* highlight */
+        --hl-regular-border:      #F59E0B; --hl-regular-bg:      #FDE68A;
+        --hl-aprobada-border:     #10B981; --hl-aprobada-bg:     #A7F3D0;
+        --hl-final-reg-border:    #06B6D4; --hl-final-reg-bg:    #ECFEFF;
+        --hl-final-apr-border:    #7C3AED; --hl-final-apr-bg:    #EDE9FE;
+      }
+
+      [data-theme="dark"] {
+        --bg:           #1A1A1F;
+        --bg-card:      #25252D;
+        --bg-elevated:  #2D2D38;
+        --bg-hover:     #35353F;
+        --border:       #3A3A48;
+        --border-soft:  #2E2E3A;
+        --border-menu:  #3A3A48;
+        --text-primary: #EDEDF0;
+        --text-secondary: #B0B0BF;
+        --text-muted:   #7A7A8C;
+        --text-faint:   #55556A;
+        --text-ghost:   #3A3A50;
+        --btn-primary-bg: #EDEDF0;
+        --btn-primary-fg: #1A1A1F;
+        --btn-primary-hover: #fff;
+        --menu-bg:      #2D2D38;
+        --menu-hover:   #35353F;
+        --menu-active:  #3A3A48;
+        --modal-backdrop: rgba(0,0,0,0.65);
+        --scrollbar:    #3A3A48;
+        /* status dark — más suaves para no quemar en fondo oscuro */
+        --status-disponible-bg: #2A2A35; --status-disponible-border: #55556A; --status-disponible-dot: #7A7A8C; --status-disponible-color: #A0A0B5;
+        --status-cursando-bg:   #1E2D4A; --status-cursando-border:   #3B82F6; --status-cursando-dot:   #60A5FA; --status-cursando-color:   #93C5FD;
+        --status-regular-bg:    #2E2010; --status-regular-border:    #D97706; --status-regular-dot:    #FBBF24; --status-regular-color:    #FCD34D;
+        --status-aprobada-bg:   #0D2A1E; --status-aprobada-border:   #059669; --status-aprobada-dot:   #34D399; --status-aprobada-color:   #6EE7B7;
+        --status-bloqueada-bg:  #2A1010; --status-bloqueada-border:  #EF4444; --status-bloqueada-dot:  #F87171; --status-bloqueada-color:  #FCA5A5;
+        /* highlight dark */
+        --hl-regular-border:      #D97706; --hl-regular-bg:      #2E2010;
+        --hl-aprobada-border:     #059669; --hl-aprobada-bg:     #0D2A1E;
+        --hl-final-reg-border:    #06B6D4; --hl-final-reg-bg:    #0A2535;
+        --hl-final-apr-border:    #7C3AED; --hl-final-apr-bg:    #1E1535;
+      }
+
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-      body { background: #F5F2EC; color: #1a1a1a; font-family: 'DM Sans', sans-serif; }
+      body {
+        background: var(--bg);
+        color: var(--text-primary);
+        font-family: 'DM Sans', sans-serif;
+        transition: background 0.25s ease, color 0.25s ease;
+      }
 
       ::-webkit-scrollbar { width: 4px; height: 4px; }
       ::-webkit-scrollbar-track { background: transparent; }
-      ::-webkit-scrollbar-thumb { background: #c8c2b6; border-radius: 2px; }
+      ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 2px; }
 
       select, input, button { font-family: inherit; }
       select { appearance: none; -webkit-appearance: none; }
@@ -22,20 +96,15 @@ export default function GlobalStyles() {
       @keyframes drawPath  { to { stroke-dashoffset: 0 } }
       @keyframes undrawPath { from { stroke-dashoffset: 0 } to { stroke-dashoffset: var(--path-len) } }
 
-      /* Entrada al agregar */
       @keyframes cardEnter {
         0%   { opacity: 0; transform: scale(0.88) translateY(4px); }
         70%  { opacity: 1; transform: scale(1.02); }
         100% { opacity: 1; transform: none; }
       }
-
-      /* Salida al eliminar — solo opacity + scale, sin max-height */
       @keyframes cardExit {
         0%   { opacity: 1; transform: none; }
         100% { opacity: 0; transform: scale(0.85) translateY(-4px); }
       }
-
-      /* Flash de status — solo opacity, sin filter */
       @keyframes statusFlash {
         0%   { opacity: 1; }
         40%  { opacity: 0.6; }
@@ -46,114 +115,101 @@ export default function GlobalStyles() {
       .subject-card {
         cursor: pointer;
         user-select: none;
-        /* Solo transform en transition — compuesto por GPU, sin repaint */
-        transition: transform 0.12s ease, opacity 0.12s ease, box-shadow 0.12s ease;
+        transition: transform 0.12s ease, opacity 0.12s ease, box-shadow 0.12s ease, background 0.25s ease, border-color 0.25s ease;
         position: relative;
-        /* will-change solo en hover, no siempre */
       }
       .subject-card:hover {
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
         will-change: transform;
       }
-      .subject-card:not(:hover) {
-        will-change: auto;
-      }
+      .subject-card:not(:hover) { will-change: auto; }
       .subject-card:active:not(:has(button:active)) {
         transform: scale(0.97);
         transition: transform 0.06s ease;
       }
+      .subject-card.card-enter  { animation: cardEnter 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+      .subject-card.card-exit   { animation: cardExit 0.22s ease-in forwards; pointer-events: none; }
+      .subject-card.card-status-flash { animation: statusFlash 0.3s ease-out forwards; }
 
-      .subject-card.card-enter {
-        animation: cardEnter 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-      }
+      /* ── SVG arrows ────────────────────────────────────────────────── */
+      svg[data-arrows] { will-change: contents; }
+      svg[data-arrows] path { will-change: stroke-dashoffset, opacity; }
 
-      .subject-card.card-exit {
-        animation: cardExit 0.22s ease-in forwards;
-        pointer-events: none;
-      }
-
-      .subject-card.card-status-flash {
-        animation: statusFlash 0.3s ease-out forwards;
-      }
-
-      /* ── SVG arrows — promote to own layer ─────────────────────────── */
-      svg[data-arrows] {
-        will-change: contents;
-      }
-      svg[data-arrows] path {
-        will-change: stroke-dashoffset, opacity;
-      }
-
-      /* ── Chevron button ─────────────────────────────────────────────── */
-      .chevron-btn {
-        transition: background 0.1s;
-      }
-      .chevron-btn:hover {
-        background: rgba(0,0,0,0.06) !important;
-      }
-      .chevron-btn:active {
-        background: rgba(0,0,0,0.13) !important;
-        transition: background 0.04s;
-      }
+      /* ── Chevron ───────────────────────────────────────────────────── */
+      .chevron-btn { transition: background 0.1s; }
+      .chevron-btn:hover  { background: rgba(128,128,128,0.1) !important; }
+      .chevron-btn:active { background: rgba(128,128,128,0.2) !important; transition: background 0.04s; }
 
       /* ── Status menu ───────────────────────────────────────────────── */
       .status-menu {
-        position: fixed; z-index: 800; background: #fff;
-        border: 1px solid #E0DAD0; border-radius: 8px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.13); overflow: hidden;
-        min-width: 160px; animation: menuIn 0.12s ease;
+        position: fixed; z-index: 800;
+        background: var(--menu-bg);
+        border: 1px solid var(--border-menu);
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+        overflow: hidden;
+        min-width: 160px;
+        animation: menuIn 0.12s ease;
         will-change: transform, opacity;
       }
       .status-menu-item {
         padding: 0.55rem 0.9rem; font-size: 0.8rem; cursor: pointer;
         display: flex; align-items: center; gap: 0.5rem;
-        transition: background 0.08s, transform 0.08s; border: none; background: transparent;
+        transition: background 0.08s, transform 0.08s;
+        border: none; background: transparent;
         width: 100%; text-align: left;
+        color: var(--text-primary);
       }
-      .status-menu-item:hover { background: #F5F2EC; transform: translateX(2px); }
+      .status-menu-item:hover  { background: var(--menu-hover); transform: translateX(2px); }
       .status-menu-item:active { transform: translateX(2px) scale(0.98); }
-      .status-menu-item.active { background: #F0EDE7; font-weight: 500; }
-      .status-menu-item + .status-menu-item { border-top: 1px solid #F0EDE7; }
+      .status-menu-item.active { background: var(--menu-active); font-weight: 500; }
+      .status-menu-item + .status-menu-item { border-top: 1px solid var(--border-soft); }
 
       /* ── Buttons ───────────────────────────────────────────────────── */
       .btn-primary {
-        background: #1a1a1a; color: #F5F2EC; border: none;
-        padding: 0.65rem 1.4rem; border-radius: 6px; font-size: 0.82rem;
-        font-weight: 500; cursor: pointer; letter-spacing: 0.03em;
+        background: var(--btn-primary-bg); color: var(--btn-primary-fg);
+        border: none; padding: 0.65rem 1.4rem; border-radius: 6px;
+        font-size: 0.82rem; font-weight: 500; cursor: pointer;
+        letter-spacing: 0.03em;
         transition: background 0.12s, transform 0.1s, box-shadow 0.12s;
         will-change: transform;
       }
-      .btn-primary:hover { background: #333; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.18); }
+      .btn-primary:hover  { background: var(--btn-primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.18); }
       .btn-primary:active { transform: scale(0.97); box-shadow: none; transition: transform 0.05s; }
 
       .btn-ghost {
-        background: transparent; color: #888; border: 1px solid #D5D0C8;
+        background: transparent; color: var(--text-muted);
+        border: 1px solid var(--border);
         padding: 0.65rem 1.2rem; border-radius: 6px; font-size: 0.82rem;
         cursor: pointer; letter-spacing: 0.03em;
         transition: border-color 0.12s, color 0.12s, transform 0.1s;
       }
-      .btn-ghost:hover { border-color: #999; color: #444; transform: translateY(-1px); }
+      .btn-ghost:hover  { border-color: var(--text-muted); color: var(--text-secondary); transform: translateY(-1px); }
       .btn-ghost:active { transform: scale(0.97); transition: transform 0.05s; }
 
       /* ── Inputs ────────────────────────────────────────────────────── */
       .input-field {
-        width: 100%; background: #EFECE6; border: 1px solid #D5D0C8;
+        width: 100%; background: var(--bg-elevated);
+        border: 1px solid var(--border);
         border-radius: 6px; padding: 0.7rem 0.9rem; font-size: 0.88rem;
-        color: #1a1a1a; outline: none; transition: border-color 0.12s, box-shadow 0.12s;
+        color: var(--text-primary); outline: none;
+        transition: border-color 0.12s, box-shadow 0.12s;
       }
-      .input-field:focus { border-color: #999; box-shadow: 0 0 0 3px rgba(0,0,0,0.06); }
-      .input-field::placeholder { color: #bbb; }
+      .input-field:focus { border-color: var(--text-muted); box-shadow: 0 0 0 3px rgba(128,128,128,0.12); }
+      .input-field::placeholder { color: var(--text-faint); }
 
       .select-field {
-        width: 100%; background: #EFECE6; border: 1px solid #D5D0C8;
+        width: 100%; background: var(--bg-elevated);
+        border: 1px solid var(--border);
         border-radius: 6px; padding: 0.7rem 2rem 0.7rem 0.9rem; font-size: 0.88rem;
-        color: #1a1a1a; outline: none; cursor: pointer; transition: border-color 0.12s;
+        color: var(--text-primary); outline: none; cursor: pointer;
+        transition: border-color 0.12s;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%23999' d='M5 7L0 2h10z'/%3E%3C/svg%3E");
         background-repeat: no-repeat; background-position: right 0.8rem center;
       }
-      .select-menu-item:focus { border-color: #999; }
-      .select-field option { background: #F5F2EC; }
+      .select-field:focus { border-color: var(--text-muted); }
+      .select-field option { background: var(--bg-elevated); }
     `}</style>
   );
 }

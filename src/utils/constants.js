@@ -5,10 +5,10 @@ export const defaultData = { years: YEAR_LABELS.map((label, i) => ({ id: i + 1, 
 export const uid = () => Math.random().toString(36).slice(2, 9);
 
 export const STATUS = {
-  disponible: { label: "Disponible", color: "#4B5563", bg: "#E5E7EB", border: "#9CA3AF", dot: "#6B7280" },
-  cursando:   { label: "Cursando",   color: "#0259A8", bg: "#BFDBFE", border: "#3B82F6", dot: "#2563EB" },
-  regular:    { label: "Regular",    color: "#92400E", bg: "#FDE68A", border: "#F59E0B", dot: "#D97706" },
-  aprobada:   { label: "Aprobada",   color: "#064E3B", bg: "#A7F3D0", border: "#10B981", dot: "#059669" },
-  bloqueada:  { label: "Bloqueada",  color: "#7F1D1D", bg: "#FECACA", border: "#EF4444", dot: "#DC2626" },
+  disponible: { label: "Disponible", bg: "var(--status-disponible-bg)", border: "var(--status-disponible-border)", dot: "var(--status-disponible-dot)", color: "var(--status-disponible-color)" },
+  cursando:   { label: "Cursando",   bg: "var(--status-cursando-bg)",   border: "var(--status-cursando-border)",   dot: "var(--status-cursando-dot)",   color: "var(--status-cursando-color)"   },
+  regular:    { label: "Regular",    bg: "var(--status-regular-bg)",    border: "var(--status-regular-border)",    dot: "var(--status-regular-dot)",    color: "var(--status-regular-color)"    },
+  aprobada:   { label: "Aprobada",   bg: "var(--status-aprobada-bg)",   border: "var(--status-aprobada-border)",   dot: "var(--status-aprobada-dot)",   color: "var(--status-aprobada-color)"   },
+  bloqueada:  { label: "Bloqueada",  bg: "var(--status-bloqueada-bg)",  border: "var(--status-bloqueada-border)",  dot: "var(--status-bloqueada-dot)",  color: "var(--status-bloqueada-color)"  },
 };
 export const STATUS_ORDER = ["disponible", "cursando", "regular", "aprobada"];

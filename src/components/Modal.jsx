@@ -18,11 +18,11 @@ export default function Modal({ open, onClose, children, title }) {
     }}>
       <div
         onClick={onClose}
-        style={{ position: "fixed", inset: 0, background: "rgba(20,18,14,0.5)", backdropFilter: "blur(3px)" }}
+        style={{ position: "fixed", inset: 0, background: "var(--modal-backdrop)", backdropFilter: "blur(3px)" }}
       />
       <div style={{
         position: "relative",
-        background: "#F5F2EC", border: "1px solid #D5D0C8",
+        background: "var(--bg)", border: "1px solid #D5D0C8",
         borderRadius: "12px", padding: "2rem",
         width: "100%", maxWidth: "480px",
         margin: "auto",             // centra verticalmente cuando hay espacio
@@ -31,7 +31,7 @@ export default function Modal({ open, onClose, children, title }) {
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
           <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.2rem" }}>{title}</h3>
-          <button onClick={onClose} style={{ background: "#EFECE6", border: "none", width: 28, height: 28, borderRadius: "6px", cursor: "pointer", fontSize: "0.85rem", color: "#888" }}>✕</button>
+          <button onClick={onClose} style={{ background: "var(--bg-elevated)", border: "none", width: 28, height: 28, borderRadius: "6px", cursor: "pointer", fontSize: "0.85rem", color: "var(--text-muted)" }}>✕</button>
         </div>
         {children}
       </div>

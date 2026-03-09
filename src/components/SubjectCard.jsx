@@ -58,15 +58,15 @@ export default function SubjectCard({
   };
 
   const borderColor = highlighted
-    ? (highlightType === "forFinal-regular"  ? "#06B6D4"
-      : highlightType === "forFinal-aprobada" ? "#7C3AED"
-      : highlightType === "regular"           ? "#F59E0B" : "#10B981")
+    ? (highlightType === "forFinal-regular"  ? "var(--hl-final-reg-border)"
+      : highlightType === "forFinal-aprobada" ? "var(--hl-final-apr-border)"
+      : highlightType === "regular"           ? "var(--hl-regular-border)" : "var(--hl-aprobada-border)")
     : st.border;
 
   const bgColor = highlighted
-    ? (highlightType === "forFinal-regular"  ? "#ECFEFF"
-      : highlightType === "forFinal-aprobada" ? "#EDE9FE"
-      : highlightType === "regular"           ? "#FDE68A" : "#A7F3D0")
+    ? (highlightType === "forFinal-regular"  ? "var(--hl-final-reg-bg)"
+      : highlightType === "forFinal-aprobada" ? "var(--hl-final-apr-bg)"
+      : highlightType === "regular"           ? "var(--hl-regular-bg)" : "var(--hl-aprobada-bg)")
     : st.bg;
 
   const classes = [
@@ -164,7 +164,7 @@ export default function SubjectCard({
               width: "20px", height: "20px", borderRadius: "4px",
               border: `1.5px solid ${BADGE_COLOR}`,
               background: badgePressed ? BADGE_COLOR : BADGE_COLOR + "18",
-              color: badgePressed ? "#fff" : BADGE_COLOR,
+              color: badgePressed ? "var(--menu-bg)" : BADGE_COLOR,
               fontSize: "0.6rem", fontWeight: 700, cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center",
               padding: 0, lineHeight: 1,
@@ -180,7 +180,7 @@ export default function SubjectCard({
       </div>
 
       {isBloqueada && (
-        <div style={{ fontSize: "0.62rem", color: "#DC2626", marginTop: 3, marginLeft: 12, fontStyle: "italic" }}>
+        <div style={{ fontSize: "0.62rem", color: "var(--status-bloqueada-dot)", marginTop: 3, marginLeft: 12, fontStyle: "italic" }}>
           Correlativas pendientes
         </div>
       )}

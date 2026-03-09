@@ -16,7 +16,7 @@ const DashArrow = ({ color }) => (
 
 export default function Legend() {
   return (
-    <div style={{ padding: "0.55rem 2rem", borderBottom: "1px solid #EAE6DF", fontSize: "0.68rem", color: "#999", display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+    <div style={{ padding: "0.55rem 2rem", borderBottom: "1px solid #EAE6DF", fontSize: "0.68rem", color: "var(--text-muted)", display: "flex", flexDirection: "column", gap: "0.4rem" }}>
       <div style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap", alignItems: "center" }}>
         {Object.entries(STATUS).map(([key, s]) => (
           <span key={key} style={{ display: "flex", alignItems: "center", gap: 5 }}>

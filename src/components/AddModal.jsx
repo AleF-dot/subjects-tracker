@@ -2,13 +2,13 @@ import { useState, useEffect } from "react";
 import Modal from "./Modal";
 
 const lbl = {
-  fontSize: "0.7rem", color: "#999", letterSpacing: "0.09em",
+  fontSize: "0.7rem", color: "var(--text-muted)", letterSpacing: "0.09em",
   textTransform: "uppercase", display: "block", marginBottom: "0.35rem",
 };
 
 const corrItemStyle = {
   display: "flex", justifyContent: "space-between", alignItems: "center",
-  background: "#EFECE6", borderRadius: "6px", padding: "0.4rem 0.65rem",
+  background: "var(--bg-elevated)", borderRadius: "6px", padding: "0.4rem 0.65rem",
 };
 
 // Colores consistentes con ArrowOverlay
@@ -73,12 +73,12 @@ function CorrSection({ allSubjects, subjectsByYear, list, setList, forFinal }) {
                       <polygon points="11,2 18,5 11,8" fill={arrowColor} />
                     </svg>
                   )}
-                  <span style={{ fontSize: "0.73rem", color: "#555" }}>
+                  <span style={{ fontSize: "0.73rem", color: "var(--text-secondary)" }}>
                     {isReg ? "Regular" : "Aprobada"} · {sub?.name}
                   </span>
                 </div>
                 <button onClick={() => setList(l => l.filter(x => x.subjectId !== c.subjectId))}
-                  style={{ background: "none", border: "none", color: "#bbb", cursor: "pointer", fontSize: "0.78rem" }}>✕</button>
+                  style={{ background: "none", border: "none", color: "var(--text-faint)", cursor: "pointer", fontSize: "0.78rem" }}>✕</button>
               </div>
             );
           })}
@@ -152,7 +152,7 @@ export default function AddModal({ open, onClose, data, onAdd, editSubject, onEd
             disabled={isEdit} style={isEdit ? { opacity: 0.5, cursor: "not-allowed" } : {}}>
             {data.years.map(y => <option key={y.id} value={y.id}>{y.label}</option>)}
           </select>
-          {isEdit && <span style={{ fontSize: "0.65rem", color: "#aaa", marginTop: "0.2rem", display: "block" }}>El año no se puede cambiar al editar.</span>}
+          {isEdit && <span style={{ fontSize: "0.65rem", color: "var(--text-muted)", marginTop: "0.2rem", display: "block" }}>El año no se puede cambiar al editar.</span>}
         </div>
 
         {/* Nombre */}
@@ -166,7 +166,7 @@ export default function AddModal({ open, onClose, data, onAdd, editSubject, onEd
         {/* Correlativas para cursar */}
         {allSubjects.length > 0 && (
           <div style={{ borderTop: "1px solid #E0DAD0", paddingTop: "0.85rem" }}>
-            <label style={{ ...lbl, color: "#777", marginBottom: "0.6rem" }}>
+            <label style={{ ...lbl, color: "var(--text-muted)", marginBottom: "0.6rem" }}>
               Para <strong>cursar / regularizar</strong>
             </label>
             <CorrSection allSubjects={allSubjects} subjectsByYear={subjectsByYear} list={corrList} setList={setCorrList} />
@@ -176,14 +176,14 @@ export default function AddModal({ open, onClose, data, onAdd, editSubject, onEd
         {/* Correlativas para final */}
         {allSubjects.length > 0 && (
           <div style={{ borderTop: "1px solid #E0DAD0", paddingTop: "0.85rem" }}>
-            <label style={{ ...lbl, color: "#777", marginBottom: "0.6rem" }}>
+            <label style={{ ...lbl, color: "var(--text-muted)", marginBottom: "0.6rem" }}>
               Para <strong>aprobar</strong>
             </label>
             <CorrSection allSubjects={allSubjects} subjectsByYear={subjectsByYear} list={corrFinalList} setList={setCorrFinalList} forFinal />
           </div>
         )}
 
-        {error && <div style={{ fontSize: "0.73rem", color: "#b44" }}>{error}</div>}
+        {error && <div style={{ fontSize: "0.73rem", color: "var(--status-bloqueada-dot)" }}>{error}</div>}
 
         <div style={{ display: "flex", gap: "0.6rem", marginTop: "0.25rem" }}>
           <button className="btn-ghost" onClick={onClose} style={{ flex: 1 }}>Cancelar</button>
