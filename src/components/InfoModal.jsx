@@ -91,7 +91,7 @@ export default function InfoModal() {
               onClick={handleShare}
               style={{ fontSize: "0.78rem", padding: "0.5rem 1rem", width: "100%" }}
             >
-              {copied ? "✓ Link copiado" : "⤴ Compartir Subjects Tracker"}
+              {copied ? "✓ Link copiado" : "Compartir Subjects Tracker ⤴"}
             </button>
           </>)}
 
