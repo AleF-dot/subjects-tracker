@@ -66,10 +66,10 @@ export function resolveArrowPoints(corrDotEl, targetDotEl, offsetSide = 0) {
   const x1 = c.rx;
   const y1 = c.y + VERT_OFFSET;
 
-  // La flecha siempre llega desde la izquierda al dot destino
-  // (el dot está en el borde izquierdo de la card seleccionada).
-  // Terminamos en el borde izquierdo del dot: centro.x - radio.
-  const x2 = t.x - DOT_RADIUS;
+  
+  
+  
+  const x2 = dir === "same" ? t.x + DOT_RADIUS : t.x - DOT_RADIUS;
   const y2 = t.y + VERT_OFFSET;
 
   return {
