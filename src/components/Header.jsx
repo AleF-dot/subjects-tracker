@@ -1,6 +1,24 @@
+import { useState } from "react";
 import { STATUS } from "../utils/constants";
 
 export default function Header({ counts, onImport, onExport, onNewSubject }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    const shareData = {
+      title: "Subjects Tracker",
+      text: "Seguí tu plan de estudios y correlatividades — URN / UTN",
+      url,
+    };
+    if (navigator.share) {
+      try { await navigator.share(shareData); } catch (_) {}
+    } else {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
   return (
     <header style={{ borderBottom: "1px solid #D5D0C8", padding: "1.5rem 2rem", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
       <div>
@@ -25,6 +43,9 @@ export default function Header({ counts, onImport, onExport, onNewSubject }) {
         <div style={{ display: "flex", gap: "0.5rem" }}>
           <button className="btn-ghost" onClick={onImport} style={{ fontSize: "0.76rem", padding: "0.55rem 0.95rem" }}>↓ Importar</button>
           <button className="btn-ghost" onClick={onExport} style={{ fontSize: "0.76rem", padding: "0.55rem 0.95rem" }}>↑ Exportar</button>
+          <button className="btn-ghost" onClick={handleShare} style={{ fontSize: "0.76rem", padding: "0.55rem 0.95rem" }}>
+            {copied ? "✓ Copiado" : "⤴ Compartir"}
+          </button>
           <button className="btn-primary" onClick={onNewSubject}>+ Nueva materia</button>
         </div>
       </div>
