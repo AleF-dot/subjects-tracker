@@ -82,7 +82,7 @@ export default function InfoModal() {
           </>)}
 
           {section("Privacidad", <>
-            {prose("Todos tus datos se guardan exclusivamente en el almacenamiento local del navegador. No se envía ninguna información a servidores externos. En modo incógnito o al limpiar los datos del navegador, se perderán los datos.")}
+            {prose("Todos tus datos se guardan exclusivamente en el almacenamiento local del navegador. No se envía ninguna información a servidores externos. En modo incógnito o al limpiar los datos del navegador, estos se perderán.")}
           </>)}
 
           {section("Compartir", <>
