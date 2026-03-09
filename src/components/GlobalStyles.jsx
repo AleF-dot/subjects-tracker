@@ -53,7 +53,7 @@ export default function GlobalStyles() {
         filter: brightness(0.93) saturate(1.1);
         transform: translateY(-1px);
       }
-      .subject-card:active {
+      .subject-card:active:not(:has(button:active)) {
         transform: scale(0.97);
         filter: brightness(0.88);
         transition: transform 0.07s, filter 0.07s;
