@@ -19,6 +19,8 @@ export default function GlobalStyles() {
       @keyframes slideDown { from { opacity: 0; transform: translateY(-6px) } to { opacity: 1; transform: translateY(0) } }
       @keyframes menuIn    { from { opacity: 0; transform: translateY(-4px) scale(.98) } to { opacity: 1; transform: translateY(0) scale(1) } }
       @keyframes drawPath  { to { stroke-dashoffset: 0 } }
+      @keyframes undrawPath { from { stroke-dashoffset: 0 } to { stroke-dashoffset: var(--path-len) } }
+      @keyframes fadeOut   { from { opacity: 1 } to { opacity: 0 } }
 
       /* Entrada al agregar — pop elástico */
       @keyframes cardEnter {

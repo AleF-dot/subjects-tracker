@@ -69,7 +69,7 @@ export default function App() {
     return true;
   });
 
-  const { arrows, animKey } = useArrows({ selectedId, correlatives: filteredCorrelatives, cardRefs, dotRefs, gridRef });
+  const { arrows, animKey, exiting } = useArrows({ selectedId, correlatives: filteredCorrelatives, cardRefs, dotRefs, gridRef });
 
   const highlightMap = {};
   correlatives.forEach(c => { highlightMap[c.subjectId] = { type: c.type }; });
@@ -182,7 +182,7 @@ export default function App() {
   return (
     <>
       <GlobalStyles />
-      <ArrowOverlay arrows={arrows} animKey={animKey} />
+      <ArrowOverlay arrows={arrows} animKey={animKey} exiting={exiting} />
 
       <div style={{ minHeight: "100vh", background: "#F5F2EC" }}>
         <Header

@@ -1,10 +1,14 @@
 import { useState, useRef, useCallback, useLayoutEffect, useEffect } from "react";
 import { resolveArrowPoints } from "../utils/arrowHelpers";
 
+const EXIT_DURATION = 350; // ms — debe coincidir con la animación de salida
+
 export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef }) {
   const [arrows, setArrows] = useState([]);
+  const [exiting, setExiting] = useState(false); // true durante la animación de salida
   const [animKey, setAnimKey] = useState(0);
   const rafRef = useRef(null);
+  const exitTimerRef = useRef(null);
 
   const correlativesRef = useRef(correlatives);
   useEffect(() => { correlativesRef.current = correlatives; }, [correlatives]);
@@ -25,7 +29,6 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
     const corrs = correlativesRef.current;
     if (!selectedId || corrs.length === 0) { setArrows([]); return; }
 
-    // Prefer dot elements; fall back to card center if dot not mounted yet
     const getPoint = (id) => {
       const dotEl = dotRefs?.current?.[id];
       if (dotEl) return dotEl;
@@ -48,7 +51,7 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
 
   const recomputePositions = useCallback(() => {
     const corrs = correlativesRef.current;
-    if (!selectedId || corrs.length === 0) { setArrows([]); return; }
+    if (!selectedId || corrs.length === 0) return;
 
     const getPoint = (id) => dotRefs?.current?.[id] ?? cardRefs.current[id] ?? null;
     const targetEl = getPoint(selectedId);
@@ -63,11 +66,31 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
     }));
   }, [selectedId, cardRefs, dotRefs]);
 
+  // Cuando selectedId cambia: si había flechas y ahora no hay selección → animar salida
+  const prevSelectedRef = useRef(selectedId);
   useLayoutEffect(() => {
-    if (!selectedId) { setArrows([]); return; }
+    const prev = prevSelectedRef.current;
+    prevSelectedRef.current = selectedId;
+
+    clearTimeout(exitTimerRef.current);
+
+    if (!selectedId) {
+      if (prev && arrows.length > 0) {
+        // Hay flechas visibles → animar salida antes de limpiar
+        setExiting(true);
+        exitTimerRef.current = setTimeout(() => {
+          setArrows([]);
+          setExiting(false);
+        }, EXIT_DURATION);
+      }
+      return;
+    }
+
+    // Nueva selección: cancelar salida pendiente y dibujar
+    setExiting(false);
     rafRef.current = requestAnimationFrame(() => { computeArrows(); setAnimKey(k => k + 1); });
     return () => cancelAnimationFrame(rafRef.current);
-  }, [selectedId, computeArrows]);
+  }, [selectedId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const onResize = () => {
@@ -77,7 +100,7 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
     const ro = new ResizeObserver(onResize);
     if (gridRef.current) ro.observe(gridRef.current);
     window.addEventListener("resize", onResize);
-    return () => { ro.disconnect(); window.removeEventListener("resize", onResize); }
+    return () => { ro.disconnect(); window.removeEventListener("resize", onResize); };
   }, [recomputePositions, gridRef]);
 
   useEffect(() => {
@@ -93,5 +116,5 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
     };
   }, [recomputePositions]);
 
-  return { arrows, animKey };
+  return { arrows, animKey, exiting };
 }

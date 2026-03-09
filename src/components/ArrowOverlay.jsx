@@ -17,8 +17,13 @@ const MARKER_ID = {
   "aprobada-final":  "mEmeraldDash",
 };
 
-export default function ArrowOverlay({ arrows, animKey }) {
+const EXIT_DURATION = 350; // ms — debe coincidir con useArrows
+
+export default function ArrowOverlay({ arrows, animKey, exiting }) {
   if (!arrows.length) return null;
+
+  const totalArrows = arrows.length;
+
   return (
     <svg
       key={animKey}
@@ -40,13 +45,18 @@ export default function ArrowOverlay({ arrows, animKey }) {
         const markerKey = `${a.type}-${isFinal ? "final" : "cursar"}`;
         const markerId  = `url(#${MARKER_ID[markerKey]})`;
         const len       = estimateLen(a.x1, a.y1, a.x2, a.y2, a.dir);
-        const delay     = `${i * 0.07}s`;
         const path      = buildPath(a.x1, a.y1, a.x2, a.y2, a.dir, a.rightEdge1, a.rightEdge2);
 
+        // Entrada: las flechas aparecen escalonadas (delay por índice)
+        // Salida: desaparecen en orden inverso, también escalonadas
+        const enterDelay = `${i * 0.07}s`;
+        const exitDelay  = `${(totalArrows - 1 - i) * 0.05}s`;
+        const exitDur    = `${EXIT_DURATION * 0.7}ms`;
+
         if (isFinal) {
-          // Punteadas: no se puede animar strokeDashoffset porque ya lo usa el patrón.
-          // Usamos fadeIn sincronizado al mismo timing que drawPath para que
-          // visualmente aparezcan a la par de las sólidas.
+          const animation = exiting
+            ? `fadeOut ${exitDur} cubic-bezier(0.4,0,0.2,1) ${exitDelay} forwards`
+            : `fadeIn 0.5s cubic-bezier(0.4,0,0.2,1) ${enterDelay} both`;
           return (
             <path
               key={a.id}
@@ -57,12 +67,16 @@ export default function ArrowOverlay({ arrows, animKey }) {
               strokeLinecap="round"
               strokeDasharray="5 4"
               markerEnd={markerId}
-              style={{ animation: `fadeIn 0.5s cubic-bezier(0.4,0,0.2,1) ${delay} both` }}
+              style={{ animation }}
             />
           );
         }
 
-        // Sólidas: animación de dibujo con dashoffset
+        // Sólidas: entrada = drawPath, salida = undrawPath (se desdibuja)
+        const animation = exiting
+          ? `undrawPath ${exitDur} cubic-bezier(0.4,0,0.2,1) ${exitDelay} forwards`
+          : `drawPath 0.5s cubic-bezier(0.4,0,0.2,1) ${enterDelay} forwards`;
+
         return (
           <path
             key={a.id}
@@ -72,9 +86,12 @@ export default function ArrowOverlay({ arrows, animKey }) {
             strokeWidth={1.8}
             strokeLinecap="round"
             strokeDasharray={len}
-            strokeDashoffset={len}
+            strokeDashoffset={exiting ? 0 : len}
             markerEnd={markerId}
-            style={{ animation: `drawPath 0.5s cubic-bezier(0.4,0,0.2,1) ${delay} forwards` }}
+            style={{
+              "--path-len": len,
+              animation,
+            }}
           />
         );
       })}
