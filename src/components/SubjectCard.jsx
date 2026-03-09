@@ -13,14 +13,9 @@ export default function SubjectCard({
   const [badgePressed, setBadgePressed] = useState(false);
   const [flashing, setFlashing] = useState(false);
   const prevStatusRef = useRef(status);
-  const prevSelectedRef = useRef(isSelected);
 
   const st = STATUS[status];
   const isBloqueada = status === "bloqueada";
-
-  useEffect(() => {
-    prevSelectedRef.current = isSelected;
-  }, [isSelected]);
 
   useEffect(() => {
     if (prevStatusRef.current !== status) {
@@ -36,14 +31,11 @@ export default function SubjectCard({
     if (typeof cardRef === "function") cardRef(el);
   };
 
-  // Card click: stopPropagation para que el listener global no lo interprete
-  // como click-fuera y deseleccione justo después de seleccionar.
   const handleClick = (e) => {
     e.stopPropagation();
     onCardClick(subject.id, innerRef.current);
   };
 
-  // Chevron: stopPropagation para lo mismo. Solo llama al toggle del menú.
   const handleChevronClick = (e) => {
     e.stopPropagation();
     onChevronToggle(subject.id, innerRef.current);
@@ -80,14 +72,20 @@ export default function SubjectCard({
   const classes = [
     "subject-card",
     isBloqueada ? "bloqueada" : "",
-    isNew      ? "card-enter"        : "",
-    isExiting  ? "card-exit"         : "",
-    flashing   ? "card-status-flash" : "",
+    isNew       ? "card-enter"        : "",
+    isExiting   ? "card-exit"         : "",
+    flashing    ? "card-status-flash" : "",
   ].filter(Boolean).join(" ");
 
   const outlineStyle = isSelected && !isBloqueada
     ? { outline: `2px solid ${borderColor}`, outlineOffset: "2px" }
     : { outline: "none" };
+
+  // La card tiene padding 0.65rem arriba/abajo y 0.8rem izquierda/derecha.
+  // Cuando está seleccionada, convertimos la columna izquierda entera en el
+  // botón del chevron: padding negativo la extiende hasta los bordes de la card.
+  const CARD_PAD_V = "0.65rem";
+  const CARD_PAD_L = "0.8rem";
 
   return (
     <div
@@ -98,10 +96,13 @@ export default function SubjectCard({
         background: bgColor,
         border: `1px solid ${borderColor}`,
         borderRadius: "8px",
-        padding: "0.65rem 0.8rem",
+        padding: `${CARD_PAD_V} 0.8rem`,
         opacity: dimmed ? 0.3 : 1,
         position: "relative",
         transition: "outline 0.12s, opacity 0.15s",
+        // Quitamos el padding izquierdo de la card; lo absorbe el botón chevron
+        // (o el div dummy cuando no está seleccionada)
+        paddingLeft: 0,
         ...outlineStyle,
       }}
       onClick={handleClick}
@@ -109,39 +110,48 @@ export default function SubjectCard({
     >
       <div style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem" }}>
 
-        {/* Zona izquierda: dot + chevron con área de toque ampliada */}
-        <div
-          style={{
-            display: "flex", flexDirection: "column", alignItems: "center",
-            flexShrink: 0, gap: "1px",
-            // Área de toque más generosa para el chevron
-            minWidth: "20px",
-          }}
-        >
-          <Dot status={status} dotRef={dotRef} />
-          {isSelected && (
-            <button
-              onClick={handleChevronClick}
-              style={{
-                background: "none", border: "none", cursor: "pointer",
-                // Padding generoso → área clickeable más grande
-                padding: "4px 6px",
-                margin: "-4px -6px",
-                lineHeight: 1,
-                color: menuOpen ? borderColor : st.dot,
-                fontSize: "0.75rem",
-                transition: "color 0.15s, transform 0.2s",
-                transform: menuOpen ? "rotate(180deg)" : "rotate(0deg)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}
-              title={menuOpen ? "Cerrar menú" : "Abrir menú"}
-            >
+        {isSelected ? (
+          /* Columna izquierda como botón: ocupa toda la altura de la card */
+          <button
+            onClick={handleChevronClick}
+            title={menuOpen ? "Cerrar menú" : "Abrir menú"}
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              // Padding que reproduce el padding izquierdo de la card
+              // y se extiende verticalmente hasta sus bordes
+              padding: `${CARD_PAD_V} 6px ${CARD_PAD_V} ${CARD_PAD_L}`,
+              margin: `-${CARD_PAD_V} 0 -${CARD_PAD_V} 0`,
+              display: "flex", flexDirection: "column",
+              alignItems: "center", justifyContent: "flex-start",
+              flexShrink: 0, gap: "4px",
+              color: menuOpen ? borderColor : st.dot,
+              transition: "color 0.15s",
+              // Sin border-radius en el lado derecho para que no se vea raro
+              borderRadius: "8px 0 0 8px",
+            }}
+          >
+            <Dot status={status} dotRef={dotRef} />
+            <span style={{
+              fontSize: "0.9rem",
+              lineHeight: 1,
+              display: "block",
+              transform: menuOpen ? "rotate(180deg)" : "rotate(0deg)",
+              transition: "transform 0.2s",
+            }}>
               ▾
-            </button>
-          )}
-        </div>
+            </span>
+          </button>
+        ) : (
+          /* Columna izquierda pasiva: mantiene el mismo padding que la card tenía */
+          <div style={{
+            display: "flex", flexDirection: "column", alignItems: "center",
+            flexShrink: 0, paddingLeft: CARD_PAD_L, paddingTop: "0.22rem",
+          }}>
+            <Dot status={status} dotRef={dotRef} />
+          </div>
+        )}
 
-        <span style={{ fontSize: "0.82rem", fontWeight: 400, color: st.color, lineHeight: 1.3, flex: 1 }}>
+        <span style={{ fontSize: "0.82rem", fontWeight: 400, color: st.color, lineHeight: 1.3, flex: 1, paddingTop: "0.15rem" }}>
           {subject.name}
         </span>
 
@@ -168,7 +178,7 @@ export default function SubjectCard({
       </div>
 
       {isBloqueada && (
-        <div style={{ fontSize: "0.62rem", color: "#DC2626", marginTop: 3, marginLeft: 12, fontStyle: "italic" }}>
+        <div style={{ fontSize: "0.62rem", color: "#DC2626", marginTop: 3, marginLeft: `calc(${CARD_PAD_L} + 12px)`, fontStyle: "italic" }}>
           Correlativas pendientes
         </div>
       )}
