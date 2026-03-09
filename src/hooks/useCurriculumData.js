@@ -62,9 +62,31 @@ export function useCurriculumData() {
 
   const allSubjects = data.years.flatMap(y => y.subjects);
 
-  // Compute effective (displayed) status for every subject
+  // Compute effective (displayed) status for every subject.
+  // Sort topologically so dependencies are resolved before dependents.
+  // Any cycle or unresolvable node falls back to end of list.
+  const topoSorted = (() => {
+    const subjectMap = Object.fromEntries(allSubjects.map(s => [s.id, s]));
+    const visited = new Set();
+    const result = [];
+    const visit = (s) => {
+      if (visited.has(s.id)) return;
+      visited.add(s.id);
+      const deps = [
+        ...(s.correlatives ?? []),
+        ...(s.correlativesParaFinal ?? []),
+      ];
+      for (const c of deps) {
+        if (subjectMap[c.subjectId]) visit(subjectMap[c.subjectId]);
+      }
+      result.push(s);
+    };
+    allSubjects.forEach(visit);
+    return result;
+  })();
+
   const effectiveStatus = {};
-  allSubjects.forEach(s => {
+  topoSorted.forEach(s => {
     effectiveStatus[s.id] = computeStatus(s, { ...effectiveStatus, ...statusMap });
   });
 

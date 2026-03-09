@@ -106,7 +106,10 @@ export default function AddModal({ open, onClose, data, onAdd, editSubject, onEd
       }
       setError("");
     }
-  }, [open, editSubject?.id]);
+  // editSubject?.id handles open-for-different-subject; JSON.stringify catches
+  // same-id edits where the subject data changed while the modal was open.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, editSubject?.id, JSON.stringify(editSubject)]);
 
   const allSubjects = data.years.flatMap(y => y.subjects).filter(s =>
     !isEdit || s.id !== editSubject?.id
@@ -120,7 +123,10 @@ export default function AddModal({ open, onClose, data, onAdd, editSubject, onEd
   const submit = () => {
     const t = name.trim();
     if (!t) { setError("El nombre no puede estar vacío."); return; }
-    const duplicate = allSubjects.find(s => s.name.toLowerCase() === t.toLowerCase());
+    const allSubjectsIncludingSelf = data.years.flatMap(y => y.subjects);
+    const duplicate = allSubjectsIncludingSelf.find(
+      s => s.name.toLowerCase() === t.toLowerCase() && (!isEdit || s.id !== editSubject?.id)
+    );
     if (duplicate) { setError("Ya existe una materia con ese nombre."); return; }
 
     if (isEdit) {

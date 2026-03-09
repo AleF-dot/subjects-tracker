@@ -5,7 +5,7 @@ import { STATUS, STATUS_ORDER } from "../utils/constants";
 // Mensaje explicativo por cada estado bloqueado
 const BLOCK_REASON = {
   disponible: null,
-  cursando:  null,
+  cursando:  "correlativas para cursar incompletas",
   regular:   "correlativas para cursar incompletas",
   aprobada:  "correlativas para final incompletas",
 };
