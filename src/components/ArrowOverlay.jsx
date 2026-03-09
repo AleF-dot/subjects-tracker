@@ -39,13 +39,14 @@ export default function ArrowOverlay({ arrows, animKey }) {
           : (TYPE_COLOR_CURSAR[a.type] ?? "#D97706");
         const markerKey = `${a.type}-${isFinal ? "final" : "cursar"}`;
         const markerId  = `url(#${MARKER_ID[markerKey]})`;
+        const len       = estimateLen(a.x1, a.y1, a.x2, a.y2, a.dir);
         const delay     = `${i * 0.07}s`;
         const path      = buildPath(a.x1, a.y1, a.x2, a.y2, a.dir, a.rightEdge1, a.rightEdge2);
 
-        // Ambos tipos usan pathLength="1" + strokeDashoffset para la animación de dibujo.
-        // Las punteadas expresan su patrón en unidades relativas al pathLength (0..1),
-        // así strokeDashoffset funciona igual en ambos casos.
         if (isFinal) {
+          // Punteadas: no se puede animar strokeDashoffset porque ya lo usa el patrón.
+          // Usamos fadeIn sincronizado al mismo timing que drawPath para que
+          // visualmente aparezcan a la par de las sólidas.
           return (
             <path
               key={a.id}
@@ -54,15 +55,14 @@ export default function ArrowOverlay({ arrows, animKey }) {
               stroke={color}
               strokeWidth={1.8}
               strokeLinecap="round"
-              pathLength="1"
-              strokeDasharray="0.06 0.04"
-              strokeDashoffset="1"
+              strokeDasharray="5 4"
               markerEnd={markerId}
-              style={{ animation: `drawPath 0.5s cubic-bezier(0.4,0,0.2,1) ${delay} forwards` }}
+              style={{ animation: `fadeIn 0.5s cubic-bezier(0.4,0,0.2,1) ${delay} both` }}
             />
           );
         }
 
+        // Sólidas: animación de dibujo con dashoffset
         return (
           <path
             key={a.id}
@@ -71,9 +71,8 @@ export default function ArrowOverlay({ arrows, animKey }) {
             stroke={color}
             strokeWidth={1.8}
             strokeLinecap="round"
-            pathLength="1"
-            strokeDasharray="1"
-            strokeDashoffset="1"
+            strokeDasharray={len}
+            strokeDashoffset={len}
             markerEnd={markerId}
             style={{ animation: `drawPath 0.5s cubic-bezier(0.4,0,0.2,1) ${delay} forwards` }}
           />
