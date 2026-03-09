@@ -27,7 +27,7 @@ export default function ArrowOverlay({ arrows, animKey, exiting }) {
   return (
     <svg
       key={animKey}
-      style={{ position: "fixed", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 500, overflow: "visible" }}
+      data-arrows style={{ position: "fixed", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 500, overflow: "visible" }}
     >
       <defs>
         {MARKERS.map(m => (
@@ -49,14 +49,14 @@ export default function ArrowOverlay({ arrows, animKey, exiting }) {
 
         // Entrada: las flechas aparecen escalonadas (delay por índice)
         // Salida: desaparecen en orden inverso, también escalonadas
-        const enterDelay = `${i * 0.07}s`;
-        const exitDelay  = `${(totalArrows - 1 - i) * 0.05}s`;
+        const enterDelay = `${i * 0.04}s`;
+        const exitDelay  = `${(totalArrows - 1 - i) * 0.03}s`;
         const exitDur    = `${EXIT_DURATION * 0.7}ms`;
 
         if (isFinal) {
           const animation = exiting
             ? `fadeOut ${exitDur} cubic-bezier(0.4,0,0.2,1) ${exitDelay} forwards`
-            : `fadeIn 0.5s cubic-bezier(0.4,0,0.2,1) ${enterDelay} both`;
+            : `fadeIn 0.35s cubic-bezier(0.4,0,0.2,1) ${enterDelay} both`;
           return (
             <path
               key={a.id}
@@ -75,7 +75,7 @@ export default function ArrowOverlay({ arrows, animKey, exiting }) {
         // Sólidas: entrada = drawPath, salida = undrawPath (se desdibuja)
         const animation = exiting
           ? `undrawPath ${exitDur} cubic-bezier(0.4,0,0.2,1) ${exitDelay} forwards`
-          : `drawPath 0.5s cubic-bezier(0.4,0,0.2,1) ${enterDelay} forwards`;
+          : `drawPath 0.35s cubic-bezier(0.4,0,0.2,1) ${enterDelay} forwards`;
 
         return (
           <path
