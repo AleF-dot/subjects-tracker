@@ -45,9 +45,9 @@ export default function InfoModal() {
   };
 
   const mailtoHref = () => {
-    const subject = encodeURIComponent(`Subjects Tracker – Reporte de ${form.name || "usuario"}`);
+    const subject = encodeURIComponent(`Reporte de ${form.name || "usuario"}`);
     const body = encodeURIComponent(
-      `Nombre: ${form.name}\n\n${form.message}`
+      `${form.message}`
     );
     return `mailto:${MAIL}?subject=${subject}&body=${body}`;
   };
