@@ -153,7 +153,7 @@ export default function SubjectCard({
           )}
         </div>
 
-        <span style={{ fontSize: "0.82rem", fontWeight: 400, color: st.color, lineHeight: 1.3, flex: 1 }}>
+        <span style={{ fontSize: "0.82rem", fontWeight: 400, color: st.color, lineHeight: 1.3, flex: 1, wordBreak: "break-word", overflowWrap: "break-word", minWidth: 0 }}>
           {subject.name}
         </span>
 

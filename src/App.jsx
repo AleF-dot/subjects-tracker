@@ -194,8 +194,8 @@ export default function App() {
         <Legend />
 
         <main style={{ padding: "2rem", paddingBottom: "4rem" }}>
-          <div style={{ overflowX: "auto", overflowY: "visible", padding: "4px 4px" }}>
-            <div ref={gridRef} style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "1.75rem", width: "100%" }}>
+          <div style={{ overflowX: "auto", overflowY: "visible", padding: "4px 4px", WebkitOverflowScrolling: "touch" }}>
+            <div ref={gridRef} style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(160px, 1fr))", gap: "1.75rem", minWidth: "860px" }}>
               {data.years.map((year) => (
                 <YearColumn
                   key={year.id}
