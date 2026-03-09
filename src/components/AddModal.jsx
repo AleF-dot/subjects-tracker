@@ -13,7 +13,7 @@ const corrItemStyle = {
 
 // Colores consistentes con ArrowOverlay
 const COLORS_CURSAR = { regular: "#D97706", aprobada: "#059669" };
-const COLORS_FINAL  = { regular: "#EC4899", aprobada: "#8B5CF6" };
+const COLORS_FINAL  = { regular: "#0891B2", aprobada: "#8B5CF6" };
 
 function CorrSection({ allSubjects, subjectsByYear, list, setList, forFinal }) {
   const [corrSub, setCorrSub] = useState("");

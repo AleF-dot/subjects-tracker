@@ -1,11 +1,11 @@
 import { buildPath, estimateLen } from "../utils/arrowHelpers";
 
 const TYPE_COLOR_CURSAR = { regular: "#D97706", aprobada: "#059669" };
-const TYPE_COLOR_FINAL  = { regular: "#EC4899", aprobada: "#8B5CF6" };
+const TYPE_COLOR_FINAL  = { regular: "#0891B2", aprobada: "#8B5CF6" };
 
 const MARKERS = [
   { id: "mAmberSolid",   color: "#D97706" },
-  { id: "mAmberDash",    color: "#EC4899" },
+  { id: "mAmberDash",    color: "#0891B2" },
   { id: "mEmeraldSolid", color: "#059669" },
   { id: "mEmeraldDash",  color: "#8B5CF6" },
 ];
