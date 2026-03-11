@@ -244,8 +244,8 @@ export default function App() {
       <footer style={{
         position: "fixed", bottom: 0, left: 0, right: 0,
         display: "flex", justifyContent: "center", alignItems: "flex-end",
-        padding: "2rem 0 0",
-        background: "linear-gradient(to top, var(--bg) 0%, var(--bg) 40%, transparent)",
+        padding: "3rem 0 0",
+        background: "linear-gradient(to top, transparent 0%, transparent 100%)",
         zIndex: 400, pointerEvents: "none",
         overflow: "visible",
       }}>
