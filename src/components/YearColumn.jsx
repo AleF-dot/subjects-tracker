@@ -1,3 +1,4 @@
+import React from 'react';
 import SubjectCard from "./SubjectCard";
 
 export default function YearColumn({

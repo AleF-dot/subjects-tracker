@@ -1,3 +1,4 @@
+import React from 'react';
 import { useRef, useState, useEffect } from "react";
 import Dot from "./Dot";
 import { STATUS } from "../utils/constants";
@@ -100,6 +101,23 @@ export default function SubjectCard({
       onClick={handleClick}
       title={isBloqueada ? "Ver correlativas requeridas" : undefined}
     >
+      {isSelected && (
+        <button
+          onClick={handleChevronClick}
+          className="chevron-btn"
+          title={menuOpen ? "Cerrar menú" : "Abrir menú"}
+          style={{
+            position: "absolute",
+            top: 0, bottom: 0,
+            left: 0,
+            width: "calc(0.8rem + 1px + 8px + 4px)", // padding-left + border + dot area
+            background: "none", border: "none", cursor: "pointer",
+            borderRadius: "8px 0 0 8px",
+            transition: "background 0.15s",
+            zIndex: 1,
+          }}
+        />
+      )}
       <div style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem" }}>
 
         {/* Columna izquierda: tamaño fijo siempre.
@@ -109,7 +127,6 @@ export default function SubjectCard({
         <div style={{
           position: "relative", flexShrink: 0,
           display: "flex", flexDirection: "column", alignItems: "center",
-          // Altura mínima = dot (8px) + gap (3px) + chevron (≈14px)
           minHeight: "25px",
         }}>
           <Dot status={status} dotRef={dotRef} />
@@ -118,7 +135,7 @@ export default function SubjectCard({
           <span
             style={{
               position: "absolute",
-              top: "14px",   // justo debajo del dot (8px) + gap (3px) ≈ 11px, centrado
+              top: "14px",
               left: "50%", transform: `translateX(-50%) rotate(${menuOpen ? 180 : 0}deg)`,
               fontSize: "0.9rem",
               lineHeight: 1,
@@ -132,25 +149,7 @@ export default function SubjectCard({
             ▾
           </span>
 
-          {/* Botón invisible: solo presente cuando seleccionada */}
-          {isSelected && (
-            <button
-              onClick={handleChevronClick}
-              className="chevron-btn"
-              title={menuOpen ? "Cerrar menú" : "Abrir menú"}
-              style={{
-                position: "absolute",
-                top: "calc(-0.65rem - 1px)",
-                bottom: "calc(-0.65rem - 1px)",
-                left: "calc(-0.8rem - 1px)",
-                right: "-4px",
-                background: "none", border: "none", cursor: "pointer",
-                borderRadius: "8px 0 0 8px",
-                transition: "background 0.15s",
-                zIndex: 1,
-              }}
-            />
-          )}
+
         </div>
 
         <span style={{ fontSize: "0.82rem", fontWeight: 400, color: st.color, lineHeight: 1.3, flex: 1, wordBreak: "break-word", overflowWrap: "break-word", minWidth: 0 }}>

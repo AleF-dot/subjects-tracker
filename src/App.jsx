@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useRef, useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
 
@@ -11,20 +12,25 @@ import AddModal      from "./components/AddModal";
 import Toast         from "./components/Toast";
 import EmptyState    from "./components/EmptyState";
 import InfoModal     from "./components/InfoModal";
+import AuthButton    from "./components/AuthButton";
+import MergePromptModal from "./components/MergePromptModal";
 
 import { useCurriculumData } from "./hooks/useCurriculumData";
 import { useArrows }         from "./hooks/useArrows";
 import { useToast }          from "./hooks/useToast";
-import { canAprobar, computeAllowedStatuses } from "./utils/statusLogic";
+import { computeAllowedStatuses } from "./utils/statusLogic";
 
 export default function App() {
+  const { toast, showToast } = useToast();
+
   const {
-    data, effectiveStatus, allSubjects,
+    data, effectiveStatus, allSubjects, syncStatus,
+    mergePrompt, resolveMerge, retryNow,
     addSubject, editSubject, deleteSubject, setStatus,
     exportJSON, importJSON,
-  } = useCurriculumData();
-
-  const { toast, showToast } = useToast();
+  } = useCurriculumData({
+    onSyncError: (msg) => showToast(msg, "error", true),
+  });
 
   const [selectedId, setSelectedId] = useState(null);
   const [modalOpen, setModalOpen]   = useState(false);
@@ -57,10 +63,10 @@ export default function App() {
     const finalItems = correlativesParaFinal.map(c => ({
       ...c,
       forFinal: true,
-      offsetSide: cursarIds.has(c.subjectId) ? 1 : 0,
+
     }));
     return [
-      ...correlatives.map(c => ({ ...c, forFinal: false, offsetSide: 0 })),
+      ...correlatives.map(c => ({ ...c, forFinal: false })),
       ...finalItems,
     ];
   })();
@@ -133,8 +139,9 @@ export default function App() {
   };
 
   const handleSetStatus = (subjectId, newStatus) => {
+    if (newStatus === "bloqueada") return;
     setStatus(subjectId, newStatus);
-    showToast(`${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)} ✓`);
+    showToast(`${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
     setSelectedId(null);
     setMenuAnchor({ subjectId: null, el: null });
   };
@@ -159,7 +166,7 @@ export default function App() {
 
   const handleEdit = (payload) => {
     editSubject(payload);
-    showToast(`"${payload.name}" actualizada ✓`);
+    showToast(`"${payload.name}" actualizada`);
   };
 
   const handleOpenEdit = (subjectId) => {
@@ -171,11 +178,11 @@ export default function App() {
   };
 
   const handleImport = () => importJSON(
-    () => { setSelectedId(null); showToast("Plan importado ✓"); },
+    () => { setSelectedId(null); showToast("Plan importado"); },
     () => showToast("Archivo inválido", "error")
   );
 
-  const handleExport = () => { exportJSON(); showToast("JSON exportado"); };
+  const handleExport = () => { exportJSON(); showToast("Plan exportado"); };
 
   const counts = Object.values(effectiveStatus).reduce((acc, s) => {
     acc[s] = (acc[s] || 0) + 1; return acc;
@@ -201,7 +208,7 @@ export default function App() {
             <EmptyState onNewSubject={() => { setEditingSubject(null); setModalOpen(true); }} />
           ) : (
           <div ref={scrollContainerRef} style={{ overflowX: "auto", overflowY: "visible", padding: "4px 4px", WebkitOverflowScrolling: "touch" }}>
-            <div ref={gridRef} style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(160px, 1fr))", gap: "1.75rem", minWidth: "860px" }}>
+            <div ref={gridRef} style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(160px, 1fr))", gap: "1.75rem", minWidth: "860px", animation: "gridFadeIn 0.35s ease both" }}>
               {data.years.map((year) => (
                 <YearColumn
                   key={year.id}
@@ -239,7 +246,17 @@ export default function App() {
         onEdit={handleEdit}
       />
 
-      {toast && <Toast msg={toast.msg} type={toast.type} />}
+      {toast && <Toast msg={toast.msg} type={toast.type} animKey={toast.key} />}
+
+      <AuthButton showToast={showToast} syncStatus={syncStatus} />
+
+      <MergePromptModal
+        open={!!mergePrompt}
+        onResolve={(choice) => {
+          resolveMerge(choice);
+          showToast(choice === "local" ? "Usando plan local" : "Usando plan de la nube");
+        }}
+      />
 
       <footer style={{
         position: "fixed", bottom: 0, left: 0, right: 0,

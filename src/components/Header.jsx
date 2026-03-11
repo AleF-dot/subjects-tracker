@@ -1,3 +1,4 @@
+import React from 'react';
 import { STATUS } from "../utils/constants";
 
 export default function Header({ counts, onImport, onExport, onNewSubject }) {

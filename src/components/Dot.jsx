@@ -1,3 +1,4 @@
+import React from 'react';
 import { STATUS } from "../utils/constants";
 
 export default function Dot({ status, dotRef }) {

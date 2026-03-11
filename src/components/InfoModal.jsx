@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 import Modal from "./Modal";
@@ -73,7 +74,7 @@ export default function InfoModal() {
           padding: "0.55rem 1.4rem 2rem",
           display: "flex", flexDirection: "column", alignItems: "center", gap: "0.3rem",
           transition: "transform 0.2s ease, box-shadow 0.2s ease",
-          transform: "translateY(8px)",
+          transform: "translateY(14px)",
         }}
         onMouseEnter={e => { e.currentTarget.style.transform = "translateY(0px)"; e.currentTarget.style.boxShadow = "0 -8px 24px rgba(0,0,0,0.18)"; }}
         onMouseLeave={e => { e.currentTarget.style.transform = "translateY(14px)"; e.currentTarget.style.boxShadow = "0 -4px 16px rgba(0,0,0,0.12)"; }}
@@ -94,7 +95,7 @@ export default function InfoModal() {
           </>)}
 
           {section("Privacidad", <>
-            {prose("Todos los datos se guardan exclusivamente en el almacenamiento local del navegador. No se envía ninguna información a servidores externos. En modo incógnito o al limpiar los datos del navegador, estos se perderán.")}
+  {prose("Los datos del plan de estudios se guardan en el almacenamiento local del navegador. Si iniciás sesión, también se sincronizan en servidores de Supabase (AWS) para permitir el acceso desde múltiples dispositivos. Solo se almacena tu dirección de correo electrónico y los datos de tu plan académico. Podés usar la app sin cuenta — en ese caso ningún dato sale de tu dispositivo.")}
           </>)}
 
           {section("Apariencia", <>
@@ -198,7 +199,7 @@ export default function InfoModal() {
           </>)}
 
           <p style={{ fontSize: "0.62rem", color: "var(--text-ghost)", margin: "0.25rem 0 0", textAlign: "center", fontFamily: "'DM Mono', monospace" }}>
-            v1.1 · {new Date().getFullYear()}
+            v1.2 · {new Date().getFullYear()}
           </p>
         </div>
       </Modal>

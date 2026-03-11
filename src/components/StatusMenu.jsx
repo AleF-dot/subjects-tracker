@@ -1,3 +1,4 @@
+import React from 'react';
 import { useRef, useLayoutEffect, useState } from "react";
 import Dot from "./Dot";
 import { STATUS, STATUS_ORDER } from "../utils/constants";

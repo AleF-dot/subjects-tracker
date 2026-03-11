@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useLayoutEffect, useEffect } from "react";
+import { useState, useRef, useCallback, useLayoutEffect, useEffect, useMemo } from "react";
 import { resolveArrowPoints } from "../utils/arrowHelpers";
 
 const EXIT_DURATION = 350;
@@ -31,7 +31,7 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
     const next = corrs.map(c => {
       const el = getPoint(c.subjectId);
       if (!el) return null;
-      const { x1, y1, x2, y2, dir, rightEdge1, rightEdge2 } = resolveArrowPoints(el, targetEl, c.offsetSide ?? 0);
+      const { x1, y1, x2, y2, dir, rightEdge1, rightEdge2 } = resolveArrowPoints(el, targetEl);
       const uid = `${selectedId}-${c.subjectId}-${c.forFinal ? "final" : "cursar"}`;
       return { id: uid, corrId: c.subjectId, forFinal: c.forFinal ?? false, x1, y1, x2, y2, dir, rightEdge1, rightEdge2, type: c.type };
     }).filter(Boolean);
@@ -97,7 +97,7 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
       const el = getPoint(a.corrId);
       if (!el) return a;
       const corr = corrs.find(c => c.subjectId === a.corrId && (c.forFinal ?? false) === a.forFinal);
-      const { x1, y1, x2, y2, dir, rightEdge1, rightEdge2 } = resolveArrowPoints(el, targetEl, corr?.offsetSide ?? 0);
+      const { x1, y1, x2, y2, dir, rightEdge1, rightEdge2 } = resolveArrowPoints(el, targetEl);
       return { ...a, x1, y1, x2, y2, dir, rightEdge1, rightEdge2 };
     }));
   }, [selectedId, cardRefs, dotRefs]);
@@ -149,5 +149,30 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
     updateClipRect();
   }, [updateClipRect, selectedId]);
 
-  return { arrows, animKey, exiting, clipRect };
+  // ── Arco separador para flechas con trayecto similar ────────────────
+  const arcedArrows = useMemo(() => {
+    if (!arrows.length) return arrows;
+    const ARC_STEP = 35;
+    const groups = {};
+    arrows.forEach((a, i) => {
+      // Agrupa por origen y destino aproximados
+      // Agrupar por destino + fila de origen (y1 similar) — solo las que realmente se pisan
+      const key = `${Math.round(a.x2/20)},${Math.round(a.y2/20)},${Math.round(a.y1/20)},${a.dir}`;
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(i);
+    });
+    const result = [...arrows];
+    Object.values(groups).forEach(indices => {
+      if (indices.length < 2) return;
+      // La flecha más corta (origen más cercano) va recta.
+      // Las más largas se arquean hacia arriba, en orden de distancia.
+      indices.sort((a, b) => Math.abs(result[a].x2 - result[a].x1) - Math.abs(result[b].x2 - result[b].x1));
+      indices.forEach((idx, pos) => {
+        result[idx] = { ...result[idx], arcOffset: pos === 0 ? 0 : -(pos * ARC_STEP) };
+      });
+    });
+    return result;
+  }, [arrows]);
+
+  return { arrows: arcedArrows, animKey, exiting, clipRect };
 }

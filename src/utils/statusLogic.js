@@ -1,39 +1,34 @@
 /**
  * Computes the effective display status of a subject.
  *
- * correlatives        → bloquean la card si no satisfechas (bloqueo duro)
+ * correlatives          → bloquean la card si no satisfechas (bloqueo duro)
  * correlativesParaFinal → solo restringen el menú, nunca la card
  *
- * Si hay un status manual guardado, se valida que siga siendo consistente
- * con las correlativas actuales. Si no lo es, se degrada al status más alto
- * que sí sea válido dado el estado actual de las dependencias.
+ * IMPORTANTE: statusMap contiene los estados manuales declarados por el usuario.
+ * effectiveStatus es el resultado de aplicar la lógica de bloqueo sobre statusMap.
+ * computeStatus SIEMPRE debe recibir effectiveStatus (ya calculado para las deps),
+ * nunca statusMap crudo — de lo contrario una materia bloqueada puede "pasar" su
+ * estado manual a sus dependientes, causando el bug de propagación incorrecta.
  */
-export function computeStatus(subject, statusMap) {
-  const manual = statusMap[subject.id] ?? null;
-  const corrs = subject.correlatives ?? [];
+export function computeStatus(subject, effectiveStatus) {
+  const manual = effectiveStatus[subject.id] ?? null;
+  const corrs  = subject.correlatives ?? [];
 
-  // ── 1. Verificar bloqueo duro (correlativas para cursar) ──────────────────
+  // ── 1. Bloqueo duro: correlativas para cursar ─────────────────────────────
   for (const c of corrs) {
-    const depStatus = statusMap[c.subjectId] ?? "disponible";
-    if (c.type === "regular" && !(depStatus === "regular" || depStatus === "aprobada")) return "bloqueada";
-    if (c.type === "aprobada" && depStatus !== "aprobada") return "bloqueada";
+    const dep = effectiveStatus[c.subjectId] ?? "disponible";
+    if (c.type === "regular"  && dep !== "regular"  && dep !== "aprobada") return "bloqueada";
+    if (c.type === "aprobada" && dep !== "aprobada")                        return "bloqueada";
   }
 
-  // Sin status manual → disponible
+  // Sin estado manual → disponible
   if (!manual || manual === "bloqueada") return "disponible";
 
-  // ── 2. Validar que el status manual sea alcanzable con las correlativas
-  //       actuales. Si se editaron las correlativas, puede que el status
-  //       manual ya no sea válido.
-  // ── "cursando" y "regular" requieren que las correlativas para cursar
-  //    estén ok (ya pasó el check de bloqueo duro si llegamos aquí).
-  // ── "aprobada" requiere además que las correlativesParaFinal estén ok.
-  if (manual === "aprobada") {
-    if (!canAprobar(subject, statusMap)) {
-      // No puede estar aprobada — degradar a regular si las corrs de cursar
-      // están ok (ya lo están, porque pasamos el bloqueo duro).
-      return "regular";
-    }
+  // ── 2. Validar que el estado manual siga siendo alcanzable ────────────────
+  if (manual === "aprobada" && !canAprobar(subject, effectiveStatus)) {
+    // No puede estar aprobada — degradar a regular
+    // (las corrs para cursar ya están ok porque pasamos el bloqueo duro)
+    return "regular";
   }
 
   return manual;
@@ -41,33 +36,35 @@ export function computeStatus(subject, statusMap) {
 
 /**
  * Checks if a subject can be marked as "aprobada" given correlativesParaFinal.
+ * Recibe effectiveStatus, no statusMap crudo.
  */
-export function canAprobar(subject, statusMap) {
-  const corrsParaFinal = subject.correlativesParaFinal ?? [];
-  for (const c of corrsParaFinal) {
-    const depStatus = statusMap[c.subjectId] ?? "disponible";
-    if (c.type === "regular" && !(depStatus === "regular" || depStatus === "aprobada")) return false;
-    if (c.type === "aprobada" && depStatus !== "aprobada") return false;
+export function canAprobar(subject, effectiveStatus) {
+  for (const c of (subject.correlativesParaFinal ?? [])) {
+    const dep = effectiveStatus[c.subjectId] ?? "disponible";
+    if (c.type === "regular"  && dep !== "regular"  && dep !== "aprobada") return false;
+    if (c.type === "aprobada" && dep !== "aprobada")                        return false;
   }
   return true;
 }
 
 /**
  * Returns which statuses are selectable in the menu for a given subject.
- * { cursando: bool, regular: bool, aprobada: bool }
+ * Recibe effectiveStatus para que el menú refleje la realidad actual.
  */
-export function computeAllowedStatuses(subject, statusMap) {
-  const corrs = subject.correlatives ?? [];
-
+export function computeAllowedStatuses(subject, effectiveStatus) {
   let cursarOk = true;
-  for (const c of corrs) {
-    const dep = statusMap[c.subjectId] ?? "disponible";
-    if (c.type === "regular" && !(dep === "regular" || dep === "aprobada")) { cursarOk = false; break; }
-    if (c.type === "aprobada" && dep !== "aprobada") { cursarOk = false; break; }
+  for (const c of (subject.correlatives ?? [])) {
+    const dep = effectiveStatus[c.subjectId] ?? "disponible";
+    if (c.type === "regular"  && dep !== "regular"  && dep !== "aprobada") { cursarOk = false; break; }
+    if (c.type === "aprobada" && dep !== "aprobada")                        { cursarOk = false; break; }
   }
 
   if (!cursarOk) return { disponible: false, cursando: false, regular: false, aprobada: false };
 
-  const aprobada = canAprobar(subject, statusMap);
-  return { disponible: true, cursando: true, regular: true, aprobada };
+  return {
+    disponible: true,
+    cursando:   true,
+    regular:    true,
+    aprobada:   canAprobar(subject, effectiveStatus),
+  };
 }

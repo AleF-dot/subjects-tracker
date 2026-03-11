@@ -1,3 +1,4 @@
+import React from 'react';
 export default function GlobalStyles() {
   return (
     <style>{`
@@ -94,6 +95,11 @@ export default function GlobalStyles() {
       @keyframes slideDown { from { opacity: 0; transform: translateY(-6px) } to { opacity: 1; transform: none } }
       @keyframes menuIn    { from { opacity: 0; transform: translateY(-4px) scale(.98) } to { opacity: 1; transform: none } }
       @keyframes drawPath  { to { stroke-dashoffset: 0 } }
+      @keyframes toastIn   { from { opacity: 0; transform: translateX(-50%) translateY(8px) } to { opacity: 1; transform: translateX(-50%) translateY(0) } }
+      @keyframes modalOut  { from { opacity: 1; transform: translateY(0) scale(1) } to { opacity: 0; transform: translateY(6px) scale(.98) } }
+      @keyframes gridFadeIn { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: none } }
+      @keyframes syncPulse  { 0%, 100% { opacity: 1 } 50% { opacity: 0.3 } }
+      @keyframes panelIn    { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
       @keyframes undrawPath { from { stroke-dashoffset: 0 } to { stroke-dashoffset: var(--path-len) } }
 
       @keyframes cardEnter {
