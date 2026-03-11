@@ -22,7 +22,7 @@ export default function AuthModal({ open, onClose, showToast }) {
   useEffect(() => {
     if (open && passwordRecovery) { setMode("newpassword"); setError(null); }
   }, [open, passwordRecovery]);
-  const handleClose = () => { reset(); onClose(); };
+  const handleClose = () => { if (mode === "newpassword") return; reset(); onClose(); };
 
   const handleSubmit = async () => {
     setError(null);
@@ -73,7 +73,7 @@ export default function AuthModal({ open, onClose, showToast }) {
           : error.message;
         setError(msg); return;
       }
-      showToast?.("Si el correo tiene una cuenta registrada recibirás un mail para restablecer tu contraseña.", "info");
+      showToast?.("Si ese correo tiene una cuenta, vas a recibir un mail.", "info");
       setMode("login");
     }
   };
@@ -96,7 +96,7 @@ export default function AuthModal({ open, onClose, showToast }) {
   );
 
   if (mode === "newpassword") return (
-    <Modal open={open} onClose={() => {}} title="Nueva contraseña" hideClose lockClose>
+    <Modal open={open} onClose={() => { setMode("login"); setNewPassword(""); setError(null); }} title="Nueva contraseña">
       <div key="newpassword" style={{ display: "flex", flexDirection: "column", gap: "0.75rem", animation: "panelIn 0.18s ease" }}>
         <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", lineHeight: 1.6, margin: 0 }}>
           Ingresá tu nueva contraseña.

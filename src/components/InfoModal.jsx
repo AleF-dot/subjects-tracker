@@ -1,6 +1,8 @@
 import React from 'react';
 import { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
 import Modal from "./Modal";
 
 const MAIL = "subjectstracker@gmail.com";
@@ -8,6 +10,23 @@ const MAIL = "subjectstracker@gmail.com";
 export default function InfoModal() {
   const [open, setOpen] = useState(false);
   const { dark, toggle } = useTheme();
+  const { session } = useAuth();
+  const [deleteStep, setDeleteStep] = useState(0); // 0: idle, 1: confirm, 2: deleting
+  const [deleteError, setDeleteError] = useState(null);
+
+  const handleDeleteAccount = async () => {
+    setDeleteStep(2);
+    setDeleteError(null);
+    const { error } = await supabase.rpc("delete_user");
+    if (error) {
+      setDeleteError("No se pudo eliminar la cuenta. Intentá de nuevo.");
+      setDeleteStep(1);
+      return;
+    }
+    await supabase.auth.signOut();
+    setDeleteStep(0);
+    setOpen(false);
+  };
   const [form, setForm] = useState({ name: "", message: "" });
   const [copied, setCopied] = useState(false);
 
@@ -196,6 +215,61 @@ export default function InfoModal() {
                 Se abrirá tu cliente de correo con el mensaje listo para enviar.
               </p>
             </div>
+          </>)}
+
+          {session && (<>
+            <hr style={{ border: "none", borderTop: "1px solid var(--border)", margin: "0.5rem 0 1.25rem" }} />
+            {section("Zona de peligro", <>
+              {deleteStep === 0 && (
+                <button
+                  onClick={() => setDeleteStep(1)}
+                  style={{
+                    width: "100%", padding: "0.6rem 1rem",
+                    background: "transparent", border: "1px solid var(--status-bloqueada-dot)",
+                    borderRadius: "8px", cursor: "pointer",
+                    color: "var(--status-bloqueada-dot)", fontSize: "0.78rem",
+                    transition: "background 0.15s",
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = "rgba(239,68,68,0.07)"}
+                  onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                >
+                  Eliminar mi cuenta
+                </button>
+              )}
+              {deleteStep >= 1 && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  <p style={{ fontSize: "0.78rem", color: "var(--status-bloqueada-dot)", lineHeight: 1.6, margin: 0 }}>
+                    ¿Estás seguro? Esta acción es <strong>irreversible</strong>. Se eliminarán tu cuenta y todos tus datos de la nube. Los datos locales en este dispositivo no se borran.
+                  </p>
+                  {deleteError && (
+                    <p style={{ fontSize: "0.75rem", color: "var(--status-bloqueada-dot)", margin: 0 }}>{deleteError}</p>
+                  )}
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <button
+                      className="btn-ghost"
+                      onClick={() => { setDeleteStep(0); setDeleteError(null); }}
+                      disabled={deleteStep === 2}
+                      style={{ flex: 1, opacity: deleteStep === 2 ? 0.4 : 1 }}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={handleDeleteAccount}
+                      disabled={deleteStep === 2}
+                      style={{
+                        flex: 1, padding: "0.6rem 1rem",
+                        background: "var(--status-bloqueada-dot)", border: "none",
+                        borderRadius: "8px", cursor: deleteStep === 2 ? "not-allowed" : "pointer",
+                        color: "#fff", fontSize: "0.78rem", opacity: deleteStep === 2 ? 0.6 : 1,
+                        fontFamily: "inherit",
+                      }}
+                    >
+                      {deleteStep === 2 ? "Eliminando..." : "Sí, eliminar"}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>)}
           </>)}
 
           <p style={{ fontSize: "0.62rem", color: "var(--text-ghost)", margin: "0.25rem 0 0", textAlign: "center", fontFamily: "'DM Mono', monospace" }}>
