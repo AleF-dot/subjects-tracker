@@ -78,11 +78,7 @@ export default function InfoModal() {
         onMouseEnter={e => { e.currentTarget.style.transform = "translateY(0px)"; e.currentTarget.style.boxShadow = "0 -8px 24px rgba(0,0,0,0.18)"; }}
         onMouseLeave={e => { e.currentTarget.style.transform = "translateY(8px)"; e.currentTarget.style.boxShadow = "0 -4px 16px rgba(0,0,0,0.12)"; }}
       >
-        <span style={{
-          width: "28px", height: "3px", borderRadius: "2px",
-          background: "var(--border)", display: "block", marginBottom: "0.1rem",
-        }} />
-        <span style={{
+<span style={{
           fontSize: "0.62rem", letterSpacing: "0.1em", textTransform: "uppercase",
           fontFamily: "'DM Mono', monospace", color: "var(--text-muted)",
         }}>
