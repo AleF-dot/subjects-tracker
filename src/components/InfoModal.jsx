@@ -76,7 +76,7 @@ export default function InfoModal() {
         Info / Privacidad
       </button>
 
-      <Modal open={open} onClose={() => setOpen(false)} title="Información">
+      <Modal open={open} onClose={() => setOpen(false)} title="Info / Privacidad">
         <div style={{ display: "flex", flexDirection: "column" }}>
 
           {section("Acerca de", <>
@@ -155,7 +155,7 @@ export default function InfoModal() {
             </div>
           </>)}
 
-          {section("Preguntas, reportes y sugerencias", <>
+          {section("Reportar un problema", <>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               <input
                 style={inputStyle}
@@ -167,7 +167,7 @@ export default function InfoModal() {
               />
               <textarea
                 style={{ ...inputStyle, resize: "vertical", minHeight: "90px", lineHeight: 1.5 }}
-                placeholder="Podes informar un error, hacer una consulta o sugerir una nueva función... Tu feedback es importante."
+                placeholder="Describí el problema o sugerencia..."
                 value={form.message}
                 onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                 onFocus={e => e.target.style.borderColor = "var(--text-muted)"}
