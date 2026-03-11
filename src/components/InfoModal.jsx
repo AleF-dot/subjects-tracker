@@ -219,7 +219,7 @@ export default function InfoModal() {
 
           {session && (<>
             <hr style={{ border: "none", borderTop: "1px solid var(--border)", margin: "0.5rem 0 1.25rem" }} />
-            {section("Zona de peligro", <>
+            <>
               {deleteStep === 0 && (
                 <button
                   onClick={() => setDeleteStep(1)}
@@ -269,7 +269,7 @@ export default function InfoModal() {
                   </div>
                 </div>
               )}
-            </>)}
+            </>
           </>)}
 
           <p style={{ fontSize: "0.62rem", color: "var(--text-ghost)", margin: "0.25rem 0 0", textAlign: "center", fontFamily: "'DM Mono', monospace" }}>
