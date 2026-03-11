@@ -5,37 +5,37 @@ export default function GlobalStyles() {
 
       /* ── Theme tokens ───────────────────────────────────────────────── */
       :root, [data-theme="light"] {
-        --bg:           #C8BFB0;
-        --bg-card:      #D4C9B8;
-        --bg-elevated:  #BFB5A4;
-        --bg-hover:     #B5AA98;
-        --border:       #A09488;
-        --border-soft:  #B0A898;
-        --border-menu:  #A89C8C;
+        --bg:           #E2DDD6;
+        --bg-card:      #EAE6DF;
+        --bg-elevated:  #DAD5CD;
+        --bg-hover:     #D0CBC2;
+        --border:       #BDB8B0;
+        --border-soft:  #CCC8C0;
+        --border-menu:  #C4BFB8;
         --text-primary: #1A1710;
-        --text-secondary: #3A3528;
-        --text-muted:   #6A6258;
-        --text-faint:   #908870;
-        --text-ghost:   #B0A890;
+        --text-secondary: #3E3A30;
+        --text-muted:   #706A60;
+        --text-faint:   #A09888;
+        --text-ghost:   #C0B8A8;
         --btn-primary-bg: #1A1710;
-        --btn-primary-fg: #C8BFB0;
+        --btn-primary-fg: #E2DDD6;
         --btn-primary-hover: #2E2A20;
-        --menu-bg:      #DDD5C4;
-        --menu-hover:   #D4C9B8;
-        --menu-active:  #C8BFB0;
-        --modal-backdrop: rgba(20,18,14,0.6);
-        --scrollbar:    #9A9080;
+        --menu-bg:      #F0EBE2;
+        --menu-hover:   #E6E0D8;
+        --menu-active:  #DDD8D0;
+        --modal-backdrop: rgba(20,18,14,0.5);
+        --scrollbar:    #B0A898;
         /* status */
-        --status-disponible-bg: #C0BAB0; --status-disponible-border: #807870; --status-disponible-dot: #605850; --status-disponible-color: #3A3228;
-        --status-cursando-bg:   #B8CCDC; --status-cursando-border:   #4878A8; --status-cursando-dot:   #2858A0; --status-cursando-color:   #143870;
-        --status-regular-bg:    #D8C880; --status-regular-border:    #A07818; --status-regular-dot:    #885808; --status-regular-color:    #503000;
-        --status-aprobada-bg:   #90CCA8; --status-aprobada-border:   #187850; --status-aprobada-dot:   #0A5C38; --status-aprobada-color:   #023820;
-        --status-bloqueada-bg:  #D8A8A8; --status-bloqueada-border:  #A04040; --status-bloqueada-dot:  #882828; --status-bloqueada-color:  #500808;
+        --status-disponible-bg: #D8D4CC; --status-disponible-border: #908880; --status-disponible-dot: #686058; --status-disponible-color: #403830;
+        --status-cursando-bg:   #CCDAEC; --status-cursando-border:   #4E7EB8; --status-cursando-dot:   #2860A8; --status-cursando-color:   #103870;
+        --status-regular-bg:    #EAE098; --status-regular-border:    #B08818; --status-regular-dot:    #906808; --status-regular-color:    #503800;
+        --status-aprobada-bg:   #AADEC0; --status-aprobada-border:   #1E8858; --status-aprobada-dot:   #0E6840; --status-aprobada-color:   #044028;
+        --status-bloqueada-bg:  #E8C4C4; --status-bloqueada-border:  #B04848; --status-bloqueada-dot:  #903030; --status-bloqueada-color:  #581010;
         /* highlight */
-        --hl-regular-border:      #A07818; --hl-regular-bg:      #D8C880;
-        --hl-aprobada-border:     #187850; --hl-aprobada-bg:     #90CCA8;
-        --hl-final-reg-border:    #1080A0; --hl-final-reg-bg:    #A8D8E8;
-        --hl-final-apr-border:    #5820B0; --hl-final-apr-bg:    #C8B8E8;
+        --hl-regular-border:      #B08818; --hl-regular-bg:      #EAE098;
+        --hl-aprobada-border:     #1E8858; --hl-aprobada-bg:     #AADEC0;
+        --hl-final-reg-border:    #1090B0; --hl-final-reg-bg:    #C0E8F4;
+        --hl-final-apr-border:    #6030C0; --hl-final-apr-bg:    #DDD0F4;
       }
 
       [data-theme="dark"] {
