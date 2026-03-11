@@ -73,7 +73,7 @@ export default function InfoModal() {
         onMouseEnter={e => e.currentTarget.style.color = "var(--text-muted)"}
         onMouseLeave={e => e.currentTarget.style.color = "var(--text-faint)"}
       >
-        Info / Privacidad
+        Información
       </button>
 
       <Modal open={open} onClose={() => setOpen(false)} title="Información">
