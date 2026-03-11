@@ -16,11 +16,13 @@ import AuthButton    from "./components/AuthButton";
 import MergePromptModal from "./components/MergePromptModal";
 
 import { useCurriculumData } from "./hooks/useCurriculumData";
+import { useAuth } from "./context/AuthContext";
 import { useArrows }         from "./hooks/useArrows";
 import { useToast }          from "./hooks/useToast";
 import { computeAllowedStatuses } from "./utils/statusLogic";
 
 export default function App() {
+  const { passwordRecovery } = useAuth();
   const { toast, showToast } = useToast();
 
   const {
@@ -34,11 +36,14 @@ export default function App() {
 
   const [selectedId, setSelectedId] = useState(null);
   const [modalOpen, setModalOpen]   = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [editingSubject, setEditingSubject] = useState(null);
   const [menuAnchor, setMenuAnchor] = useState({ subjectId: null, el: null });
   const [arrowFilter, setArrowFilter] = useState("T");
   const [newIds, setNewIds]         = useState(() => new Set());
   const [exitingIds, setExitingIds] = useState(() => new Set());
+
+  useEffect(() => { if (passwordRecovery) setAuthModalOpen(true); }, [passwordRecovery]);
 
   const cardRefs           = useRef({});
   const dotRefs            = useRef({});
@@ -248,7 +253,7 @@ export default function App() {
 
       {toast && <Toast msg={toast.msg} type={toast.type} animKey={toast.key} />}
 
-      <AuthButton showToast={showToast} syncStatus={syncStatus} />
+      <AuthButton showToast={showToast} syncStatus={syncStatus} forceOpen={authModalOpen} onForceOpenHandled={() => setAuthModalOpen(false)} />
 
       <MergePromptModal
         open={!!mergePrompt}

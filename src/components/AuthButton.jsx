@@ -24,9 +24,16 @@ const SYNC_DOT = {
   error:   "#F87171",
 };
 
-export default function AuthButton({ showToast, syncStatus = "idle" }) {
+export default function AuthButton({ showToast, syncStatus = "idle", forceOpen = false, onForceOpenHandled }) {
   const { session } = useAuth();
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (forceOpen) {
+      setOpen(true);
+      onForceOpenHandled?.();
+    }
+  }, [forceOpen]);
   const [displayStatus, setDisplayStatus] = useState(syncStatus);
   const successTimer = useRef(null);
   const prevStatus = useRef(syncStatus);

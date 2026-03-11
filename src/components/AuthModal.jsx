@@ -2,8 +2,10 @@ import React from 'react';
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import Modal from "./Modal";
+import { useAuth } from "../context/AuthContext";
 
 export default function AuthModal({ open, onClose, showToast }) {
+  const { passwordRecovery } = useAuth();
   const [mode, setMode]         = useState("login"); // login | register | confirm | reset | newpassword
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
@@ -11,20 +13,15 @@ export default function AuthModal({ open, onClose, showToast }) {
   const [error, setError]       = useState(null);
   const [loading, setLoading]   = useState(false);
 
-  // Detectar cuando Supabase redirige tras reset de contraseña
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
-        setMode("newpassword");
-        setError(null);
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, []);
+
 
   const reset = () => {
     setMode("login"); setEmail(""); setPassword(""); setError(null); setLoading(false);
   };
+
+  useEffect(() => {
+    if (open && passwordRecovery) { setMode("newpassword"); setError(null); }
+  }, [open, passwordRecovery]);
   const handleClose = () => { reset(); onClose(); };
 
   const handleSubmit = async () => {
