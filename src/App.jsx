@@ -37,6 +37,7 @@ export default function App() {
   const cardRefs = useRef({});
   const dotRefs  = useRef({});
   const gridRef  = useRef(null);
+  const scrollContainerRef = useRef(null);
 
   const registerRef = useCallback((id, el) => {
     if (el) cardRefs.current[id] = el;
@@ -70,7 +71,7 @@ export default function App() {
     return true;
   });
 
-  const { arrows, animKey, exiting } = useArrows({ selectedId, correlatives: filteredCorrelatives, cardRefs, dotRefs, gridRef });
+  const { arrows, animKey, exiting } = useArrows({ selectedId, correlatives: filteredCorrelatives, cardRefs, dotRefs, gridRef, scrollContainerRef });
 
   const highlightMap = {};
   correlatives.forEach(c => { highlightMap[c.subjectId] = { type: c.type }; });
@@ -97,12 +98,30 @@ export default function App() {
     const fn = e => {
       const inMenu = menuPortalRef.current?.contains(e.target);
       if (inMenu) return;
-      // Llegó acá → el click no fue stopPropagation'd por ninguna card ni chevron
       setMenuAnchor({ subjectId: null, el: null });
       setSelectedId(null);
     };
     document.addEventListener("click", fn);
     return () => document.removeEventListener("click", fn);
+  }, []);
+
+  // Recalcular coordenadas del menú cuando scrollea el contenedor horizontal
+  useEffect(() => {
+    const scrollEl = scrollContainerRef.current;
+    if (!scrollEl) return;
+    const fn = () => {
+      setMenuAnchor(prev => {
+        if (!prev.el) return prev;
+        const r = prev.el.getBoundingClientRect();
+        return { ...prev, rect: { top: r.top, bottom: r.bottom, left: r.left, right: r.right, width: r.width, height: r.height } };
+      });
+    };
+    scrollEl.addEventListener("scroll", fn, { passive: true });
+    window.addEventListener("scroll", fn, { passive: true });
+    return () => {
+      scrollEl.removeEventListener("scroll", fn);
+      window.removeEventListener("scroll", fn);
+    };
   }, []);
 
   /* ── Handlers ── */
@@ -117,7 +136,8 @@ export default function App() {
         return null;
       }
       setArrowFilter("T");
-      setMenuAnchor({ subjectId: id, el: cardEl });
+      const _r = cardEl.getBoundingClientRect();
+      setMenuAnchor({ subjectId: id, el: cardEl, rect: { top: _r.top, bottom: _r.bottom, left: _r.left, right: _r.right, width: _r.width, height: _r.height } });
       return id;
     });
   };
@@ -127,7 +147,7 @@ export default function App() {
     setMenuAnchor(prev =>
       prev.subjectId === subjectId
         ? { subjectId: null, el: null }
-        : { subjectId, el: cardEl }
+        : (() => { const _r = cardEl.getBoundingClientRect(); return { subjectId, el: cardEl, rect: { top: _r.top, bottom: _r.bottom, left: _r.left, right: _r.right, width: _r.width, height: _r.height } }; })()
     );
   };
 
@@ -199,7 +219,7 @@ export default function App() {
           {allSubjects.length === 0 ? (
             <EmptyState onNewSubject={() => { setEditingSubject(null); setModalOpen(true); }} />
           ) : (
-          <div style={{ overflowX: "auto", overflowY: "visible", padding: "4px 4px", WebkitOverflowScrolling: "touch" }}>
+          <div ref={scrollContainerRef} style={{ overflowX: "auto", overflowY: "visible", padding: "4px 4px", WebkitOverflowScrolling: "touch" }}>
             <div ref={gridRef} style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(160px, 1fr))", gap: "1.75rem", minWidth: "860px" }}>
               {data.years.map((year) => (
                 <YearColumn
@@ -264,7 +284,7 @@ export default function App() {
         return createPortal(
           <div ref={menuPortalRef} onClick={e => e.stopPropagation()}>
             <StatusMenu
-              anchor={menuAnchor.el}
+              anchor={menuAnchor.rect ?? menuAnchor.el}
               current={st === "bloqueada" ? null : st}
               onSelect={s => handleSetStatus(sid, s)}
               onEdit={() => handleOpenEdit(sid)}

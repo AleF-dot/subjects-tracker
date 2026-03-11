@@ -1,8 +1,7 @@
-import { useRef, useState, useLayoutEffect } from "react";
+import { useRef } from "react";
 import Dot from "./Dot";
 import { STATUS, STATUS_ORDER } from "../utils/constants";
 
-// Mensaje explicativo por cada estado bloqueado
 const BLOCK_REASON = {
   disponible: null,
   cursando:  "correlativas para cursar incompletas",
@@ -10,31 +9,30 @@ const BLOCK_REASON = {
   aprobada:  "correlativas para aprobar incompletas",
 };
 
+// anchor ahora puede ser un elemento DOM o { top, left, width } de coordenadas ya calculadas
 export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete, onClose, allowedStatuses }) {
-  const ref  = useRef(null);
-  const rect = anchor?.getBoundingClientRect();
+  const ref = useRef(null);
 
-  // allowedStatuses: { cursando: bool, regular: bool, aprobada: bool }
-  // Si no se pasa (materia sin correlativas) todo habilitado
   const allowed = allowedStatuses ?? { disponible: true, cursando: true, regular: true, aprobada: true };
+
+  // Soporte para anchor como elemento DOM (legacy) o como coordenadas pre-calculadas
+  let rect;
+  if (anchor && typeof anchor.getBoundingClientRect === "function") {
+    rect = anchor.getBoundingClientRect();
+  } else if (anchor && typeof anchor === "object") {
+    rect = anchor; // { top, bottom, left, right, width, height }
+  }
 
   const menuW = Math.max(rect?.width ?? 160, 170);
   const spaceBelow = rect ? window.innerHeight - rect.bottom : 999;
-
-  // Render first below (or off-screen) to measure real height, then reposition.
-  const [measuredH, setMeasuredH] = useState(null);
-  useLayoutEffect(() => {
-    if (ref.current) setMeasuredH(ref.current.offsetHeight);
-  });
-
-  const menuH = measuredH ?? 999; // before measurement, assume fits below
+  const menuH = ref.current?.offsetHeight ?? 220;
   const opensUp = rect ? spaceBelow < menuH + 6 : false;
 
   const rawTop  = rect ? (opensUp ? rect.top - menuH - 6 : rect.bottom + 6) : 0;
   const rawLeft = rect ? rect.left : 0;
 
-  const top  = measuredH ? Math.max(8, Math.min(rawTop, window.innerHeight - menuH - 8)) : -9999;
-  const left = Math.max(8, Math.min(rawLeft, window.innerWidth - menuW - 8));
+  const top  = Math.max(8, Math.min(rawTop,  window.innerHeight - menuH - 8));
+  const left = Math.max(8, Math.min(rawLeft, window.innerWidth  - menuW - 8));
 
   return (
     <div
@@ -44,7 +42,7 @@ export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete
       style={{ position: "fixed", top, left, width: menuW, zIndex: 800 }}
     >
       {(allowed.disponible || allowed.cursando || allowed.regular || allowed.aprobada) && STATUS_ORDER.map(s => {
-        const blocked = !allowed[s];
+        const blocked  = !allowed[s];
         const isActive = current === s;
         return (
           <button

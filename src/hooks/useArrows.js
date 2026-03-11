@@ -3,7 +3,7 @@ import { resolveArrowPoints } from "../utils/arrowHelpers";
 
 const EXIT_DURATION = 350;
 
-export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef }) {
+export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef, scrollContainerRef }) {
   const [arrows, setArrows]   = useState([]);
   const [exiting, setExiting] = useState(false);
   const [animKey, setAnimKey] = useState(0);
@@ -126,11 +126,14 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
     };
     window.addEventListener("scroll", fn, { passive: true });
     document.querySelector("main")?.addEventListener("scroll", fn, { passive: true });
+    const scrollEl = scrollContainerRef?.current;
+    if (scrollEl) scrollEl.addEventListener("scroll", fn, { passive: true });
     return () => {
       window.removeEventListener("scroll", fn);
       document.querySelector("main")?.removeEventListener("scroll", fn);
+      if (scrollEl) scrollEl.removeEventListener("scroll", fn);
     };
-  }, [recomputePositions]);
+  }, [recomputePositions, scrollContainerRef]);
 
   return { arrows, animKey, exiting };
 }
