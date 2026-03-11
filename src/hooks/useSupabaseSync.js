@@ -120,14 +120,6 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError }) {
     }
   }, [doSync]);
 
-  // ── retryNow: reintento manual desde el toast ─────────────────────────
-  const retryNow = useCallback(() => {
-    clearTimeout(retryTimer.current);
-    retryTimer.current = null;
-    retryCount.current = 0;
-    push();
-  }, [push]);
-
   // ── Al loguearse ──────────────────────────────────────────────────────
   useEffect(() => {
     if (!userId) {
@@ -231,5 +223,5 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError }) {
     return () => window.removeEventListener("beforeunload", onUnload);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return { syncStatus, mergePrompt, resolveMerge, scheduleSync, retryNow };
+  return { syncStatus, mergePrompt, resolveMerge, scheduleSync };
 }

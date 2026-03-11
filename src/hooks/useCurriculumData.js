@@ -5,7 +5,7 @@ import { useSupabaseSync } from "./useSupabaseSync";
 export function useCurriculumData({ onSyncError } = {}) {
   const local = useLocalData();
 
-  const { syncStatus, mergePrompt, resolveMerge, scheduleSync, retryNow } = useSupabaseSync({
+  const { syncStatus, mergePrompt, resolveMerge, scheduleSync } = useSupabaseSync({
     data:       local.data,
     statusMap:  local.statusMap,
     replaceAll: local.replaceAll,
@@ -23,7 +23,6 @@ export function useCurriculumData({ onSyncError } = {}) {
     syncStatus,
     mergePrompt,
     resolveMerge,
-    retryNow,
     addSubject:    local.addSubject,
     editSubject:   local.editSubject,
     deleteSubject: local.deleteSubject,

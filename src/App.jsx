@@ -27,7 +27,7 @@ export default function App() {
 
   const {
     data, effectiveStatus, allSubjects, syncStatus,
-    mergePrompt, resolveMerge, retryNow,
+    mergePrompt, resolveMerge,
     addSubject, editSubject, deleteSubject, setStatus,
     exportJSON, importJSON,
   } = useCurriculumData({

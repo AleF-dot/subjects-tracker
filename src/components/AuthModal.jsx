@@ -73,7 +73,7 @@ export default function AuthModal({ open, onClose, showToast }) {
           : error.message;
         setError(msg); return;
       }
-      showToast?.("Te mandamos un mail para restablecer tu contraseña", "info");
+      showToast?.("Si el correo tiene una cuenta registrada recibirás un mail para restablecer tu contraseña.", "info");
       setMode("login");
     }
   };
