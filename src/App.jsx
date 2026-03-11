@@ -243,9 +243,9 @@ export default function App() {
 
       <footer style={{
         position: "fixed", bottom: 0, left: 0, right: 0,
-        display: "flex", justifyContent: "center", alignItems: "center",
-        padding: "0.4rem",
-        background: "linear-gradient(to top, var(--bg) 60%, transparent)",
+        display: "flex", justifyContent: "center", alignItems: "flex-end",
+        padding: "0",
+        background: "linear-gradient(to top, var(--bg) 40%, transparent)",
         zIndex: 400, pointerEvents: "none",
       }}>
         <div style={{ pointerEvents: "auto" }}>

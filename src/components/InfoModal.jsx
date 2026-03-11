@@ -64,16 +64,30 @@ export default function InfoModal() {
       <button
         onClick={() => setOpen(true)}
         style={{
-          background: "none", border: "none", cursor: "pointer",
-          fontSize: "0.65rem", color: "var(--text-faint)", letterSpacing: "0.08em",
-          textTransform: "uppercase", fontFamily: "'DM Mono', monospace",
-          padding: "0.3rem 0.6rem", borderRadius: "4px",
-          transition: "color 0.15s",
+          background: "var(--menu-bg)",
+          border: "1px solid var(--border-menu)",
+          borderBottom: "none",
+          borderRadius: "10px 10px 0 0",
+          boxShadow: "0 -4px 16px rgba(0,0,0,0.12)",
+          cursor: "pointer",
+          padding: "0.55rem 1.4rem 0.1rem",
+          display: "flex", flexDirection: "column", alignItems: "center", gap: "0.3rem",
+          transition: "transform 0.2s ease, box-shadow 0.2s ease",
+          transform: "translateY(2px)",
         }}
-        onMouseEnter={e => e.currentTarget.style.color = "var(--text-muted)"}
-        onMouseLeave={e => e.currentTarget.style.color = "var(--text-faint)"}
+        onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 -6px 20px rgba(0,0,0,0.16)"; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = "translateY(2px)"; e.currentTarget.style.boxShadow = "0 -4px 16px rgba(0,0,0,0.12)"; }}
       >
-        Información
+        <span style={{
+          width: "28px", height: "3px", borderRadius: "2px",
+          background: "var(--border)", display: "block", marginBottom: "0.1rem",
+        }} />
+        <span style={{
+          fontSize: "0.62rem", letterSpacing: "0.1em", textTransform: "uppercase",
+          fontFamily: "'DM Mono', monospace", color: "var(--text-muted)",
+        }}>
+          Información
+        </span>
       </button>
 
       <Modal open={open} onClose={() => setOpen(false)} title="Información">
