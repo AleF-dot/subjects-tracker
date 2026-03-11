@@ -73,10 +73,10 @@ export default function InfoModal() {
           padding: "0.55rem 1.4rem 0.1rem",
           display: "flex", flexDirection: "column", alignItems: "center", gap: "0.3rem",
           transition: "transform 0.2s ease, box-shadow 0.2s ease",
-          transform: "translateY(2px)",
+          transform: "translateY(12px)",
         }}
-        onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 -6px 20px rgba(0,0,0,0.16)"; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = "translateY(2px)"; e.currentTarget.style.boxShadow = "0 -4px 16px rgba(0,0,0,0.12)"; }}
+        onMouseEnter={e => { e.currentTarget.style.transform = "translateY(0px)"; e.currentTarget.style.boxShadow = "0 -8px 24px rgba(0,0,0,0.18)"; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = "translateY(12px)"; e.currentTarget.style.boxShadow = "0 -4px 16px rgba(0,0,0,0.12)"; }}
       >
         <span style={{
           width: "28px", height: "3px", borderRadius: "2px",
