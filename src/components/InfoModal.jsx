@@ -167,7 +167,7 @@ export default function InfoModal() {
               />
               <textarea
                 style={{ ...inputStyle, resize: "vertical", minHeight: "90px", lineHeight: 1.5 }}
-                placeholder="Podes informar un error, hacer una consulta o sugerir una nueva función... Tu feedback es importante."
+                placeholder="Podes informar un error, hacer una consulta o sugerir una nueva función, tu feedback importa."
                 value={form.message}
                 onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                 onFocus={e => e.target.style.borderColor = "var(--text-muted)"}
