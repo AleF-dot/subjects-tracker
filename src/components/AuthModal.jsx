@@ -37,7 +37,7 @@ export default function AuthModal({ open, onClose, showToast }) {
       showToast?.("Sesión iniciada", "success");
       handleClose();
     } else if (mode === "register") {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { data: signUpData, error } = await supabase.auth.signUp({ email, password });
       setLoading(false);
       if (error) {
         const msg = error.message.includes("already registered")
@@ -46,6 +46,11 @@ export default function AuthModal({ open, onClose, showToast }) {
           ? "Demasiados intentos. Esperá unos minutos y volvé a intentarlo."
           : error.message;
         setError(msg); return;
+      }
+      // Cuando "Confirm email" está desactivado, Supabase devuelve éxito aunque el email ya exista,
+      // pero con identities vacío — lo detectamos acá.
+      if (signUpData?.user && signUpData.user.identities?.length === 0) {
+        setError("Ese correo ya tiene una cuenta."); return;
       }
       showToast?.("Revisá tu correo para confirmar", "info");
       setMode("confirm");
