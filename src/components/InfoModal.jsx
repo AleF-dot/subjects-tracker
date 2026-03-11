@@ -70,7 +70,7 @@ export default function InfoModal() {
           borderRadius: "10px 10px 0 0",
           boxShadow: "0 -4px 16px rgba(0,0,0,0.12)",
           cursor: "pointer",
-          padding: "0.55rem 1.4rem 0.1rem",
+          padding: "0.55rem 1.4rem 2rem",
           display: "flex", flexDirection: "column", alignItems: "center", gap: "0.3rem",
           transition: "transform 0.2s ease, box-shadow 0.2s ease",
           transform: "translateY(8px)",
