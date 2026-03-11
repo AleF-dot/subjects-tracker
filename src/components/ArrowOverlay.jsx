@@ -19,17 +19,27 @@ const MARKER_ID = {
 
 const EXIT_DURATION = 350;
 
-export default function ArrowOverlay({ arrows, animKey, exiting }) {
+// clipRect: { left, top, right, bottom } en viewport space
+export default function ArrowOverlay({ arrows, animKey, exiting, clipRect }) {
   if (!arrows.length) return null;
 
   const totalArrows = arrows.length;
+
+  // Definimos un clipPath en viewport space que coincide exactamente
+  // con el área visible del scroll container. Las flechas que salgan
+  // por los bordes horizontales quedan recortadas.
+  const clipId = "arrow-clip";
+  const clipX      = clipRect?.left   ?? 0;
+  const clipY      = clipRect?.top    ?? 0;
+  const clipWidth  = clipRect ? clipRect.right  - clipRect.left : window.innerWidth;
+  const clipHeight = clipRect ? clipRect.bottom - clipRect.top  : window.innerHeight;
 
   return (
     <svg
       key={animKey}
       data-arrows
       style={{
-        position: "absolute",
+        position: "fixed",
         inset: 0,
         width: "100%",
         height: "100%",
@@ -44,26 +54,49 @@ export default function ArrowOverlay({ arrows, animKey, exiting }) {
             <path d="M0,1.5 L0,6.5 L7,4z" fill={m.color} />
           </marker>
         ))}
+        <clipPath id={clipId} clipPathUnits="userSpaceOnUse">
+          <rect x={clipX} y={clipY} width={clipWidth} height={clipHeight} />
+        </clipPath>
       </defs>
 
-      {arrows.map((a, i) => {
-        const isFinal = !!a.forFinal;
-        const color   = isFinal
-          ? (TYPE_COLOR_FINAL[a.type]  ?? "#9B6F2F")
-          : (TYPE_COLOR_CURSAR[a.type] ?? "#D97706");
-        const markerKey = `${a.type}-${isFinal ? "final" : "cursar"}`;
-        const markerId  = `url(#${MARKER_ID[markerKey]})`;
-        const len       = estimateLen(a.x1, a.y1, a.x2, a.y2, a.dir);
-        const path      = buildPath(a.x1, a.y1, a.x2, a.y2, a.dir, a.rightEdge1, a.rightEdge2);
+      <g clipPath={`url(#${clipId})`}>
+        {arrows.map((a, i) => {
+          const isFinal = !!a.forFinal;
+          const color   = isFinal
+            ? (TYPE_COLOR_FINAL[a.type]  ?? "#9B6F2F")
+            : (TYPE_COLOR_CURSAR[a.type] ?? "#D97706");
+          const markerKey = `${a.type}-${isFinal ? "final" : "cursar"}`;
+          const markerId  = `url(#${MARKER_ID[markerKey]})`;
+          const len       = estimateLen(a.x1, a.y1, a.x2, a.y2, a.dir);
+          const path      = buildPath(a.x1, a.y1, a.x2, a.y2, a.dir, a.rightEdge1, a.rightEdge2);
 
-        const enterDelay = `${i * 0.04}s`;
-        const exitDelay  = `${(totalArrows - 1 - i) * 0.03}s`;
-        const exitDur    = `${EXIT_DURATION * 0.7}ms`;
+          const enterDelay = `${i * 0.04}s`;
+          const exitDelay  = `${(totalArrows - 1 - i) * 0.03}s`;
+          const exitDur    = `${EXIT_DURATION * 0.7}ms`;
 
-        if (isFinal) {
+          if (isFinal) {
+            const animation = exiting
+              ? `fadeOut ${exitDur} cubic-bezier(0.4,0,0.2,1) ${exitDelay} forwards`
+              : `fadeIn 0.35s cubic-bezier(0.4,0,0.2,1) ${enterDelay} both`;
+            return (
+              <path
+                key={a.id}
+                d={path}
+                fill="none"
+                stroke={color}
+                strokeWidth={1.8}
+                strokeLinecap="round"
+                strokeDasharray="5 4"
+                markerEnd={markerId}
+                style={{ animation }}
+              />
+            );
+          }
+
           const animation = exiting
-            ? `fadeOut ${exitDur} cubic-bezier(0.4,0,0.2,1) ${exitDelay} forwards`
-            : `fadeIn 0.35s cubic-bezier(0.4,0,0.2,1) ${enterDelay} both`;
+            ? `undrawPath ${exitDur} cubic-bezier(0.4,0,0.2,1) ${exitDelay} forwards`
+            : `drawPath 0.35s cubic-bezier(0.4,0,0.2,1) ${enterDelay} forwards`;
+
           return (
             <path
               key={a.id}
@@ -72,32 +105,14 @@ export default function ArrowOverlay({ arrows, animKey, exiting }) {
               stroke={color}
               strokeWidth={1.8}
               strokeLinecap="round"
-              strokeDasharray="5 4"
+              strokeDasharray={len}
+              strokeDashoffset={exiting ? 0 : len}
               markerEnd={markerId}
-              style={{ animation }}
+              style={{ "--path-len": len, animation }}
             />
           );
-        }
-
-        const animation = exiting
-          ? `undrawPath ${exitDur} cubic-bezier(0.4,0,0.2,1) ${exitDelay} forwards`
-          : `drawPath 0.35s cubic-bezier(0.4,0,0.2,1) ${enterDelay} forwards`;
-
-        return (
-          <path
-            key={a.id}
-            d={path}
-            fill="none"
-            stroke={color}
-            strokeWidth={1.8}
-            strokeLinecap="round"
-            strokeDasharray={len}
-            strokeDashoffset={exiting ? 0 : len}
-            markerEnd={markerId}
-            style={{ "--path-len": len, animation }}
-          />
-        );
-      })}
+        })}
+      </g>
     </svg>
   );
 }

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useLayoutEffect, useState } from "react";
 import Dot from "./Dot";
 import { STATUS, STATUS_ORDER } from "../utils/constants";
 
@@ -9,28 +9,64 @@ const BLOCK_REASON = {
   aprobada:  "correlativas para aprobar incompletas",
 };
 
-// anchorRect: { top, bottom, left, width } relativo al scroll container (position:absolute)
-export default function StatusMenu({ anchorRect, current, onSelect, onEdit, onDelete, onClose, allowedStatuses }) {
-  const ref = useRef(null);
+function computePos(anchor, menuRef, scrollContainerRef) {
+  if (!anchor) return null;
+  const er = anchor.getBoundingClientRect();
+  const menuW = Math.max(er.width, 170);
+  const menuH = menuRef?.offsetHeight ?? 220;
+
+  if (scrollContainerRef?.current) {
+    const cr = scrollContainerRef.current.getBoundingClientRect();
+    if (er.right < cr.left || er.left > cr.right) return null;
+  }
+
+  const spaceBelow = window.innerHeight - er.bottom;
+  const opensUp    = spaceBelow < menuH + 6;
+  const rawTop     = opensUp ? er.top - menuH - 6 : er.bottom + 6;
+  const rawLeft    = er.left;
+
+  return {
+    top:   Math.max(8, Math.min(rawTop,  window.innerHeight - menuH - 8)),
+    left:  Math.max(8, Math.min(rawLeft, window.innerWidth  - menuW - 8)),
+    width: menuW,
+  };
+}
+
+export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete, onClose, allowedStatuses, scrollContainerRef }) {
+  const ref  = useRef(null);
+  // Inicializar con top:-9999 para que sea invisible pero medible desde el primer render
+  const [pos, setPos] = useState({ top: -9999, left: 0, width: 170 });
 
   const allowed = allowedStatuses ?? { disponible: true, cursando: true, regular: true, aprobada: true };
 
-  const menuW  = Math.max(anchorRect?.width ?? 160, 170);
-  const menuH  = ref.current?.offsetHeight ?? 220;
+  useLayoutEffect(() => {
+    if (!anchor) return;
 
-  // arriba o abajo: usamos coordenadas viewport para saber si hay espacio
-  const spaceBelow = anchorRect ? window.innerHeight - anchorRect.viewportBottom : 999;
-  const opensUp    = spaceBelow < menuH + 6;
+    // Primera medición: ahora ref.current existe y tiene altura real
+    const next = computePos(anchor, ref.current, scrollContainerRef);
+    setPos(next ?? { top: -9999, left: 0, width: 170 });
 
-  const top  = anchorRect ? (opensUp ? anchorRect.top - menuH - 6 : anchorRect.bottom + 6) : 0;
-  const left = anchorRect ? anchorRect.left : 0;
+    const scrollEl = scrollContainerRef?.current;
+    const fn = () => {
+      requestAnimationFrame(() => {
+        const p = computePos(anchor, ref.current, scrollContainerRef);
+        setPos(p ?? { top: -9999, left: 0, width: 170 });
+      });
+    };
+    window.addEventListener("scroll", fn, { passive: true });
+    if (scrollEl) scrollEl.addEventListener("scroll", fn, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", fn);
+      if (scrollEl) scrollEl.removeEventListener("scroll", fn);
+    };
+  }, [anchor, scrollContainerRef]);
 
   return (
     <div
       ref={ref}
       className="status-menu"
       onClick={e => e.stopPropagation()}
-      style={{ position: "absolute", top, left, width: menuW, zIndex: 800 }}
+      style={{ position: "fixed", top: pos.top, left: pos.left, width: pos.width, zIndex: 800 }}
     >
       {(allowed.disponible || allowed.cursando || allowed.regular || allowed.aprobada) && STATUS_ORDER.map(s => {
         const blocked  = !allowed[s];

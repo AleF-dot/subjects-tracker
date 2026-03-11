@@ -1,16 +1,78 @@
-# React + Vite
+# Mi Currícola
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Tracker visual de plan de estudios universitario. Permite seguir el estado de cada materia, visualizar correlatividades y gestionar el progreso a lo largo de la carrera.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React 19 + Vite
+- CSS custom properties (sin librerías de UI)
+- localStorage para persistencia
 
-## React Compiler
+## Funcionalidades
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Grid de materias organizado por año (hasta 5 años)
+- 5 estados por materia: `disponible`, `cursando`, `regular`, `aprobada`, `bloqueada`
+- Estado `bloqueada` calculado automáticamente según correlativas
+- Dos tipos de correlativas: para cursar y para aprobar (final)
+- Flechas animadas que visualizan las correlativas de la materia seleccionada
+- Filtro de flechas: todas / para cursar / para aprobar
+- Dark mode
+- Importar / exportar plan en JSON
+- Scroll horizontal en mobile con clip correcto de flechas y menú
 
-## Expanding the ESLint configuration
+## Estructura
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```
+src/
+├── components/
+│   ├── ArrowOverlay.jsx   # SVG de flechas (position: fixed + clipPath dinámico)
+│   ├── StatusMenu.jsx     # Menú desplegable de estado
+│   ├── SubjectCard.jsx    # Card individual de materia
+│   ├── YearColumn.jsx     # Columna por año
+│   ├── Header.jsx
+│   ├── Legend.jsx
+│   ├── AddModal.jsx       # Modal agregar / editar materia
+│   ├── InfoModal.jsx
+│   ├── GlobalStyles.jsx   # CSS-in-JS global + keyframes
+│   ├── Toast.jsx
+│   ├── Dot.jsx
+│   └── EmptyState.jsx
+├── hooks/
+│   ├── useArrows.js       # Lógica de cálculo y animación de flechas
+│   ├── useCurriculumData.js
+│   └── useToast.js
+├── utils/
+│   ├── arrowHelpers.js    # Geometría de flechas (buildPath, resolveArrowPoints)
+│   ├── statusLogic.js     # Cálculo de estados bloqueados y permitidos
+│   └── constants.js
+└── context/
+    └── ThemeContext.jsx
+```
+
+## Decisiones técnicas relevantes
+
+### Flechas y clip horizontal
+
+`ArrowOverlay` usa `position: fixed` con coordenadas en viewport space (vía `getBoundingClientRect`). El recorte en los bordes del scroll container se hace con un `<clipPath>` SVG con `clipPathUnits="userSpaceOnUse"`, cuyo rect se actualiza en cada scroll y resize para coincidir con el área visible del contenedor. Esto evita el parallax que ocurriría con `position: absolute` dentro del contenedor scrolleable.
+
+### StatusMenu
+
+Usa `position: fixed` y calcula su posición leyendo `getBoundingClientRect` del anchor en cada evento de scroll (window + contenedor horizontal). Si el anchor sale del área visible del contenedor, el menú se oculta (`top: -9999`). Arranca con `top: -9999` desde el primer render para que `useLayoutEffect` pueda medir la altura real del menú y calcular si debe abrirse arriba o abajo, sin ciclos extra de re-render.
+
+### Correlativas y estado bloqueada
+
+El estado `bloqueada` no se guarda — se calcula en runtime por `statusLogic.js` comparando las correlativas de cada materia contra `effectiveStatus`. Lo que se persiste en localStorage es el estado declarado (`cursando`, `regular`, etc.); el efectivo puede diferir si hay correlativas incompletas.
+
+## Desarrollo
+
+```bash
+npm install
+npm run dev
+```
+
+## Build
+
+```bash
+npm run build
+npm run preview
+```

@@ -39,23 +39,20 @@ export function estimateLen(x1, y1, x2, y2, dir) {
   return Math.max(20, base);
 }
 
-function elInfo(el, origin) {
+function elInfo(el) {
   const r = el.getBoundingClientRect();
-  const ox = origin ? origin.left : 0;
-  const oy = origin ? origin.top  : 0;
   return {
-    x:  r.left + r.width  / 2 - ox,
-    y:  r.top  + r.height / 2 - oy,
-    rx: r.right - ox,
+    x:  r.left + r.width / 2,
+    y:  r.top  + r.height / 2,
+    rx: r.right,
   };
 }
 
-export function resolveArrowPoints(corrDotEl, targetDotEl, offsetSide = 0, containerEl = null) {
+export function resolveArrowPoints(corrDotEl, targetDotEl, offsetSide = 0) {
   const VERT_OFFSET = offsetSide * 10;
 
-  const origin = containerEl ? containerEl.getBoundingClientRect() : null;
-  const c = elInfo(corrDotEl, origin);
-  const t = elInfo(targetDotEl, origin);
+  const c = elInfo(corrDotEl);
+  const t = elInfo(targetDotEl);
 
   let dir;
   const SAME_THRESHOLD = 60;

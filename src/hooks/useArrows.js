@@ -7,6 +7,7 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
   const [arrows, setArrows]   = useState([]);
   const [exiting, setExiting] = useState(false);
   const [animKey, setAnimKey] = useState(0);
+  const [clipRect, setClipRect] = useState(null); // rect del scroll container en viewport space
   const rafRef        = useRef(null);
   const exitTimerRef  = useRef(null);
   const filterTimerRef = useRef(null);
@@ -14,8 +15,6 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
   const correlativesRef = useRef(correlatives);
   useEffect(() => { correlativesRef.current = correlatives; }, [correlatives]);
 
-  // Trackeamos el selectedId anterior para distinguir "cambio de selección"
-  // de "cambio de filtro dentro de la misma selección"
   const prevSelectedRef = useRef(selectedId);
 
   const filterKey = correlatives.map(c => `${c.subjectId}-${c.forFinal ? "f" : "c"}`).join(",");
@@ -32,7 +31,7 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
     const next = corrs.map(c => {
       const el = getPoint(c.subjectId);
       if (!el) return null;
-      const { x1, y1, x2, y2, dir, rightEdge1, rightEdge2 } = resolveArrowPoints(el, targetEl, c.offsetSide ?? 0, scrollContainerRef?.current);
+      const { x1, y1, x2, y2, dir, rightEdge1, rightEdge2 } = resolveArrowPoints(el, targetEl, c.offsetSide ?? 0);
       const uid = `${selectedId}-${c.subjectId}-${c.forFinal ? "final" : "cursar"}`;
       return { id: uid, corrId: c.subjectId, forFinal: c.forFinal ?? false, x1, y1, x2, y2, dir, rightEdge1, rightEdge2, type: c.type };
     }).filter(Boolean);
@@ -44,9 +43,6 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
   useLayoutEffect(() => {
     const prev = prevSelectedRef.current;
     prevSelectedRef.current = selectedId;
-
-    // Siempre actualizar prevFilterKey cuando cambia la selección,
-    // para que el effect de filterKey no se dispare también.
     prevFilterKeyRef.current = filterKey;
 
     clearTimeout(exitTimerRef.current);
@@ -64,8 +60,8 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
       return;
     }
 
-    // Nueva selección: dibujar
     setExiting(false);
+    updateClipRect();
     rafRef.current = requestAnimationFrame(() => {
       computeArrows();
       setAnimKey(k => k + 1);
@@ -73,11 +69,9 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
     return () => cancelAnimationFrame(rafRef.current);
   }, [selectedId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Effect secundario: cambio de filtro DENTRO de la misma selección
+  // Effect secundario: cambio de filtro dentro de la misma selección
   useLayoutEffect(() => {
     if (!selectedId) return;
-    // Si el selectedId también cambió en este render, el effect de arriba
-    // ya actualizó prevFilterKeyRef — acá va a ver que no cambió y no hace nada.
     if (filterKey === prevFilterKeyRef.current) return;
     prevFilterKeyRef.current = filterKey;
     correlativesRef.current = correlatives;
@@ -103,37 +97,57 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
       const el = getPoint(a.corrId);
       if (!el) return a;
       const corr = corrs.find(c => c.subjectId === a.corrId && (c.forFinal ?? false) === a.forFinal);
-      const { x1, y1, x2, y2, dir, rightEdge1, rightEdge2 } = resolveArrowPoints(el, targetEl, corr?.offsetSide ?? 0, scrollContainerRef?.current);
+      const { x1, y1, x2, y2, dir, rightEdge1, rightEdge2 } = resolveArrowPoints(el, targetEl, corr?.offsetSide ?? 0);
       return { ...a, x1, y1, x2, y2, dir, rightEdge1, rightEdge2 };
     }));
   }, [selectedId, cardRefs, dotRefs]);
 
+  const updateClipRect = useCallback(() => {
+    const el = scrollContainerRef?.current;
+    if (!el) { setClipRect(null); return; }
+    const r = el.getBoundingClientRect();
+    setClipRect({ left: r.left, top: r.top, right: r.right, bottom: r.bottom });
+  }, [scrollContainerRef]);
+
+  // ResizeObserver para grid
   useEffect(() => {
     const onResize = () => {
       cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(recomputePositions);
+      rafRef.current = requestAnimationFrame(() => {
+        recomputePositions();
+        updateClipRect();
+      });
     };
     const ro = new ResizeObserver(onResize);
     if (gridRef.current) ro.observe(gridRef.current);
     window.addEventListener("resize", onResize);
     return () => { ro.disconnect(); window.removeEventListener("resize", onResize); };
-  }, [recomputePositions, gridRef]);
+  }, [recomputePositions, updateClipRect, gridRef]);
 
+  // Scroll listeners — window, main, y el scroll container horizontal
   useEffect(() => {
     const fn = () => {
       cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(recomputePositions);
+      rafRef.current = requestAnimationFrame(() => {
+        recomputePositions();
+        updateClipRect();
+      });
     };
+    const scrollEl = scrollContainerRef?.current;
     window.addEventListener("scroll", fn, { passive: true });
     document.querySelector("main")?.addEventListener("scroll", fn, { passive: true });
-    const scrollEl = scrollContainerRef?.current;
     if (scrollEl) scrollEl.addEventListener("scroll", fn, { passive: true });
     return () => {
       window.removeEventListener("scroll", fn);
       document.querySelector("main")?.removeEventListener("scroll", fn);
       if (scrollEl) scrollEl.removeEventListener("scroll", fn);
     };
-  }, [recomputePositions, scrollContainerRef]);
+  }, [recomputePositions, updateClipRect, scrollContainerRef]);
 
-  return { arrows, animKey, exiting };
+  // Calcular clipRect inicial y cuando cambia selectedId
+  useEffect(() => {
+    updateClipRect();
+  }, [updateClipRect, selectedId]);
+
+  return { arrows, animKey, exiting, clipRect };
 }
