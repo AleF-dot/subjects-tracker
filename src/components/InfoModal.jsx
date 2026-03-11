@@ -199,7 +199,7 @@ export default function InfoModal() {
           </>)}
 
           <p style={{ fontSize: "0.62rem", color: "var(--text-ghost)", margin: "0.25rem 0 0", textAlign: "center", fontFamily: "'DM Mono', monospace" }}>
-            v1.2 · {new Date().getFullYear()}
+            v1.1 · {new Date().getFullYear()}
           </p>
         </div>
       </Modal>

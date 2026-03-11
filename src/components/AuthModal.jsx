@@ -71,7 +71,7 @@ export default function AuthModal({ open, onClose, showToast }) {
           : error.message;
         setError(msg); return;
       }
-      showToast?.("Se envió un mail para restablecer tu contraseña", "info");
+      showToast?.("Te mandamos un mail para restablecer tu contraseña", "info");
       setMode("login");
     }
   };
@@ -130,7 +130,7 @@ export default function AuthModal({ open, onClose, showToast }) {
     <Modal open={open} onClose={handleClose} title="Verificá tu correo">
       <div key="confirm" style={{ display: "flex", flexDirection: "column", gap: "1rem", animation: "panelIn 0.18s ease" }}>
         <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", lineHeight: 1.6, margin: 0 }}>
-          Se envió un mail a <strong style={{ color: "var(--text-primary)" }}>{email}</strong>. Confirmá tu cuenta para continuar.
+          Te mandamos un mail a <strong style={{ color: "var(--text-primary)" }}>{email}</strong>. Confirmá tu cuenta para continuar.
         </p>
         <button className="btn-ghost" onClick={() => setMode("login")} style={{ width: "100%" }}>
           Volver al inicio

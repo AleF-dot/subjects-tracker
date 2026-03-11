@@ -68,7 +68,6 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError }) {
     if (error) {
       console.error("Sync error:", error);
       setSyncStatus("error");
-      hadError.current = true;
 
       const delay = RETRY_DELAYS[retryCount.current] ?? null;
       const msg = delay
@@ -89,7 +88,6 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError }) {
       retryCount.current  = 0;
       syncPending.current = false;
 
-      hadError.current = false;
       setSyncStatus("idle");
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
