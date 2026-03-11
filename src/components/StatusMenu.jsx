@@ -26,8 +26,8 @@ function computePos(anchor, menuRef, scrollContainerRef) {
   const rawLeft    = er.left;
 
   return {
-    top:   Math.max(8, Math.min(rawTop,  window.innerHeight - menuH - 8)),
-    left:  Math.max(8, Math.min(rawLeft, window.innerWidth  - menuW - 8)),
+    x:     Math.max(8, Math.min(rawLeft, window.innerWidth  - menuW - 8)),
+    y:     Math.max(8, Math.min(rawTop,  window.innerHeight - menuH - 8)),
     width: menuW,
   };
 }
@@ -35,7 +35,7 @@ function computePos(anchor, menuRef, scrollContainerRef) {
 export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete, onClose, allowedStatuses, scrollContainerRef }) {
   const ref  = useRef(null);
   // Inicializar con top:-9999 para que sea invisible pero medible desde el primer render
-  const [pos, setPos] = useState({ top: -9999, left: 0, width: 170 });
+  const [pos, setPos] = useState({ x: 0, y: -9999, width: 170 });
 
   const allowed = allowedStatuses ?? { disponible: true, cursando: true, regular: true, aprobada: true };
 
@@ -44,13 +44,13 @@ export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete
 
     // Primera medición: ahora ref.current existe y tiene altura real
     const next = computePos(anchor, ref.current, scrollContainerRef);
-    setPos(next ?? { top: -9999, left: 0, width: 170 });
+    setPos(next ?? { x: 0, y: -9999, width: 170 });
 
     const scrollEl = scrollContainerRef?.current;
     const fn = () => {
       requestAnimationFrame(() => {
         const p = computePos(anchor, ref.current, scrollContainerRef);
-        setPos(p ?? { top: -9999, left: 0, width: 170 });
+        setPos(p ?? { x: 0, y: -9999, width: 170 });
       });
     };
     window.addEventListener("scroll", fn, { passive: true });
@@ -66,7 +66,7 @@ export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete
       ref={ref}
       className="status-menu"
       onClick={e => e.stopPropagation()}
-      style={{ position: "fixed", top: pos.top, left: pos.left, width: pos.width, zIndex: 800 }}
+      style={{ position: "fixed", top: 0, left: 0, width: pos.width, zIndex: 800, transform: `translate(${pos.x}px, ${pos.y}px)`, willChange: "transform" }}
     >
       {(allowed.disponible || allowed.cursando || allowed.regular || allowed.aprobada) && STATUS_ORDER.map(s => {
         const blocked  = !allowed[s];

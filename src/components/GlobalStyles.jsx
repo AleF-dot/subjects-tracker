@@ -5,37 +5,37 @@ export default function GlobalStyles() {
 
       /* ── Theme tokens ───────────────────────────────────────────────── */
       :root, [data-theme="light"] {
-        --bg:           #F5F2EC;
-        --bg-card:      #F5F2EC;
-        --bg-elevated:  #EFECE6;
-        --bg-hover:     #E8E4DC;
-        --border:       #D5D0C8;
-        --border-soft:  #EAE6DF;
-        --border-menu:  #E0DAD0;
-        --text-primary: #1a1a1a;
-        --text-secondary: #555;
-        --text-muted:   #888;
-        --text-faint:   #bbb;
-        --text-ghost:   #ccc;
-        --btn-primary-bg: #1a1a1a;
-        --btn-primary-fg: #F5F2EC;
-        --btn-primary-hover: #333;
-        --menu-bg:      #fff;
-        --menu-hover:   #F5F2EC;
-        --menu-active:  #F0EDE7;
+        --bg:           #EEEAE2;
+        --bg-card:      #E8E4DC;
+        --bg-elevated:  #E0DCD4;
+        --bg-hover:     #D8D4CC;
+        --border:       #C8C4BC;
+        --border-soft:  #D8D4CC;
+        --border-menu:  #CCC8C0;
+        --text-primary: #1C1C1A;
+        --text-secondary: #4A4A46;
+        --text-muted:   #7A7A74;
+        --text-faint:   #A8A8A2;
+        --text-ghost:   #C4C4BE;
+        --btn-primary-bg: #1C1C1A;
+        --btn-primary-fg: #EEEAE2;
+        --btn-primary-hover: #333330;
+        --menu-bg:      #F0EDE6;
+        --menu-hover:   #E8E4DC;
+        --menu-active:  #E0DCD4;
         --modal-backdrop: rgba(20,18,14,0.5);
-        --scrollbar:    #c8c2b6;
-        /* status */
-        --status-disponible-bg: #E5E7EB; --status-disponible-border: #9CA3AF; --status-disponible-dot: #6B7280; --status-disponible-color: #4B5563;
-        --status-cursando-bg:   #BFDBFE; --status-cursando-border:   #3B82F6; --status-cursando-dot:   #2563EB; --status-cursando-color:   #0259A8;
-        --status-regular-bg:    #FDE68A; --status-regular-border:    #F59E0B; --status-regular-dot:    #D97706; --status-regular-color:    #92400E;
-        --status-aprobada-bg:   #A7F3D0; --status-aprobada-border:   #10B981; --status-aprobada-dot:   #059669; --status-aprobada-color:   #064E3B;
-        --status-bloqueada-bg:  #FECACA; --status-bloqueada-border:  #EF4444; --status-bloqueada-dot:  #DC2626; --status-bloqueada-color:  #7F1D1D;
+        --scrollbar:    #B8B4AC;
+        /* status — desaturados para no quemar */
+        --status-disponible-bg: #DCDDE0; --status-disponible-border: #9A9DA6; --status-disponible-dot: #6B6E78; --status-disponible-color: #44464E;
+        --status-cursando-bg:   #D4E0F0; --status-cursando-border:   #5B8FC4; --status-cursando-dot:   #2E6AAA; --status-cursando-color:   #1A4A80;
+        --status-regular-bg:    #EEE0A8; --status-regular-border:    #C49020; --status-regular-dot:    #A87010; --status-regular-color:    #6A4408;
+        --status-aprobada-bg:   #BEEBD4; --status-aprobada-border:   #2A9E6A; --status-aprobada-dot:   #1A7E50; --status-aprobada-color:   #0A4E30;
+        --status-bloqueada-bg:  #EED4D4; --status-bloqueada-border:  #C46060; --status-bloqueada-dot:  #A84040; --status-bloqueada-color:  #6A1A1A;
         /* highlight */
-        --hl-regular-border:      #F59E0B; --hl-regular-bg:      #FDE68A;
-        --hl-aprobada-border:     #10B981; --hl-aprobada-bg:     #A7F3D0;
-        --hl-final-reg-border:    #06B6D4; --hl-final-reg-bg:    #ECFEFF;
-        --hl-final-apr-border:    #7C3AED; --hl-final-apr-bg:    #EDE9FE;
+        --hl-regular-border:      #C49020; --hl-regular-bg:      #EEE0A8;
+        --hl-aprobada-border:     #2A9E6A; --hl-aprobada-bg:     #BEEBD4;
+        --hl-final-reg-border:    #1A9EBC; --hl-final-reg-bg:    #D4F0F8;
+        --hl-final-apr-border:    #6A2ECC; --hl-final-apr-bg:    #E4DCF8;
       }
 
       [data-theme="dark"] {
@@ -133,8 +133,7 @@ export default function GlobalStyles() {
       .subject-card.card-status-flash { animation: statusFlash 0.3s ease-out forwards; }
 
       /* ── SVG arrows ────────────────────────────────────────────────── */
-      svg[data-arrows] { will-change: contents; }
-      svg[data-arrows] path { will-change: stroke-dashoffset, opacity; }
+      svg[data-arrows] { will-change: transform; }
 
       /* ── Chevron ───────────────────────────────────────────────────── */
       .chevron-btn { transition: background 0.1s; }
@@ -152,6 +151,7 @@ export default function GlobalStyles() {
         min-width: 160px;
         animation: menuIn 0.12s ease;
         will-change: transform, opacity;
+        transform: translateZ(0);
       }
       .status-menu-item {
         padding: 0.55rem 0.9rem; font-size: 0.8rem; cursor: pointer;

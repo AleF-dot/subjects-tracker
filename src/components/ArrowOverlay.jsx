@@ -46,6 +46,8 @@ export default function ArrowOverlay({ arrows, animKey, exiting, clipRect }) {
         pointerEvents: "none",
         zIndex: 500,
         overflow: "visible",
+        transform: "translateZ(0)",
+        willChange: "transform",
       }}
     >
       <defs>
@@ -59,7 +61,7 @@ export default function ArrowOverlay({ arrows, animKey, exiting, clipRect }) {
         </clipPath>
       </defs>
 
-      <g clipPath={`url(#${clipId})`}>
+      <g clipPath={`url(#${clipId})`} style={{ willChange: "transform", transform: "translateZ(0)" }}>
         {arrows.map((a, i) => {
           const isFinal = !!a.forFinal;
           const color   = isFinal
