@@ -17,7 +17,7 @@ const MARKER_ID = {
   "aprobada-final":  "mEmeraldDash",
 };
 
-const EXIT_DURATION = 350; // ms — debe coincidir con useArrows
+const EXIT_DURATION = 350;
 
 export default function ArrowOverlay({ arrows, animKey, exiting }) {
   if (!arrows.length) return null;
@@ -27,7 +27,16 @@ export default function ArrowOverlay({ arrows, animKey, exiting }) {
   return (
     <svg
       key={animKey}
-      data-arrows style={{ position: "fixed", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 500, overflow: "visible" }}
+      data-arrows
+      style={{
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        pointerEvents: "none",
+        zIndex: 500,
+        overflow: "visible",
+      }}
     >
       <defs>
         {MARKERS.map(m => (
@@ -38,8 +47,8 @@ export default function ArrowOverlay({ arrows, animKey, exiting }) {
       </defs>
 
       {arrows.map((a, i) => {
-        const isFinal  = !!a.forFinal;
-        const color    = isFinal
+        const isFinal = !!a.forFinal;
+        const color   = isFinal
           ? (TYPE_COLOR_FINAL[a.type]  ?? "#9B6F2F")
           : (TYPE_COLOR_CURSAR[a.type] ?? "#D97706");
         const markerKey = `${a.type}-${isFinal ? "final" : "cursar"}`;
@@ -47,8 +56,6 @@ export default function ArrowOverlay({ arrows, animKey, exiting }) {
         const len       = estimateLen(a.x1, a.y1, a.x2, a.y2, a.dir);
         const path      = buildPath(a.x1, a.y1, a.x2, a.y2, a.dir, a.rightEdge1, a.rightEdge2);
 
-        // Entrada: las flechas aparecen escalonadas (delay por índice)
-        // Salida: desaparecen en orden inverso, también escalonadas
         const enterDelay = `${i * 0.04}s`;
         const exitDelay  = `${(totalArrows - 1 - i) * 0.03}s`;
         const exitDur    = `${EXIT_DURATION * 0.7}ms`;
@@ -72,7 +79,6 @@ export default function ArrowOverlay({ arrows, animKey, exiting }) {
           );
         }
 
-        // Sólidas: entrada = drawPath, salida = undrawPath (se desdibuja)
         const animation = exiting
           ? `undrawPath ${exitDur} cubic-bezier(0.4,0,0.2,1) ${exitDelay} forwards`
           : `drawPath 0.35s cubic-bezier(0.4,0,0.2,1) ${enterDelay} forwards`;
@@ -88,10 +94,7 @@ export default function ArrowOverlay({ arrows, animKey, exiting }) {
             strokeDasharray={len}
             strokeDashoffset={exiting ? 0 : len}
             markerEnd={markerId}
-            style={{
-              "--path-len": len,
-              animation,
-            }}
+            style={{ "--path-len": len, animation }}
           />
         );
       })}

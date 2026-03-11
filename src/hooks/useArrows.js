@@ -32,7 +32,7 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
     const next = corrs.map(c => {
       const el = getPoint(c.subjectId);
       if (!el) return null;
-      const { x1, y1, x2, y2, dir, rightEdge1, rightEdge2 } = resolveArrowPoints(el, targetEl, c.offsetSide ?? 0);
+      const { x1, y1, x2, y2, dir, rightEdge1, rightEdge2 } = resolveArrowPoints(el, targetEl, c.offsetSide ?? 0, scrollContainerRef?.current);
       const uid = `${selectedId}-${c.subjectId}-${c.forFinal ? "final" : "cursar"}`;
       return { id: uid, corrId: c.subjectId, forFinal: c.forFinal ?? false, x1, y1, x2, y2, dir, rightEdge1, rightEdge2, type: c.type };
     }).filter(Boolean);
@@ -103,7 +103,7 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
       const el = getPoint(a.corrId);
       if (!el) return a;
       const corr = corrs.find(c => c.subjectId === a.corrId && (c.forFinal ?? false) === a.forFinal);
-      const { x1, y1, x2, y2, dir, rightEdge1, rightEdge2 } = resolveArrowPoints(el, targetEl, corr?.offsetSide ?? 0);
+      const { x1, y1, x2, y2, dir, rightEdge1, rightEdge2 } = resolveArrowPoints(el, targetEl, corr?.offsetSide ?? 0, scrollContainerRef?.current);
       return { ...a, x1, y1, x2, y2, dir, rightEdge1, rightEdge2 };
     }));
   }, [selectedId, cardRefs, dotRefs]);

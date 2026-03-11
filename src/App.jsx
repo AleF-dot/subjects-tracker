@@ -1,6 +1,4 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { createPortal } from "react-dom";
-
 import GlobalStyles  from "./components/GlobalStyles";
 import Header        from "./components/Header";
 import Legend        from "./components/Legend";
@@ -105,15 +103,14 @@ export default function App() {
     return () => document.removeEventListener("click", fn);
   }, []);
 
-  // Recalcular coordenadas del menú cuando scrollea el contenedor horizontal
+  // Recalcular anchorRect del menú al scrollear (el contenedor scrollea, las coords absolutas cambian)
   useEffect(() => {
     const scrollEl = scrollContainerRef.current;
     if (!scrollEl) return;
     const fn = () => {
       setMenuAnchor(prev => {
         if (!prev.el) return prev;
-        const r = prev.el.getBoundingClientRect();
-        return { ...prev, rect: { top: r.top, bottom: r.bottom, left: r.left, right: r.right, width: r.width, height: r.height } };
+        return { ...prev, anchorRect: getAnchorRect(prev.el) };
       });
     };
     scrollEl.addEventListener("scroll", fn, { passive: true });
@@ -122,7 +119,22 @@ export default function App() {
       scrollEl.removeEventListener("scroll", fn);
       window.removeEventListener("scroll", fn);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Calcula anchorRect relativo al scrollContainerRef para position:absolute
+  const getAnchorRect = (cardEl) => {
+    if (!cardEl || !scrollContainerRef.current) return null;
+    const cr = scrollContainerRef.current.getBoundingClientRect();
+    const er = cardEl.getBoundingClientRect();
+    return {
+      top:             er.top    - cr.top  + scrollContainerRef.current.scrollTop,
+      bottom:          er.bottom - cr.top  + scrollContainerRef.current.scrollTop,
+      left:            er.left   - cr.left + scrollContainerRef.current.scrollLeft,
+      width:           er.width,
+      viewportBottom:  er.bottom, // para calcular si abre arriba o abajo
+    };
+  };
 
   /* ── Handlers ── */
 
@@ -136,8 +148,7 @@ export default function App() {
         return null;
       }
       setArrowFilter("T");
-      const _r = cardEl.getBoundingClientRect();
-      setMenuAnchor({ subjectId: id, el: cardEl, rect: { top: _r.top, bottom: _r.bottom, left: _r.left, right: _r.right, width: _r.width, height: _r.height } });
+      setMenuAnchor({ subjectId: id, el: cardEl, anchorRect: getAnchorRect(cardEl) });
       return id;
     });
   };
@@ -147,7 +158,7 @@ export default function App() {
     setMenuAnchor(prev =>
       prev.subjectId === subjectId
         ? { subjectId: null, el: null }
-        : (() => { const _r = cardEl.getBoundingClientRect(); return { subjectId, el: cardEl, rect: { top: _r.top, bottom: _r.bottom, left: _r.left, right: _r.right, width: _r.width, height: _r.height } }; })()
+        : { subjectId, el: cardEl, anchorRect: getAnchorRect(cardEl) }
     );
   };
 
@@ -203,8 +214,6 @@ export default function App() {
   return (
     <>
       <GlobalStyles />
-      <ArrowOverlay arrows={arrows} animKey={animKey} exiting={exiting} />
-
       <div style={{ minHeight: "100vh", background: "var(--bg-card)" }}>
         <Header
           counts={counts}
@@ -219,7 +228,31 @@ export default function App() {
           {allSubjects.length === 0 ? (
             <EmptyState onNewSubject={() => { setEditingSubject(null); setModalOpen(true); }} />
           ) : (
-          <div ref={scrollContainerRef} style={{ overflowX: "auto", overflowY: "visible", padding: "4px 4px", WebkitOverflowScrolling: "touch" }}>
+          <div ref={scrollContainerRef} style={{ position: "relative", overflowX: "auto", overflowY: "visible", padding: "4px 4px", WebkitOverflowScrolling: "touch" }}>
+            <ArrowOverlay arrows={arrows} animKey={animKey} exiting={exiting} />
+            {menuAnchor.subjectId && menuAnchor.anchorRect && (() => {
+              const sid     = menuAnchor.subjectId;
+              const st      = effectiveStatus[sid];
+              const yearId  = data.years.find(y => y.subjects.some(s => s.id === sid))?.id;
+              const subject = allSubjects.find(s => s.id === sid);
+              const allowedStatuses = subject
+                ? computeAllowedStatuses(subject, effectiveStatus)
+                : { disponible: true, cursando: true, regular: true, aprobada: true };
+              const closeMenu = () => setMenuAnchor({ subjectId: null, el: null });
+              return (
+                <div ref={menuPortalRef} onClick={e => e.stopPropagation()}>
+                  <StatusMenu
+                    anchorRect={menuAnchor.anchorRect}
+                    current={st === "bloqueada" ? null : st}
+                    onSelect={s => handleSetStatus(sid, s)}
+                    onEdit={() => handleOpenEdit(sid)}
+                    onDelete={() => handleDelete(yearId, sid)}
+                    onClose={closeMenu}
+                    allowedStatuses={allowedStatuses}
+                  />
+                </div>
+              );
+            })()}
             <div ref={gridRef} style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(160px, 1fr))", gap: "1.75rem", minWidth: "860px" }}>
               {data.years.map((year) => (
                 <YearColumn
@@ -272,30 +305,7 @@ export default function App() {
         </div>
       </footer>
 
-      {menuAnchor.subjectId && menuAnchor.el && (() => {
-        const sid     = menuAnchor.subjectId;
-        const st      = effectiveStatus[sid];
-        const yearId  = data.years.find(y => y.subjects.some(s => s.id === sid))?.id;
-        const subject = allSubjects.find(s => s.id === sid);
-        const allowedStatuses = subject
-          ? computeAllowedStatuses(subject, effectiveStatus)
-          : { disponible: true, cursando: true, regular: true, aprobada: true };
-        const closeMenu = () => setMenuAnchor({ subjectId: null, el: null });
-        return createPortal(
-          <div ref={menuPortalRef} onClick={e => e.stopPropagation()}>
-            <StatusMenu
-              anchor={menuAnchor.rect ?? menuAnchor.el}
-              current={st === "bloqueada" ? null : st}
-              onSelect={s => handleSetStatus(sid, s)}
-              onEdit={() => handleOpenEdit(sid)}
-              onDelete={() => handleDelete(yearId, sid)}
-              onClose={closeMenu}
-              allowedStatuses={allowedStatuses}
-            />
-          </div>,
-          document.body
-        );
-      })()}
+
     </>
   );
 }
