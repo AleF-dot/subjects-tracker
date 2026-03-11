@@ -128,11 +128,11 @@ export default function App() {
     const cr = scrollContainerRef.current.getBoundingClientRect();
     const er = cardEl.getBoundingClientRect();
     return {
-      top:             er.top    - cr.top  + scrollContainerRef.current.scrollTop,
-      bottom:          er.bottom - cr.top  + scrollContainerRef.current.scrollTop,
-      left:            er.left   - cr.left + scrollContainerRef.current.scrollLeft,
-      width:           er.width,
-      viewportBottom:  er.bottom, // para calcular si abre arriba o abajo
+      top:            er.top    - cr.top,
+      bottom:         er.bottom - cr.top,
+      left:           er.left   - cr.left,
+      width:          er.width,
+      viewportBottom: er.bottom,
     };
   };
 
