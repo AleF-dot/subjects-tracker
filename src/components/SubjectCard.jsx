@@ -8,7 +8,7 @@ const BADGE_COLOR = "#E53E3E";
 export default function SubjectCard({
   subject, status, highlighted, highlightType, dimmed, isSelected, menuOpen,
   onCardClick, onChevronToggle, cardRef, dotRef, arrowFilter, onArrowFilterChange,
-  selectedSubject, isNew, isExiting,
+  selectedSubject, isNew, isExiting, isDragged,
 }) {
   const innerRef = useRef(null);
   const [badgePressed, setBadgePressed] = useState(false);
@@ -95,11 +95,11 @@ export default function SubjectCard({
         background: bgColor,
         border: `1px solid ${borderColor}`,
         borderRadius: "8px",
-        // Padding fijo siempre — no cambia al seleccionar
         padding: "0.65rem 0.8rem",
         opacity: dimmed ? 0.3 : 1,
         position: "relative",
-        transition: "outline 0.12s, opacity 0.15s",
+        transition: "outline 0.12s, opacity 0.15s, box-shadow 0.15s",
+        boxShadow: isDragged ? "0 6px 20px rgba(0,0,0,0.18)" : undefined,
         ...outlineStyle,
       }}
       onClick={handleClick}

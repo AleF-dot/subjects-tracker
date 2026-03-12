@@ -27,6 +27,7 @@ export function useCurriculumData({ onSyncError } = {}) {
     editSubject:   local.editSubject,
     deleteSubject: local.deleteSubject,
     setStatus:     local.setStatus,
+    reorderSubjects: local.reorderSubjects,
     exportJSON:    local.exportJSON,
     importJSON:    local.importJSON,
   };

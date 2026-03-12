@@ -232,9 +232,23 @@ export function useLocalData() {
     input.click();
   };
 
+  const reorderSubjects = (yearId, fromIndex, toIndex) => {
+    if (fromIndex === toIndex) return;
+    setDataAndSave(d => ({
+      ...d,
+      years: d.years.map(y => {
+        if (y.id !== yearId) return y;
+        const subjects = [...y.subjects];
+        const [moved] = subjects.splice(fromIndex, 1);
+        subjects.splice(toIndex, 0, moved);
+        return { ...y, subjects };
+      }),
+    }));
+  };
+
   return {
     data, statusMap, effectiveStatus, allSubjects,
     replaceAll, addSubject, editSubject, deleteSubject, setStatus,
-    exportJSON, importJSON,
+    reorderSubjects, exportJSON, importJSON,
   };
 }

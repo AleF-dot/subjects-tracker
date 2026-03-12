@@ -7,8 +7,60 @@ import Modal from "./Modal";
 
 const MAIL = "subjectstracker@gmail.com";
 
+const PRIVACY_TEXT = "Los datos del plan de estudios se guardan en el almacenamiento local del navegador. Si iniciás sesión, también se sincronizan en servidores de Supabase (AWS) para permitir el acceso desde múltiples dispositivos. Solo se almacena tu dirección de correo electrónico y los datos de tu plan académico. Podés usar la app sin cuenta — en ese caso ningún dato sale de tu dispositivo.";
+
+function PrivacyModal({ open, onClose }) {
+  const [visible, setVisible] = useState(false);
+  const [animating, setAnimating] = useState(false);
+
+  React.useEffect(() => {
+    if (open) { setVisible(true); setAnimating(false); }
+    else if (visible) {
+      setAnimating(true);
+      const t = setTimeout(() => { setVisible(false); setAnimating(false); }, 180);
+      return () => clearTimeout(t);
+    }
+  }, [open]);
+
+  if (!visible) return null;
+  const closing = animating && !open;
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 1000,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      padding: "1rem",
+      animation: closing ? "fadeOut 0.18s ease forwards" : "fadeIn 0.15s ease",
+    }}>
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "var(--modal-backdrop)", backdropFilter: "blur(3px)" }} />
+      <div style={{
+        position: "relative", zIndex: 1,
+        background: "var(--bg)", border: "1px solid #D5D0C8",
+        borderRadius: "12px", padding: "1.25rem 1.5rem",
+        width: "100%", maxWidth: "340px",
+        animation: closing ? "modalOut 0.18s ease forwards" : "popUp 0.2s ease",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.18)",
+      }}>
+        <button
+          onClick={onClose}
+          style={{
+            position: "absolute", top: "0.75rem", right: "0.75rem",
+            background: "var(--bg-elevated)", border: "none",
+            width: 26, height: 26, borderRadius: "6px",
+            cursor: "pointer", fontSize: "0.8rem", color: "var(--text-muted)",
+          }}
+        >✕</button>
+        <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", lineHeight: 1.65, margin: 0, paddingRight: "1.5rem" }}>
+          {PRIVACY_TEXT}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function InfoModal() {
   const [open, setOpen] = useState(false);
+  const [privacyOpen, setPrivacyOpen] = useState(false);
   const { dark, toggle } = useTheme();
   const { session } = useAuth();
   const [deleteStep, setDeleteStep] = useState(0); // 0: idle, 1: confirm, 2: deleting
@@ -111,10 +163,6 @@ export default function InfoModal() {
 
           {section("Acerca de", <>
             {prose("Subjects Tracker es una herramienta gratuita para estudiantes universitarios de la UNR y UTN. Permite visualizar y gestionar el plan de estudios y sus correlatividades.")}
-          </>)}
-
-          {section("Privacidad", <>
-  {prose("Los datos del plan de estudios se guardan en el almacenamiento local del navegador. Si iniciás sesión, también se sincronizan en servidores de Supabase (AWS) para permitir el acceso desde múltiples dispositivos. Solo se almacena tu dirección de correo electrónico y los datos de tu plan académico. Podés usar la app sin cuenta — en ese caso ningún dato sale de tu dispositivo.")}
           </>)}
 
           {section("Apariencia", <>
@@ -280,8 +328,23 @@ export default function InfoModal() {
           <p style={{ fontSize: "0.62rem", color: "var(--text-ghost)", margin: "0.25rem 0 0", textAlign: "center", fontFamily: "'DM Mono', monospace" }}>
             v1.2 · {new Date().getFullYear()}
           </p>
+          <p style={{ fontSize: "0.62rem", margin: "0.4rem 0 0", textAlign: "center" }}>
+            <button
+              onClick={() => setPrivacyOpen(true)}
+              style={{
+                background: "none", border: "none", padding: 0, cursor: "pointer",
+                color: "var(--text-faint)", fontSize: "0.62rem",
+                fontFamily: "'DM Mono', monospace",
+                textDecoration: "underline", textUnderlineOffset: "2px",
+              }}
+            >
+              privacidad
+            </button>
+          </p>
         </div>
       </Modal>
+
+      <PrivacyModal open={privacyOpen} onClose={() => setPrivacyOpen(false)} />
     </>
   );
 }

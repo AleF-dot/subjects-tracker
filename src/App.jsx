@@ -29,7 +29,7 @@ export default function App() {
     data, effectiveStatus, allSubjects, syncStatus,
     mergePrompt, resolveMerge,
     addSubject, editSubject, deleteSubject, setStatus,
-    exportJSON, importJSON,
+    reorderSubjects, exportJSON, importJSON,
   } = useCurriculumData({
     onSyncError: (msg) => showToast(msg, "error", true),
   });
@@ -234,6 +234,7 @@ export default function App() {
                   menuOpenId={menuAnchor.subjectId}
                   newIds={newIds}
                   exitingIds={exitingIds}
+                  onReorder={(fromIndex, toIndex) => reorderSubjects(year.id, fromIndex, toIndex)}
                 />
               ))}
             </div>
