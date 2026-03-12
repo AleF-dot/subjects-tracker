@@ -113,30 +113,18 @@ export default function YearColumn({
       const status      = statusMap[s.id] ?? "disponible";
       const isDragItem  = s === draggedSubject; // la card que se está moviendo
       const origIndex   = year.subjects.indexOf(s);
-<<<<<<< HEAD
       // Ghost: la card draggeada en su posición destino (solo cuando se movió de lugar)
       const moved   = dragIndex !== overIndex;
       const isGhost = isDragItem && moved;  // siempre que se haya movido, aparece como ghost en destino
 
       // En la lista reordenada la card draggeada aparece UNA sola vez (en previewIndex === overIndex).
       // Cuando moved === false la lista no cambió, entonces isDragItem === true en su pos original → visible normal.
-=======
-      // Es la posición destino actual — mostrar como ghost
-      const isGhost     = isDragItem && previewIndex === overIndex && dragIndex !== overIndex;
-
->>>>>>> 562e36f51c23817dee8d60073caa1ef0dfa691f0
       return (
         <div
           key={s.id}
           ref={el => { itemRefs.current[previewIndex] = el; }}
           style={{
             opacity: isGhost ? 0.4 : 1,
-<<<<<<< HEAD
-=======
-            // La card original (antes del reorder) se oculta visualmente pero mantiene
-            // su espacio, así el hover over los índices sigue funcionando
-            visibility: isDragItem && !isGhost ? "hidden" : "visible",
->>>>>>> 562e36f51c23817dee8d60073caa1ef0dfa691f0
             transition: "opacity 0.1s",
           }}
           onMouseDown={e => startLongPress(origIndex, e)}
