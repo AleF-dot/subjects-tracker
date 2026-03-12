@@ -197,15 +197,11 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError }) {
 
         const hasMismatch = !subjectsEqual(latestData.current, cloudData);
 
-        if (isFreshLoginRef.current && hasMismatch) {
-          // Login real con diferencias — preguntar al usuario
+        if (hasMismatch) {
+          // Hay diferencias — siempre preguntar al usuario (login real o restauración
+          // de sesión). Nunca pisar datos silenciosamente.
           merging.current = true;
           setMergePrompt({ cloudData, cloudStatusMap });
-          setSyncStatus("idle");
-        } else if (hasMismatch) {
-          // Restauración de sesión con diferencias — cloud gana silenciosamente
-          replaceAll(cloudData, cloudStatusMap);
-          ready.current = true;
           setSyncStatus("idle");
         } else {
           // Sin diferencias — no hace falta reemplazar nada, solo marcar ready
