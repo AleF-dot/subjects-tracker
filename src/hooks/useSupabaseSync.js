@@ -217,13 +217,20 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError }) {
     const { cloudData, cloudStatusMap } = mergeDataRef.current ?? {};
     if (!cloudData) return;
 
-    if (choice === "cloud") replaceAll(cloudData, cloudStatusMap);
-
     merging.current = false;
     ready.current   = true;
     setMergePrompt(null);
     mergeDataRef.current = null;
-    push();
+
+    if (choice === "cloud") {
+      // Nube gana: no hace falta subir nada, ya está en Supabase.
+      // Solo sincronizamos el estado local con la data de la nube.
+      replaceAll(cloudData, cloudStatusMap);
+      setSyncStatus("idle");
+    } else {
+      // Local gana: subir la data local a Supabase.
+      push();
+    }
   }, [replaceAll, push]); // eslint-disable-line react-hooks/exhaustive-deps
   // Intencional: mergeDataRef.current se lee en el momento de ejecución; no es una dep
   // de useCallback porque es un ref mutable, no estado React.
