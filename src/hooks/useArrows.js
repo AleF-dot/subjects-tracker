@@ -68,8 +68,10 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
     });
     return () => cancelAnimationFrame(rafRef.current);
   }, [selectedId]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Effect secundario: cambio de filtro dentro de la misma selección
+  // Intencional: este effect maneja exclusivamente el cambio de selección.
+  // computeArrows y updateClipRect son estables (useCallback); arrows se lee
+  // directamente del estado en el momento de ejecución. Agregarlos causaría
+  // re-animaciones no deseadas ante cambios de filtro (manejados en el effect secundario).
   useLayoutEffect(() => {
     if (!selectedId) return;
     if (filterKey === prevFilterKeyRef.current) return;
@@ -85,6 +87,8 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
       rafRef.current = requestAnimationFrame(() => { computeArrows(); });
     }, EXIT_DURATION);
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Intencional: computeArrows es estable (useCallback) y correlatives se lee via
+  // correlativesRef para evitar que su referencia sea una dep que dispare este effect.
   }, [filterKey, selectedId]);
 
   const recomputePositions = useCallback(() => {

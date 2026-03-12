@@ -48,6 +48,44 @@ export function canAprobar(subject, effectiveStatus) {
 }
 
 /**
+ * Detecta si agregar las correlatividades `newCorrelatives` y `newCorrelativesParaFinal`
+ * a la materia `subjectId` crearía un ciclo en el grafo de dependencias.
+ *
+ * Construye un grafo completo con todos los subjects existentes, reemplazando
+ * las correlativas de `subjectId` con las nuevas (para validar antes de guardar).
+ *
+ * Retorna `true` si hay ciclo, `false` si el grafo es acíclico.
+ */
+export function wouldCreateCycle(subjectId, newCorrelatives, newCorrelativesParaFinal, allSubjects) {
+  // Construir mapa de adyacencia: id → [ids de los que depende]
+  const deps = {};
+  for (const s of allSubjects) {
+    const corrIds = s.id === subjectId
+      ? [
+          ...(newCorrelatives ?? []).map(c => c.subjectId),
+          ...(newCorrelativesParaFinal ?? []).map(c => c.subjectId),
+        ]
+      : [
+          ...(s.correlatives ?? []).map(c => c.subjectId),
+          ...(s.correlativesParaFinal ?? []).map(c => c.subjectId),
+        ];
+    deps[s.id] = corrIds;
+  }
+
+  // DFS desde subjectId buscando si podemos llegar de vuelta a él
+  const visited = new Set();
+  const stack   = [...(deps[subjectId] ?? [])];
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (current === subjectId) return true;  // ciclo encontrado
+    if (visited.has(current)) continue;
+    visited.add(current);
+    for (const dep of (deps[current] ?? [])) stack.push(dep);
+  }
+  return false;
+}
+
+/**
  * Returns which statuses are selectable in the menu for a given subject.
  * Recibe effectiveStatus para que el menú refleje la realidad actual.
  */

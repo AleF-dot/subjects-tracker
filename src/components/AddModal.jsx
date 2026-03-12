@@ -1,6 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from "react";
 import Modal from "./Modal";
+import { wouldCreateCycle } from "../utils/statusLogic";
 
 const lbl = {
   fontSize: "0.7rem", color: "var(--text-muted)", letterSpacing: "0.09em",
@@ -98,23 +99,34 @@ export default function AddModal({ open, onClose, data, onAdd, editSubject, onEd
   const [corrFinalList, setCorrFinalList] = useState([]);
   const [error, setError]                 = useState("");
 
+  // Ref para detectar cambios en editSubject sin usar JSON.stringify como dep
+  const prevEditSubjectRef = useRef(null);
+
   useEffect(() => {
-    if (open) {
-      if (isEdit) {
-        const year = data.years.find(y => y.subjects.some(s => s.id === editSubject.id));
-        setYearId(year?.id ?? 1);
-        setName(editSubject.name);
-        setCorrList(editSubject.correlatives ?? []);
-        setCorrFinalList(editSubject.correlativesParaFinal ?? []);
-      } else {
-        setYearId(1); setName(""); setCorrList([]); setCorrFinalList([]);
-      }
-      setError("");
+    if (!open) return;
+
+    const prev = prevEditSubjectRef.current;
+    const changed = editSubject?.id !== prev?.id
+      || editSubject?.name !== prev?.name
+      || JSON.stringify(editSubject?.correlatives) !== JSON.stringify(prev?.correlatives)
+      || JSON.stringify(editSubject?.correlativesParaFinal) !== JSON.stringify(prev?.correlativesParaFinal);
+
+    prevEditSubjectRef.current = editSubject ?? null;
+
+    if (isEdit && changed) {
+      const year = data.years.find(y => y.subjects.some(s => s.id === editSubject.id));
+      setYearId(year?.id ?? 1);
+      setName(editSubject.name);
+      setCorrList(editSubject.correlatives ?? []);
+      setCorrFinalList(editSubject.correlativesParaFinal ?? []);
+    } else if (!isEdit) {
+      setYearId(1); setName(""); setCorrList([]); setCorrFinalList([]);
     }
-  // editSubject?.id handles open-for-different-subject; JSON.stringify catches
-  // same-id edits where the subject data changed while the modal was open.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, editSubject?.id, JSON.stringify(editSubject)]);
+    setError("");
+  }, [open, editSubject?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Intencional: la comparacion profunda de correlativas se hace manualmente via ref
+  // para evitar JSON.stringify como dep de useEffect (anti-patron: crea un string nuevo
+  // en cada render aunque los datos no hayan cambiado).
 
   const allSubjects = data.years.flatMap(y => y.subjects).filter(s =>
     !isEdit || s.id !== editSubject?.id
@@ -134,6 +146,16 @@ export default function AddModal({ open, onClose, data, onAdd, editSubject, onEd
     );
     if (duplicate) { setError("Ya existe una materia con ese nombre."); return; }
 
+    const subjectId = isEdit ? editSubject.id : "__new__";
+    const allForCycleCheck = isEdit
+      ? allSubjectsIncludingSelf
+      : [...allSubjectsIncludingSelf, { id: "__new__", correlatives: [], correlativesParaFinal: [] }];
+
+    if (wouldCreateCycle(subjectId, corrList, corrFinalList, allForCycleCheck)) {
+      setError("Las correlatividades crearían una dependencia circular. Revisá la configuración.");
+      return;
+    }
+
     if (isEdit) {
       onEdit({ subjectId: editSubject.id, yearId, name: t, correlatives: corrList, correlativesParaFinal: corrFinalList });
     } else {
@@ -149,11 +171,9 @@ export default function AddModal({ open, onClose, data, onAdd, editSubject, onEd
         {/* Año */}
         <div>
           <label style={lbl}>Año</label>
-          <select className="select-field" value={yearId} onChange={e => setYearId(Number(e.target.value))}
-            disabled={isEdit} style={isEdit ? { opacity: 0.5, cursor: "not-allowed" } : {}}>
+          <select className="select-field" value={yearId} onChange={e => setYearId(Number(e.target.value))}>
             {data.years.map(y => <option key={y.id} value={y.id}>{y.label}</option>)}
           </select>
-          {isEdit && <span style={{ fontSize: "0.65rem", color: "var(--text-muted)", marginTop: "0.2rem", display: "block" }}>El año no se puede cambiar al editar.</span>}
         </div>
 
         {/* Nombre */}

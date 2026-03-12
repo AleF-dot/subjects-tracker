@@ -66,6 +66,8 @@ export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete
     <div
       ref={ref}
       className="status-menu"
+      role="menu"
+      aria-label="Opciones de materia"
       onClick={e => e.stopPropagation()}
       style={{ position: "fixed", top: pos.top, left: pos.left, width: pos.width, zIndex: 800 }}
     >
@@ -75,6 +77,9 @@ export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete
         return (
           <button
             key={s}
+            role="menuitemradio"
+            aria-checked={isActive}
+            aria-disabled={blocked}
             className={`status-menu-item${isActive ? " active" : ""}`}
             onClick={() => { if (!blocked) { onSelect(s); onClose(); } }}
             disabled={blocked}
@@ -93,6 +98,7 @@ export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete
         );
       })}
       <button
+        role="menuitem"
         className="status-menu-item"
         onClick={() => { onEdit(); onClose(); }}
         style={{ borderTop: "1px solid #E0DAD0", color: "var(--text-secondary)" }}
@@ -100,6 +106,7 @@ export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete
         <span style={{ fontSize: "0.8rem" }}>✎</span> Editar materia
       </button>
       <button
+        role="menuitem"
         className="status-menu-item"
         onClick={() => { onDelete(); onClose(); }}
         style={{ color: "var(--status-bloqueada-dot)" }}

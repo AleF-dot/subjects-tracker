@@ -162,19 +162,24 @@ export default function InfoModal() {
           </>)}
 
           {section("Contacto", <>
-            <div style={{
-              display: "flex", alignItems: "center", gap: "0.5rem",
+            <div className="contact-row" style={{
               background: "var(--bg-elevated)", borderRadius: "8px", padding: "0.55rem 0.8rem",
             }}>
-              <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", flex: 1, fontFamily: "'DM Mono', monospace" }}>
+              <span style={{
+                fontSize: "0.75rem", color: "var(--text-secondary)",
+                fontFamily: "'DM Mono', monospace",
+                flex: "1 1 auto", minWidth: 0,
+                overflowWrap: "break-word", wordBreak: "break-all",
+              }}>
                 {MAIL}
               </span>
               <a
                 href={`mailto:${MAIL}`}
+                className="contact-btn"
                 style={{
                   fontSize: "0.7rem", color: "#fff", background: "var(--text-muted)",
                   borderRadius: "5px", padding: "0.3rem 0.65rem",
-                  textDecoration: "none", flexShrink: 0,
+                  textDecoration: "none",
                   transition: "background 0.15s",
                 }}
                 onMouseEnter={e => e.currentTarget.style.background = "var(--text-secondary)"}

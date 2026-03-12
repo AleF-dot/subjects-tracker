@@ -216,6 +216,12 @@ export default function GlobalStyles() {
       }
       .select-field:focus { border-color: var(--text-muted); }
       .select-field option { background: var(--bg-elevated); }
+
+      .contact-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+      .contact-row .contact-btn { flex-shrink: 0; }
+      @media (max-width: 360px) {
+        .contact-row .contact-btn { flex: 1 0 100%; text-align: center; }
+      }
     `}</style>
   );
 }

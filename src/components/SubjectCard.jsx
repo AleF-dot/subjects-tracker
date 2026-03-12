@@ -87,6 +87,10 @@ export default function SubjectCard({
       ref={setRef}
       data-subject-id={subject.id}
       className={classes}
+      role="button"
+      tabIndex={0}
+      aria-pressed={isSelected}
+      aria-label={`${subject.name}, ${st.label}${isBloqueada ? ", bloqueada" : ""}`}
       style={{
         background: bgColor,
         border: `1px solid ${borderColor}`,
@@ -99,12 +103,16 @@ export default function SubjectCard({
         ...outlineStyle,
       }}
       onClick={handleClick}
+      onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleClick(e); } }}
       title={isBloqueada ? "Ver correlativas requeridas" : undefined}
     >
       {isSelected && (
         <button
           onClick={handleChevronClick}
           className="chevron-btn"
+          aria-expanded={menuOpen}
+          aria-haspopup="menu"
+          aria-label={menuOpen ? "Cerrar menú de opciones" : "Abrir menú de opciones"}
           title={menuOpen ? "Cerrar menú" : "Abrir menú"}
           style={{
             position: "absolute",
