@@ -162,7 +162,7 @@ export default function InfoModal() {
         <div style={{ display: "flex", flexDirection: "column" }}>
 
           {section("Acerca de", <>
-            {prose("Subjects Tracker es una herramienta gratuita para estudiantes universitarios de la UNR y UTN. Permite visualizar y gestionar el plan de estudios y sus correlatividades.")}
+            {prose("El tracker académico es una herramienta gratuita pensada para estudiantes de la UNR y UTN. Permite visualizar y gestionar el plan de estudios y sus correlatividades.")}
           </>)}
 
           {section("Apariencia", <>
@@ -326,7 +326,7 @@ export default function InfoModal() {
           </>)}
 
           <p style={{ fontSize: "0.62rem", color: "var(--text-ghost)", margin: "0.25rem 0 0", textAlign: "center", fontFamily: "'DM Mono', monospace" }}>
-            v1.2 · {new Date().getFullYear()}
+            v1.3 · {new Date().getFullYear()}
           </p>
           <p style={{ fontSize: "0.62rem", margin: "0.4rem 0 0", textAlign: "center" }}>
             <button
@@ -338,7 +338,7 @@ export default function InfoModal() {
                 textDecoration: "underline", textUnderlineOffset: "2px",
               }}
             >
-              privacidad
+              Privacidad
             </button>
           </p>
         </div>
