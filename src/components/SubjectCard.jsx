@@ -99,7 +99,9 @@ export default function SubjectCard({
         opacity: dimmed ? 0.3 : 1,
         position: "relative",
         transition: "outline 0.12s, opacity 0.15s, box-shadow 0.15s",
-        boxShadow: isDragged ? "0 6px 20px rgba(0,0,0,0.18)" : undefined,
+        boxShadow: isDragged ? "0 10px 28px rgba(0,0,0,0.22)" : undefined,
+        borderStyle: isDragged ? "dashed" : undefined,
+        cursor: isDragged ? "grabbing" : undefined,
         ...outlineStyle,
       }}
       onClick={handleClick}

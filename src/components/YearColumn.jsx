@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import SubjectCard from "./SubjectCard";
 
-const LONG_PRESS_MS = 450;
+const LONG_PRESS_MS = 250;
 
 export default function YearColumn({
   year, selectedId, menuOpenId, highlightMap, dimmedIds, statusMap,
@@ -101,18 +101,34 @@ export default function YearColumn({
               key={s.id}
               ref={el => { itemRefs.current[index] = el; }}
               style={{
-                transition: dragging ? "transform 0.12s, opacity 0.12s" : undefined,
-                transform: isTarget
-                  ? (dragIndex < overIndex ? "translateY(6px)" : "translateY(-6px)")
-                  : undefined,
-                opacity: isDragged ? 0.55 : 1,
-                cursor: isDragged ? "grabbing" : undefined,
+                transition: dragging ? "transform 0.15s, opacity 0.15s" : undefined,
+                transform: isDragged
+                  ? "scale(1.03) rotate(-1deg)"
+                  : isTarget
+                    ? (dragIndex < overIndex ? "translateY(8px)" : "translateY(-8px)")
+                    : "none",
+                opacity: isDragged ? 0.85 : 1,
+                cursor: isDragged ? "grabbing" : "grab",
+                zIndex: isDragged ? 10 : undefined,
+                position: "relative",
+                filter: isDragged ? "drop-shadow(0 8px 16px rgba(0,0,0,0.22))" : undefined,
               }}
               onMouseDown={e => startLongPress(index, e)}
               onTouchStart={e => startLongPress(index, e)}
               onMouseUp={cancelLongPress}
               onTouchEnd={() => { cancelLongPress(); onEnd(); }}
             >
+              {isTarget && (
+                <div style={{
+                  position: 'absolute',
+                  left: 0, right: 0,
+                  height: '2px',
+                  background: 'var(--accent, #6B7A5E)',
+                  borderRadius: '2px',
+                  ...(dragIndex < overIndex ? { bottom: '-5px' } : { top: '-5px' }),
+                  zIndex: 20,
+                }} />
+              )}
               <SubjectCard
                 subject={s}
                 status={status}
