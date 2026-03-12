@@ -15,8 +15,8 @@ export default function YearColumn({
 
   const longPressTimer  = useRef(null);
   const itemRefs        = useRef([]);
-  const pressOrigin     = useRef(null);   // { x, y } al momento del mousedown/touchstart
-  const MOVE_THRESHOLD  = 6;             // px de tolerancia antes de cancelar
+  const pressOrigin     = useRef(null);
+  const MOVE_THRESHOLD  = 6;
 
   const startLongPress = useCallback((index, e) => {
     if (e.target.closest("button, a")) return;
@@ -36,15 +36,12 @@ export default function YearColumn({
     pressOrigin.current = null;
   }, []);
 
-  // Cancela el long-press solo si el movimiento supera el threshold
   const checkCancelOnMove = useCallback((e) => {
     if (!pressOrigin.current) return;
     const pt = e.touches ? e.touches[0] : e;
     const dx = Math.abs(pt.clientX - pressOrigin.current.x);
     const dy = Math.abs(pt.clientY - pressOrigin.current.y);
-    if (dx > MOVE_THRESHOLD || dy > MOVE_THRESHOLD) {
-      cancelLongPress();
-    }
+    if (dx > MOVE_THRESHOLD || dy > MOVE_THRESHOLD) cancelLongPress();
   }, [cancelLongPress]);
 
   const onMove = useCallback((e) => {
@@ -69,6 +66,92 @@ export default function YearColumn({
     setOverIndex(null);
   }, [dragging, dragIndex, overIndex, onReorder]);
 
+  // Lista reordenada para el preview: muestra cómo quedaría si se suelta ahora.
+  // La card draggeada aparece en la posición destino como "ghost" (semitransparente).
+  // En su posición original se deja un hueco invisible para no colapsar el layout.
+  const renderList = () => {
+    if (!dragging || dragIndex === null || overIndex === null) {
+      // Estado normal — sin drag
+      return year.subjects.map((s, index) => {
+        const hlEntry  = highlightMap[s.id];
+        const status   = statusMap[s.id] ?? "disponible";
+        return (
+          <div
+            key={s.id}
+            ref={el => { itemRefs.current[index] = el; }}
+            onMouseDown={e => startLongPress(index, e)}
+            onTouchStart={e => startLongPress(index, e)}
+            onMouseUp={cancelLongPress}
+            onTouchEnd={() => { cancelLongPress(); onEnd(); }}
+          >
+            <SubjectCard
+              subject={s} status={status}
+              highlighted={!!hlEntry}
+              highlightType={hlEntry?.forFinal ? `forFinal-${hlEntry.type}` : hlEntry?.type}
+              dimmed={dimmedIds.has(s.id)}
+              isSelected={s.id === selectedId} menuOpen={s.id === menuOpenId}
+              onCardClick={onCardClick} onChevronToggle={onChevronToggle}
+              onSetStatus={onSetStatus} onDelete={(id) => onDelete(year.id, id)}
+              cardRef={el => registerRef(s.id, el)} dotRef={el => registerDotRef(s.id, el)}
+              arrowFilter={s.id === selectedId ? arrowFilter : undefined}
+              onArrowFilterChange={s.id === selectedId ? onArrowFilterChange : undefined}
+              selectedSubject={s.id === selectedId ? selectedSubject : undefined}
+              isNew={newIds?.has(s.id)} isExiting={exitingIds?.has(s.id)}
+            />
+          </div>
+        );
+      });
+    }
+
+    // Durante el drag: construir la lista reordenada
+    const reordered = [...year.subjects];
+    const [draggedSubject] = reordered.splice(dragIndex, 1);
+    reordered.splice(overIndex, 0, draggedSubject);
+
+    return reordered.map((s, previewIndex) => {
+      const hlEntry     = highlightMap[s.id];
+      const status      = statusMap[s.id] ?? "disponible";
+      const isDragItem  = s === draggedSubject; // la card que se está moviendo
+      const origIndex   = year.subjects.indexOf(s);
+      // Ghost: la card draggeada en su posición destino (solo cuando se movió de lugar)
+      const moved   = dragIndex !== overIndex;
+      const isGhost = isDragItem && moved;  // siempre que se haya movido, aparece como ghost en destino
+
+      // En la lista reordenada la card draggeada aparece UNA sola vez (en previewIndex === overIndex).
+      // Cuando moved === false la lista no cambió, entonces isDragItem === true en su pos original → visible normal.
+      return (
+        <div
+          key={s.id}
+          ref={el => { itemRefs.current[previewIndex] = el; }}
+          style={{
+            opacity: isGhost ? 0.4 : 1,
+            transition: "opacity 0.1s",
+          }}
+          onMouseDown={e => startLongPress(origIndex, e)}
+          onTouchStart={e => startLongPress(origIndex, e)}
+          onMouseUp={cancelLongPress}
+          onTouchEnd={() => { cancelLongPress(); onEnd(); }}
+        >
+          <SubjectCard
+            subject={s} status={status}
+            highlighted={!!hlEntry}
+            highlightType={hlEntry?.forFinal ? `forFinal-${hlEntry.type}` : hlEntry?.type}
+            dimmed={dimmedIds.has(s.id)}
+            isSelected={s.id === selectedId} menuOpen={s.id === menuOpenId}
+            onCardClick={() => {}} onChevronToggle={() => {}}
+            onSetStatus={onSetStatus} onDelete={(id) => onDelete(year.id, id)}
+            cardRef={el => registerRef(s.id, el)} dotRef={el => registerDotRef(s.id, el)}
+            arrowFilter={s.id === selectedId ? arrowFilter : undefined}
+            onArrowFilterChange={s.id === selectedId ? onArrowFilterChange : undefined}
+            selectedSubject={s.id === selectedId ? selectedSubject : undefined}
+            isNew={newIds?.has(s.id)} isExiting={exitingIds?.has(s.id)}
+            isDragged={isGhost}
+          />
+        </div>
+      );
+    });
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", minWidth: 0, flex: 1 }}>
       <div style={{ paddingBottom: "0.5rem", borderBottom: "1px solid #D5D0C8", marginBottom: "0.25rem" }}>
@@ -89,54 +172,7 @@ export default function YearColumn({
         {year.subjects.length === 0 && (
           <div style={{ fontSize: "0.72rem", color: "var(--text-ghost)", fontStyle: "italic", padding: "0.4rem 0" }}>Sin materias</div>
         )}
-
-        {year.subjects.map((s, index) => {
-          const hlEntry   = highlightMap[s.id];
-          const status    = statusMap[s.id] ?? "disponible";
-          const isDragged = dragging && dragIndex === index;
-          const isTarget  = dragging && overIndex === index && dragIndex !== index;
-
-          return (
-            <div
-              key={s.id}
-              ref={el => { itemRefs.current[index] = el; }}
-              style={{
-                transition: dragging ? "transform 0.12s, opacity 0.12s" : undefined,
-                transform: isTarget
-                  ? (dragIndex < overIndex ? "translateY(6px)" : "translateY(-6px)")
-                  : undefined,
-                opacity: isDragged ? 0.55 : 1,
-                cursor: isDragged ? "grabbing" : undefined,
-              }}
-              onMouseDown={e => startLongPress(index, e)}
-              onTouchStart={e => startLongPress(index, e)}
-              onMouseUp={cancelLongPress}
-              onTouchEnd={() => { cancelLongPress(); onEnd(); }}
-            >
-              <SubjectCard
-                subject={s}
-                status={status}
-                highlighted={!!hlEntry}
-                highlightType={hlEntry?.forFinal ? `forFinal-${hlEntry.type}` : hlEntry?.type}
-                dimmed={dimmedIds.has(s.id)}
-                isSelected={s.id === selectedId}
-                menuOpen={s.id === menuOpenId}
-                onCardClick={isDragged ? () => {} : onCardClick}
-                onChevronToggle={isDragged ? () => {} : onChevronToggle}
-                onSetStatus={onSetStatus}
-                onDelete={(id) => onDelete(year.id, id)}
-                cardRef={el => registerRef(s.id, el)}
-                dotRef={el => registerDotRef(s.id, el)}
-                arrowFilter={s.id === selectedId ? arrowFilter : undefined}
-                onArrowFilterChange={s.id === selectedId ? onArrowFilterChange : undefined}
-                selectedSubject={s.id === selectedId ? selectedSubject : undefined}
-                isNew={newIds?.has(s.id)}
-                isExiting={exitingIds?.has(s.id)}
-                isDragged={isDragged}
-              />
-            </div>
-          );
-        })}
+        {renderList()}
       </div>
     </div>
   );
