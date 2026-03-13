@@ -164,6 +164,7 @@ export default function PlanSelectorModal({ open, onClose, onImport, onExport, o
           borderRadius: "14px",
           width: "100%", maxWidth: "420px",
           maxHeight: "80vh",
+          height: "80vh",
           display: "flex", flexDirection: "column",
           animation: closing ? "modalOut 0.18s ease forwards" : "popUp 0.2s ease",
           boxShadow: "0 20px 60px rgba(0,0,0,0.22)",
