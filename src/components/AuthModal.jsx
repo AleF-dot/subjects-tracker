@@ -132,7 +132,7 @@ export default function AuthModal({ open, onClose, showToast }) {
     <Modal open={open} onClose={handleClose} title="Verificá tu correo">
       <div key="confirm" style={{ display: "flex", flexDirection: "column", gap: "1rem", animation: "panelIn 0.18s ease" }}>
         <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", lineHeight: 1.6, margin: 0 }}>
-          Te mandamos un mail a <strong style={{ color: "var(--text-primary)" }}>{email}</strong>. Confirmá tu cuenta para continuar.
+          Se envió un mail a <strong style={{ color: "var(--text-primary)" }}>{email}</strong>. Confirmá tu cuenta para continuar.
         </p>
         <button className="btn-ghost" onClick={() => setMode("login")} style={{ width: "100%" }}>
           Volver al inicio

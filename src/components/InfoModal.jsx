@@ -50,7 +50,10 @@ function ExtraModal({ open, onClose }) {
             background: "var(--bg-elevated)", border: "none",
             width: 26, height: 26, borderRadius: "6px",
             cursor: "pointer", fontSize: "0.8rem", color: "var(--text-muted)",
+            transition: "background 0.15s",
           }}
+          onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
+          onMouseLeave={e => e.currentTarget.style.background = "var(--bg-elevated)"}
         >✕</button>
 
         <p style={{ fontSize: "0.6rem", letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-muted)", fontFamily: "'DM Mono', monospace", marginBottom: "1rem", marginTop: 0 }}>
@@ -145,7 +148,10 @@ function PrivacyModal({ open, onClose }) {
             background: "var(--bg-elevated)", border: "none",
             width: 26, height: 26, borderRadius: "6px",
             cursor: "pointer", fontSize: "0.8rem", color: "var(--text-muted)",
+            transition: "background 0.15s",
           }}
+          onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
+          onMouseLeave={e => e.currentTarget.style.background = "var(--bg-elevated)"}
         >✕</button>
         <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", lineHeight: 1.65, margin: 0, paddingRight: "1.5rem" }}>
           {PRIVACY_TEXT}
@@ -217,14 +223,14 @@ export default function InfoModal() {
   };
 
   const gmailHref = () => {
-    const subject = encodeURIComponent(`Reporte de ${form.name || "usuario"}`);
+    const subject = encodeURIComponent(`Reporte, pregunta o sugerencia de ${form.name || "usuario"}`);
     const body = encodeURIComponent(form.message);
-    return `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(MAIL)}&su=${subject}&body=${body}`;
+    return `mailto:${MAIL}?subject=${subject}&body=${body}`;
   };
 
   const handleSend = () => {
     if (!form.message.trim()) return;
-    window.open(gmailHref(), "_blank", "noopener,noreferrer");
+    window.location.href = gmailHref();
   };
 
   return (
@@ -318,9 +324,7 @@ export default function InfoModal() {
                 {MAIL}
               </span>
               <a
-                href={`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(MAIL)}`}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={`mailto:${MAIL}`}
                 className="contact-btn"
                 style={{
                   fontSize: "0.7rem", color: "#fff", background: "var(--text-muted)",
@@ -363,7 +367,7 @@ export default function InfoModal() {
                 Enviar →
               </button>
               <p style={{ fontSize: "0.62rem", color: "var(--text-faint)", margin: 0, lineHeight: 1.4 }}>
-                Se abrirá tu cliente de correo con el mensaje listo para enviar.
+                Se abrirá tu app de correo con el mensaje listo para enviar.
               </p>
             </div>
           </>)}
@@ -412,8 +416,10 @@ export default function InfoModal() {
                         background: "var(--status-bloqueada-dot)", border: "none",
                         borderRadius: "8px", cursor: deleteStep === 2 ? "not-allowed" : "pointer",
                         color: "#fff", fontSize: "0.78rem", opacity: deleteStep === 2 ? 0.6 : 1,
-                        fontFamily: "inherit",
+                        fontFamily: "inherit", transition: "opacity 0.15s",
                       }}
+                      onMouseEnter={e => { if (deleteStep !== 2) e.currentTarget.style.opacity = "0.85"; }}
+                      onMouseLeave={e => { if (deleteStep !== 2) e.currentTarget.style.opacity = "1"; }}
                     >
                       {deleteStep === 2 ? "Eliminando..." : "Sí, eliminar"}
                     </button>
@@ -434,7 +440,10 @@ export default function InfoModal() {
                 color: "var(--text-faint)", fontSize: "0.62rem",
                 fontFamily: "'DM Mono', monospace",
                 textDecoration: "underline", textUnderlineOffset: "2px",
+                transition: "color 0.15s",
               }}
+              onMouseEnter={e => e.currentTarget.style.color = "var(--text-muted)"}
+              onMouseLeave={e => e.currentTarget.style.color = "var(--text-faint)"}
             >
               Privacidad
             </button>
@@ -445,7 +454,10 @@ export default function InfoModal() {
                 color: "var(--text-faint)", fontSize: "0.62rem",
                 fontFamily: "'DM Mono', monospace",
                 textDecoration: "underline", textUnderlineOffset: "2px",
+                transition: "color 0.15s",
               }}
+              onMouseEnter={e => e.currentTarget.style.color = "var(--text-muted)"}
+              onMouseLeave={e => e.currentTarget.style.color = "var(--text-faint)"}
             >
               Extra
             </button>

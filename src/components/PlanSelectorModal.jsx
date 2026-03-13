@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 import { PLANES } from '../data/planes';
 
 const FILTERS = ["Todos", "UNR", "UTN"];
@@ -47,7 +48,10 @@ function ConfirmOverwriteModal({ open, onConfirm, onCancel }) {
               background: "var(--status-bloqueada-dot)", border: "none",
               borderRadius: "8px", cursor: "pointer",
               color: "#fff", fontSize: "0.78rem", fontFamily: "inherit",
+              transition: "opacity 0.15s",
             }}
+            onMouseEnter={e => e.currentTarget.style.opacity = "0.85"}
+            onMouseLeave={e => e.currentTarget.style.opacity = "1"}
           >
             Sí, reemplazar
           </button>
@@ -100,7 +104,10 @@ function ConfirmDeleteModal({ open, onConfirm, onCancel }) {
               background: "var(--status-bloqueada-dot)", border: "none",
               borderRadius: "8px", cursor: "pointer",
               color: "#fff", fontSize: "0.78rem", fontFamily: "inherit",
+              transition: "opacity 0.15s",
             }}
+            onMouseEnter={e => e.currentTarget.style.opacity = "0.85"}
+            onMouseLeave={e => e.currentTarget.style.opacity = "1"}
           >
             Sí, eliminar todo
           </button>
@@ -112,7 +119,7 @@ function ConfirmDeleteModal({ open, onConfirm, onCancel }) {
 
 const MAIL = "subjectstracker@gmail.com";
 
-function SuggestPlanModal({ open, onClose }) {
+function SuggestPlanModal({ open, onClose, userEmail }) {
   const [visible, setVisible] = useState(false);
   const [animating, setAnimating] = useState(false);
   React.useEffect(() => {
@@ -125,7 +132,11 @@ function SuggestPlanModal({ open, onClose }) {
   }, [open]);
   if (!visible) return null;
   const closing = animating && !open;
-  const gmailHref = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(MAIL)}&su=${encodeURIComponent("Sugerencia de plan de estudios")}&body=${encodeURIComponent("Hola, me gustaría que agreguen el siguiente plan de estudios:\n\nUniversidad: \nCarrera: \nPlan: \n\nAdjunto o detallo las materias y correlativas a continuación:\n")}`;
+  const body = [
+    userEmail ? `De: ${userEmail}\n` : "",
+    "Universidad: \nCarrera: \nPlan: \n\nDetalles de las materias y correlativas:\n\nNotas:\n",
+  ].join("");
+  const mailtoHref = `mailto:${MAIL}?subject=${encodeURIComponent("Sugerencia de plan de estudios")}&body=${encodeURIComponent(body)}`;
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 1300,
@@ -146,17 +157,19 @@ function SuggestPlanModal({ open, onClose }) {
           background: "var(--bg-elevated)", border: "none",
           width: 26, height: 26, borderRadius: "6px",
           cursor: "pointer", fontSize: "0.8rem", color: "var(--text-muted)",
-        }}>✕</button>
+          transition: "background 0.15s",
+        }}
+          onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
+          onMouseLeave={e => e.currentTarget.style.background = "var(--bg-elevated)"}
+        >✕</button>
         <p style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-primary)", margin: "0 0 0.5rem", paddingRight: "1.5rem" }}>
           ¿No encontraste tu plan?
         </p>
         <p style={{ fontSize: "0.76rem", color: "var(--text-secondary)", lineHeight: 1.65, margin: "0 0 1.25rem" }}>
-          Mandanos tu plan de estudios por correo — universidad, carrera, materias y correlativas — y lo revisamos para agregarlo.
+          Mandá tu plan de estudios por correo — universidad, carrera, materias y correlativas — si es válido muy probablemente se agrege a la lista.
         </p>
         <a
-          href={gmailHref}
-          target="_blank"
-          rel="noopener noreferrer"
+          href={mailtoHref}
           style={{
             display: "block", textAlign: "center",
             padding: "0.6rem 1rem", borderRadius: "8px",
@@ -184,6 +197,8 @@ export default function PlanSelectorModal({ open, onClose, onImport, onExport, o
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [suggestOpen, setSuggestOpen] = useState(false);
   const { dark } = useTheme(); // eslint-disable-line no-unused-vars
+  const { session } = useAuth();
+  const userEmail = session?.user?.email ?? null;
 
   React.useEffect(() => {
     if (open) { setVisible(true); setAnimating(false); setFilter("Todos"); }
@@ -266,7 +281,11 @@ export default function PlanSelectorModal({ open, onClose, onImport, onExport, o
                   background: "var(--bg-elevated)", border: "none",
                   width: 26, height: 26, borderRadius: "6px",
                   cursor: "pointer", fontSize: "0.8rem", color: "var(--text-muted)",
-                }}>✕</button>
+                  transition: "background 0.15s",
+                }}
+                  onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
+                  onMouseLeave={e => e.currentTarget.style.background = "var(--bg-elevated)"}
+                >✕</button>
               </div>
             </div>
 
@@ -361,7 +380,7 @@ export default function PlanSelectorModal({ open, onClose, onImport, onExport, o
         onConfirm={() => { setConfirmDeleteOpen(false); onClearPlan(); onClose(); }}
         onCancel={() => setConfirmDeleteOpen(false)}
       />
-      <SuggestPlanModal open={suggestOpen} onClose={() => setSuggestOpen(false)} />
+      <SuggestPlanModal open={suggestOpen} onClose={() => setSuggestOpen(false)} userEmail={userEmail} />
     </>
   );
 }
