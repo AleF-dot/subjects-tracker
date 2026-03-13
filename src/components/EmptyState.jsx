@@ -42,7 +42,7 @@ export default function EmptyState({ onSelectPlan, onNewSubject }) {
         </button>
 
         <span style={{
-          fontSize: "0.72rem", color: "var(--text-ghost)",
+          fontSize: "0.72rem", color: "var(--text-muted)",
           fontFamily: "'DM Mono', monospace",
         }}>
           o crealo
