@@ -256,7 +256,7 @@ export default function InfoModal() {
         <div style={{ display: "flex", flexDirection: "column" }}>
 
           {section("Acerca de", <>
-            {prose("El tracker académico es una herramienta gratuita pensada para estudiantes de la UNR y UTN. Permite visualizar y gestionar el plan de estudios y sus correlatividades.")}
+            {prose("El tracker académico es un proyecto personal y herramienta gratuita desarrollada por un estudiante de la UTN, pensada para estudiantes de la UNR / UTN. Permite visualizar y gestionar el plan de estudios y sus correlatividades. Inspirada en utn-tracker.vercel.app y pensada para ser más flexible, para que cualquier estudiante pueda subir su propio plan de estudios.")}
           </>)}
 
           {section("Apariencia", <>

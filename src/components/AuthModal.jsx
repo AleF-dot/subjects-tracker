@@ -148,6 +148,16 @@ export default function AuthModal({ open, onClose, showToast }) {
       "Restablecer contraseña"
     }>
       <div key={mode} style={{ display: "flex", flexDirection: "column", gap: "0.75rem", animation: "panelIn 0.18s ease" }}>
+        {mode === "login" && (
+          <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", margin: 0, marginTop: "-0.1rem" }}>
+            Sincronizá tu progreso en cualquier dispositivo.
+          </p>
+        )}
+        {mode === "register" && (
+          <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", margin: 0, marginTop: "-0.1rem" }}>
+            Creá una cuenta para guardar y sincronizar tu progreso.
+          </p>
+        )}
         <input
           style={inputStyle}
           type="email"

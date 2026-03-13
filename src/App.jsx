@@ -166,10 +166,7 @@ export default function App() {
   const handleSetStatus = (subjectId, newStatus) => {
     if (newStatus === "bloqueada") return;
     setStatus(subjectId, newStatus);
-    // Fix: toast con nombre de materia + status
-    const subjectName = allSubjects.find(s => s.id === subjectId)?.name ?? "";
-    const statusLabel = STATUS[newStatus]?.label ?? newStatus;
-    showToast(`${subjectName} → ${statusLabel}`);
+    showToast("Estado actualizado");
     setSelectedId(null);
     setMenuAnchor({ subjectId: null, el: null });
   };
