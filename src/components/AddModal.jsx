@@ -122,7 +122,7 @@ export default function AddModal({ open, onClose, data, onAdd, editSubject, onEd
 
     if (isEdit && changed) {
       const year = data.years.find(y => y.subjects.some(s => s.id === editSubject.id));
-      setYearId(year?.id ?? 1);
+      setYearId(year?.id ?? data.years[0]?.id ?? null);
       setName(editSubject.name);
       setCorrList(editSubject.correlatives ?? []);
       setCorrFinalList(editSubject.correlativesParaFinal ?? []);

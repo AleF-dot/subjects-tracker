@@ -16,7 +16,7 @@ export default function Toast({ msg, type, animKey }) {
       transform: "translateX(-50%)",
       background: BG[type] ?? BG.ok, color: "#F5F2EC",
       padding: "0.5rem 1.2rem", borderRadius: "20px", fontSize: "0.76rem",
-      zIndex: 1000, whiteSpace: "nowrap",
+      zIndex: 1300, whiteSpace: "nowrap",
       boxShadow: "0 4px 20px rgba(0,0,0,0.2)", letterSpacing: "0.02em",
       animation: "toastIn 0.15s ease forwards",
     }}>

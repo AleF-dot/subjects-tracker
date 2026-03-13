@@ -29,7 +29,7 @@ async function upsert(userId, data, statusMap) {
 
 // ── Hook ───────────────────────────────────────────────────────────────────
 
-export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError }) {
+export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError, onSyncRecovered }) {
   const { session, isFreshLogin } = useAuth();
   const userId = session?.user?.id ?? null;
 
@@ -50,7 +50,8 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError }) {
   const retryTimer   = useRef(null);
   const lastSync     = useRef(0);
   const syncPending  = useRef(false); // true cuando hay cambios sin confirmar en supabase
-  const onErrorRef    = useRef(onSyncError);
+  const onErrorRef     = useRef(onSyncError);
+  const onRecoveredRef = useRef(onSyncRecovered);
   const mergeDataRef  = useRef(null); // { cloudData, cloudStatusMap }
 
   useEffect(() => { latestData.current        = data;                          }, [data]);
@@ -58,7 +59,8 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError }) {
   useEffect(() => { latestUserId.current      = userId;                        }, [userId]);
   useEffect(() => { latestAccessToken.current = session?.access_token ?? null; }, [session]);
   useEffect(() => { isFreshLoginRef.current   = isFreshLogin;                  }, [isFreshLogin]);
-  useEffect(() => { onErrorRef.current        = onSyncError;                   }, [onSyncError]);
+  useEffect(() => { onErrorRef.current        = onSyncError;       }, [onSyncError]);
+  useEffect(() => { onRecoveredRef.current    = onSyncRecovered;   }, [onSyncRecovered]);
   useEffect(() => { mergeDataRef.current      = mergePrompt;                   }, [mergePrompt]);
 
   // ── push: envía a Supabase, maneja error/retry/recovery ──────────────
@@ -93,6 +95,7 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError }) {
       retryCount.current  = 0;
       syncPending.current = false;
 
+      onRecoveredRef.current?.(); // limpiar el toast de error persistente si había uno
       setSyncStatus("idle");
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps

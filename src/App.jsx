@@ -25,7 +25,7 @@ import { defaultData } from "./utils/constants";
 
 export default function App() {
   const { passwordRecovery } = useAuth();
-  const { toast, showToast } = useToast();
+  const { toast, showToast, dismissToast } = useToast();
 
   const {
     data, effectiveStatus, allSubjects, syncStatus,
@@ -34,6 +34,7 @@ export default function App() {
     reorderSubjects, exportJSON, importJSON, replaceAll,
   } = useCurriculumData({
     onSyncError: (msg) => showToast(msg, "error", true),
+    onSyncRecovered: () => dismissToast(),
   });
 
   const [selectedId, setSelectedId] = useState(null);

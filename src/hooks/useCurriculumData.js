@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useLocalData } from "./useLocalData";
 import { useSupabaseSync } from "./useSupabaseSync";
 
-export function useCurriculumData({ onSyncError } = {}) {
+export function useCurriculumData({ onSyncError, onSyncRecovered } = {}) {
   const local = useLocalData();
 
   const { syncStatus, mergePrompt, resolveMerge, scheduleSync } = useSupabaseSync({
@@ -10,6 +10,7 @@ export function useCurriculumData({ onSyncError } = {}) {
     statusMap:  local.statusMap,
     replaceAll: local.replaceAll,
     onSyncError,
+    onSyncRecovered,
   });
 
   // Cada vez que cambian los datos locales, disparar sync
