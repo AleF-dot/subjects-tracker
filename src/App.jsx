@@ -21,7 +21,7 @@ import { useAuth } from "./context/AuthContext";
 import { useArrows }         from "./hooks/useArrows";
 import { useToast }          from "./hooks/useToast";
 import { computeAllowedStatuses } from "./utils/statusLogic";
-import { defaultData } from "./utils/constants";
+import { defaultData, STATUS } from "./utils/constants";
 
 export default function App() {
   const { passwordRecovery } = useAuth();
@@ -47,6 +47,8 @@ export default function App() {
   const [arrowFilter, setArrowFilter] = useState("T");
   const [newIds, setNewIds]         = useState(() => new Set());
   const [exitingIds, setExitingIds] = useState(() => new Set());
+  // Fix: estado para confirmación de eliminar materia
+  const [deleteConfirm, setDeleteConfirm] = useState(null); // { yearId, subjectId, name }
 
   useEffect(() => { if (passwordRecovery) setAuthModalOpen(true); }, [passwordRecovery]);
 
@@ -69,11 +71,9 @@ export default function App() {
   const correlatives    = selectedSubject?.correlatives ?? [];
   const correlativesParaFinal = selectedSubject?.correlativesParaFinal ?? [];
   const allCorrelatives = (() => {
-    const cursarIds = new Set(correlatives.map(c => c.subjectId));
     const finalItems = correlativesParaFinal.map(c => ({
       ...c,
       forFinal: true,
-
     }));
     return [
       ...correlatives.map(c => ({ ...c, forFinal: false })),
@@ -151,15 +151,27 @@ export default function App() {
   const handleSetStatus = (subjectId, newStatus) => {
     if (newStatus === "bloqueada") return;
     setStatus(subjectId, newStatus);
-    showToast(`${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
+    // Fix: toast con nombre de materia + status
+    const subjectName = allSubjects.find(s => s.id === subjectId)?.name ?? "";
+    const statusLabel = STATUS[newStatus]?.label ?? newStatus;
+    showToast(`${subjectName} → ${statusLabel}`);
     setSelectedId(null);
     setMenuAnchor({ subjectId: null, el: null });
   };
 
-  const handleDelete = (yearId, subjectId) => {
-    setExitingIds(s => new Set([...s, subjectId]));
+  // Fix: delete pide confirmación antes de ejecutar
+  const handleDeleteRequest = (yearId, subjectId) => {
+    const subject = allSubjects.find(s => s.id === subjectId);
+    setDeleteConfirm({ yearId, subjectId, name: subject?.name ?? "esta materia" });
     setSelectedId(null);
     setMenuAnchor({ subjectId: null, el: null });
+  };
+
+  const handleDeleteConfirmed = () => {
+    if (!deleteConfirm) return;
+    const { yearId, subjectId } = deleteConfirm;
+    setDeleteConfirm(null);
+    setExitingIds(s => new Set([...s, subjectId]));
     setTimeout(() => {
       deleteSubject(yearId, subjectId);
       setExitingIds(s => { const n = new Set(s); n.delete(subjectId); return n; });
@@ -229,7 +241,7 @@ export default function App() {
                   onCardClick={handleCardClick}
                   onChevronToggle={handleChevronToggle}
                   onSetStatus={handleSetStatus}
-                  onDelete={handleDelete}
+                  onDelete={handleDeleteRequest}
                   registerRef={registerRef}
                   registerDotRef={registerDotRef}
                   arrowFilter={arrowFilter}
@@ -269,18 +281,18 @@ export default function App() {
         }}
       />
 
-      <footer style={{
+      {/* Fix: eliminado el footer con gradient no-op — InfoModal va directo */}
+      <div style={{
         position: "fixed", bottom: 0, left: 0, right: 0,
         display: "flex", justifyContent: "center", alignItems: "flex-end",
         padding: "3rem 0 0",
-        background: "linear-gradient(to top, transparent 0%, transparent 100%)",
         zIndex: 400, pointerEvents: "none",
         overflow: "visible",
       }}>
         <div style={{ pointerEvents: "auto" }}>
           <InfoModal />
         </div>
-      </footer>
+      </div>
 
       {menuAnchor.subjectId && menuAnchor.el && scrollContainerRef.current && (() => {
         const sid     = menuAnchor.subjectId;
@@ -298,7 +310,7 @@ export default function App() {
               current={st === "bloqueada" ? null : st}
               onSelect={s => handleSetStatus(sid, s)}
               onEdit={() => handleOpenEdit(sid)}
-              onDelete={() => handleDelete(yearId, sid)}
+              onDelete={() => handleDeleteRequest(yearId, sid)}
               onClose={closeMenu}
               allowedStatuses={allowedStatuses}
               scrollContainerRef={scrollContainerRef}
@@ -307,6 +319,7 @@ export default function App() {
           scrollContainerRef.current
         );
       })()}
+
       <PlanSelectorModal
         open={planSelectorOpen}
         onClose={() => setPlanSelectorOpen(false)}
@@ -316,6 +329,52 @@ export default function App() {
         onClearPlan={() => { replaceAll(defaultData, {}); showToast("Plan eliminado"); }}
         hasData={allSubjects.length > 0}
       />
+
+      {/* Fix: modal de confirmación para eliminar materia */}
+      {deleteConfirm && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 1200,
+          display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem",
+          animation: "fadeIn 0.15s ease",
+        }}>
+          <div
+            onClick={() => setDeleteConfirm(null)}
+            style={{ position: "fixed", inset: 0, background: "var(--modal-backdrop)", backdropFilter: "blur(3px)" }}
+          />
+          <div style={{
+            position: "relative", zIndex: 1,
+            background: "var(--bg)", border: "1px solid var(--border)",
+            borderRadius: "12px", padding: "1.5rem",
+            width: "100%", maxWidth: "320px",
+            animation: "popUp 0.2s ease",
+            boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+          }}>
+            <p style={{ fontSize: "0.85rem", color: "var(--text-primary)", fontWeight: 600, margin: "0 0 0.5rem" }}>
+              ¿Eliminar materia?
+            </p>
+            <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", lineHeight: 1.6, margin: "0 0 1.25rem" }}>
+              Se va a eliminar <strong>"{deleteConfirm.name}"</strong> y todas sus correlativas asociadas. Esta acción no se puede deshacer.
+            </p>
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <button className="btn-ghost" onClick={() => setDeleteConfirm(null)} style={{ flex: 1 }}>Cancelar</button>
+              <button
+                onClick={handleDeleteConfirmed}
+                style={{
+                  flex: 1, padding: "0.6rem 1rem",
+                  background: "var(--status-bloqueada-dot)", border: "none",
+                  borderRadius: "8px", cursor: "pointer",
+                  color: "#fff", fontSize: "0.78rem", fontFamily: "inherit",
+                  transition: "opacity 0.15s",
+                }}
+                onMouseEnter={e => e.currentTarget.style.opacity = "0.85"}
+                onMouseLeave={e => e.currentTarget.style.opacity = "1"}
+              >
+                Sí, eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

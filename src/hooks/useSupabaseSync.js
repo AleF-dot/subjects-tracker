@@ -9,15 +9,21 @@ const RETRY_DELAYS   = [5_000, 15_000, 30_000];
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-function subjectsEqual(a, b) {
-  const extract = d => d.years
+function snapshotEqual(a, b, smA, smB) {
+  // Compara subjects estructuralmente
+  const extractSubjects = d => d.years
     .flatMap(y => y.subjects.map(s => ({
       id: s.id, name: s.name, yearId: y.id,
       corr:  JSON.stringify(s.correlatives ?? []),
       final: JSON.stringify(s.correlativesParaFinal ?? []),
     })))
     .sort((x, y) => x.id.localeCompare(y.id));
-  return JSON.stringify(extract(a)) === JSON.stringify(extract(b));
+
+  if (JSON.stringify(extractSubjects(a)) !== JSON.stringify(extractSubjects(b))) return false;
+
+  // Fix: también comparar statusMap para detectar cambios de estado entre dispositivos
+  const sortedSM = sm => JSON.stringify(Object.entries(sm).sort(([ka], [kb]) => ka.localeCompare(kb)));
+  return sortedSM(smA) === sortedSM(smB);
 }
 
 async function upsert(userId, data, statusMap) {
@@ -30,44 +36,42 @@ async function upsert(userId, data, statusMap) {
 // ── Hook ───────────────────────────────────────────────────────────────────
 
 export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError, onSyncRecovered }) {
-  const { session, isFreshLogin } = useAuth();
+  const { session } = useAuth();
   const userId = session?.user?.id ?? null;
 
   const [syncStatus,  setSyncStatus]  = useState("idle");
   const [mergePrompt, setMergePrompt] = useState(null);
 
   // Refs — evitan dependencias stale en callbacks
-  const ready        = useRef(false);   // carga inicial terminada
-  const merging      = useRef(false);   // esperando que el user resuelva el merge
+  const ready        = useRef(false);
+  const merging      = useRef(false);
   const retryCount   = useRef(0);
   const latestData   = useRef(data);
   const latestStatus = useRef(statusMap);
   const latestUserId      = useRef(userId);
   const latestAccessToken = useRef(session?.access_token ?? null);
-  const isFreshLoginRef   = useRef(isFreshLogin); // ref para evitar stale closure en el efecto de login
   const syncTimer    = useRef(null);
   const maxTimer     = useRef(null);
   const retryTimer   = useRef(null);
   const lastSync     = useRef(0);
-  const syncPending  = useRef(false); // true cuando hay cambios sin confirmar en supabase
+  const syncPending  = useRef(false);
   const onErrorRef     = useRef(onSyncError);
   const onRecoveredRef = useRef(onSyncRecovered);
-  const mergeDataRef  = useRef(null); // { cloudData, cloudStatusMap }
+  const mergeDataRef  = useRef(null);
 
   useEffect(() => { latestData.current        = data;                          }, [data]);
   useEffect(() => { latestStatus.current      = statusMap;                     }, [statusMap]);
   useEffect(() => { latestUserId.current      = userId;                        }, [userId]);
   useEffect(() => { latestAccessToken.current = session?.access_token ?? null; }, [session]);
-  useEffect(() => { isFreshLoginRef.current   = isFreshLogin;                  }, [isFreshLogin]);
   useEffect(() => { onErrorRef.current        = onSyncError;       }, [onSyncError]);
   useEffect(() => { onRecoveredRef.current    = onSyncRecovered;   }, [onSyncRecovered]);
   useEffect(() => { mergeDataRef.current      = mergePrompt;                   }, [mergePrompt]);
 
-  // ── push: envía a Supabase, maneja error/retry/recovery ──────────────
+  // ── push ──────────────────────────────────────────────────────────────
   const push = useCallback(async () => {
     const uid = latestUserId.current;
     if (!uid) return;
-    if (merging.current) return; // no pisar la nube mientras el usuario resuelve un merge
+    if (merging.current) return;
 
     setSyncStatus("pending");
     const { error } = await upsert(uid, latestData.current, latestStatus.current);
@@ -86,7 +90,7 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError, onSy
         retryCount.current += 1;
         retryTimer.current = setTimeout(push, delay);
       } else {
-        retryCount.current = 0; // se rindió — queda el botón manual
+        retryCount.current = 0;
       }
     } else {
       clearTimeout(retryTimer.current);
@@ -94,25 +98,21 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError, onSy
       lastSync.current    = Date.now();
       retryCount.current  = 0;
       syncPending.current = false;
-
-      onRecoveredRef.current?.(); // limpiar el toast de error persistente si había uno
+      onRecoveredRef.current?.();
       setSyncStatus("idle");
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  // Intencional: push accede a datos siempre frescos via refs (latestData, latestStatus,
-  // latestUserId, onErrorRef). Incluirlos como deps provocaría recrear push en cada cambio
-  // de datos, reiniciando los timers de retry en curso.
+
   const doSync = useCallback(() => {
     clearTimeout(syncTimer.current); syncTimer.current = null;
     clearTimeout(maxTimer.current);  maxTimer.current  = null;
     push();
   }, [push]);
 
-  // ── scheduleSync: debounce + maxWait ─────────────────────────────────
+  // ── scheduleSync ──────────────────────────────────────────────────────
   const scheduleSync = useCallback(() => {
     if (!latestUserId.current || !ready.current || merging.current) return;
 
-    // Cambio manual cancela retry pendiente y arranca desde cero
     clearTimeout(retryTimer.current);
     retryTimer.current = null;
     retryCount.current = 0;
@@ -129,7 +129,7 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError, onSy
     }
   }, [doSync]);
 
-  // ── Al loguearse ──────────────────────────────────────────────────────
+  // ── Al loguearse / desloguearse ───────────────────────────────────────
   useEffect(() => {
     if (!userId) {
       ready.current   = false;
@@ -138,7 +138,7 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError, onSy
       setSyncStatus("idle");
       clearTimeout(syncTimer.current);
       clearTimeout(maxTimer.current);
-      clearTimeout(retryTimer.current); // fix: cancelar retry pendiente al desloguearse
+      clearTimeout(retryTimer.current);
       retryTimer.current = null;
       retryCount.current = 0;
       return;
@@ -148,16 +148,12 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError, onSy
     merging.current = false;
     setSyncStatus("pending");
 
-    // Cancelar cualquier sync pendiente — la carga desde cloud tiene prioridad.
-    // Si había cambios locales sin guardar, el merge prompt o el push post-carga los maneja.
     clearTimeout(syncTimer.current);  syncTimer.current  = null;
     clearTimeout(maxTimer.current);   maxTimer.current   = null;
     clearTimeout(retryTimer.current); retryTimer.current = null;
     retryCount.current  = 0;
     syncPending.current = false;
 
-    // Token de cancelación: si el usuario cambia antes de que termine
-    // la query, el .then() detecta que ya no es el usuario activo y aborta.
     const loadingForUserId = userId;
 
     supabase
@@ -166,11 +162,7 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError, onSy
       .eq("user_id", userId)
       .maybeSingle()
       .then(({ data: row, error }) => {
-        // Abortar si el usuario cambió mientras la query estaba en vuelo
-        if (latestUserId.current !== loadingForUserId) {
-          // El bloque de logout ya limpió los timers y el estado — nada más que hacer
-          return;
-        }
+        if (latestUserId.current !== loadingForUserId) return;
 
         if (error) {
           console.error("Error cargando desde Supabase:", error);
@@ -179,7 +171,6 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError, onSy
           return;
         }
 
-        // Defensa extra: verificar que el row pertenece al usuario activo
         if (row && row.user_id !== latestUserId.current) {
           console.error("Supabase devolvió un row de otro usuario — abortando carga.");
           setSyncStatus("error");
@@ -188,7 +179,6 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError, onSy
         }
 
         if (!row?.data) {
-          // Cuenta nueva — subir local directo
           ready.current = true;
           push();
           return;
@@ -198,24 +188,20 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError, onSy
         const cloudData      = migrateData(rest) ?? rest;
         const cloudStatusMap = cloudSM ?? {};
 
-        const hasMismatch = !subjectsEqual(latestData.current, cloudData);
+        // Fix: comparar también statusMap para detectar cambios de estado entre dispositivos
+        const hasMismatch = !snapshotEqual(latestData.current, cloudData, latestStatus.current, cloudStatusMap);
 
         if (hasMismatch) {
-          // Hay diferencias — siempre preguntar al usuario (login real o restauración
-          // de sesión). Nunca pisar datos silenciosamente.
           merging.current = true;
           setMergePrompt({ cloudData, cloudStatusMap });
           setSyncStatus("idle");
         } else {
-          // Sin diferencias — no hace falta reemplazar nada, solo marcar ready
           ready.current = true;
           setSyncStatus("idle");
         }
       });
   }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
-  // Intencional: el efecto solo debe re-ejecutarse cuando cambia el usuario (login/logout).
-  // push, replaceAll e isFreshLogin son estables o se leen via ref; incluirlos causaría
-  // recargas innecesarias desde Supabase ante cada cambio de datos local.
+
   const resolveMerge = useCallback((choice) => {
     const { cloudData, cloudStatusMap } = mergeDataRef.current ?? {};
     if (!cloudData) return;
@@ -226,17 +212,13 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError, onSy
     mergeDataRef.current = null;
 
     if (choice === "cloud") {
-      // Nube gana: no hace falta subir nada, ya está en Supabase.
-      // Solo sincronizamos el estado local con la data de la nube.
       replaceAll(cloudData, cloudStatusMap);
       setSyncStatus("idle");
     } else {
-      // Local gana: subir la data local a Supabase.
       push();
     }
   }, [replaceAll, push]); // eslint-disable-line react-hooks/exhaustive-deps
-  // Intencional: mergeDataRef.current se lee en el momento de ejecución; no es una dep
-  // de useCallback porque es un ref mutable, no estado React.
+
   useEffect(() => {
     const onUnload = () => {
       if (!syncPending.current) return;
@@ -268,9 +250,6 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError, onSy
     window.addEventListener("beforeunload", onUnload);
     return () => window.removeEventListener("beforeunload", onUnload);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  // Intencional: el listener se registra una sola vez. Todos los valores necesarios
-  // (syncPending, latestUserId, latestAccessToken, latestData, latestStatus) se leen
-  // via refs, por lo que siempre están frescos sin necesidad de re-registrar el listener.
 
   return { syncStatus, mergePrompt, resolveMerge, scheduleSync };
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Modal from "./Modal";
 import { wouldCreateCycle } from "../utils/statusLogic";
 
@@ -13,8 +13,7 @@ const corrItemStyle = {
   background: "var(--bg-elevated)", borderRadius: "6px", padding: "0.4rem 0.65rem",
 };
 
-// Colores consistentes con ArrowOverlay
-// Colores leídos desde CSS vars para respetar modo daltonismo
+// Fix: memoizado a nivel módulo, no se recalcula en cada render
 function getCorrelativeColors() {
   const s = typeof window !== "undefined" ? getComputedStyle(document.documentElement) : null;
   const cv = (n) => s?.getPropertyValue(n).trim() || "#888";
@@ -27,6 +26,12 @@ function getCorrelativeColors() {
 function CorrSection({ allSubjects, subjectsByYear, list, setList, forFinal }) {
   const [corrSub, setCorrSub] = useState("");
   const [corrType, setCorrType] = useState("regular");
+
+  // Fix: colores calculados una sola vez por render del componente, no por cada item del map
+  const colors = useMemo(() => {
+    const cc = getCorrelativeColors();
+    return forFinal ? cc.final : cc.cursar;
+  }, [forFinal]);
 
   const available = subjectsByYear.map(y => ({
     ...y,
@@ -62,13 +67,11 @@ function CorrSection({ allSubjects, subjectsByYear, list, setList, forFinal }) {
           {list.map(c => {
             const sub = allSubjects.find(s => s.id === c.subjectId);
             const isReg = c.type === "regular";
-            const cc = getCorrelativeColors(); const colors = forFinal ? cc.final : cc.cursar;
             const arrowColor = colors[c.type];
             return (
               <div key={c.subjectId} style={corrItemStyle}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   {forFinal ? (
-                    // Flecha punteada SVG para final, igual que en ArrowOverlay
                     <svg width="18" height="10" viewBox="0 0 18 10" style={{ flexShrink: 0 }}>
                       <line x1="0" y1="5" x2="11" y2="5"
                         stroke={arrowColor} strokeWidth="1.8"
@@ -106,7 +109,6 @@ export default function AddModal({ open, onClose, data, onAdd, editSubject, onEd
   const [corrFinalList, setCorrFinalList] = useState([]);
   const [error, setError]                 = useState("");
 
-  // Ref para detectar cambios en editSubject sin usar JSON.stringify como dep
   const prevEditSubjectRef = useRef(null);
 
   useEffect(() => {
@@ -131,9 +133,6 @@ export default function AddModal({ open, onClose, data, onAdd, editSubject, onEd
     }
     setError("");
   }, [open, editSubject?.id]); // eslint-disable-line react-hooks/exhaustive-deps
-  // Intencional: la comparacion profunda de correlativas se hace manualmente via ref
-  // para evitar JSON.stringify como dep de useEffect (anti-patron: crea un string nuevo
-  // en cada render aunque los datos no hayan cambiado).
 
   const allSubjects = data.years.flatMap(y => y.subjects).filter(s =>
     !isEdit || s.id !== editSubject?.id

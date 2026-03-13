@@ -5,7 +5,8 @@ import { PLANES } from '../data/planes';
 
 const FILTERS = ["Todos", "UNR", "UTN"];
 
-function ConfirmOverwriteModal({ open, onConfirm, onCancel }) {
+// Fix: ConfirmOverwriteModal y ConfirmDeleteModal unificados en un componente genérico
+function ConfirmModal({ open, title, description, confirmLabel, onConfirm, onCancel }) {
   const [visible, setVisible] = useState(false);
   const [animating, setAnimating] = useState(false);
   React.useEffect(() => {
@@ -34,10 +35,10 @@ function ConfirmOverwriteModal({ open, onConfirm, onCancel }) {
         boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
       }}>
         <p style={{ fontSize: "0.85rem", color: "var(--text-primary)", fontWeight: 600, margin: "0 0 0.5rem" }}>
-          ¿Reemplazar plan actual?
+          {title}
         </p>
         <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", lineHeight: 1.6, margin: "0 0 1.25rem" }}>
-          Tenés materias cargadas. Al cargar este plan se van a pisar. ¿Querés continuar?
+          {description}
         </p>
         <div style={{ display: "flex", gap: "0.5rem" }}>
           <button className="btn-ghost" onClick={onCancel} style={{ flex: 1 }}>Cancelar</button>
@@ -53,63 +54,7 @@ function ConfirmOverwriteModal({ open, onConfirm, onCancel }) {
             onMouseEnter={e => e.currentTarget.style.opacity = "0.85"}
             onMouseLeave={e => e.currentTarget.style.opacity = "1"}
           >
-            Sí, reemplazar
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ConfirmDeleteModal({ open, onConfirm, onCancel }) {
-  const [visible, setVisible] = useState(false);
-  const [animating, setAnimating] = useState(false);
-  React.useEffect(() => {
-    if (open) { setVisible(true); setAnimating(false); }
-    else if (visible) {
-      setAnimating(true);
-      const t = setTimeout(() => { setVisible(false); setAnimating(false); }, 180);
-      return () => clearTimeout(t);
-    }
-  }, [open]);
-  if (!visible) return null;
-  const closing = animating && !open;
-  return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 1200,
-      display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem",
-      animation: closing ? "fadeOut 0.18s ease forwards" : "fadeIn 0.15s ease",
-    }}>
-      <div onClick={onCancel} style={{ position: "fixed", inset: 0, background: "var(--modal-backdrop)", backdropFilter: "blur(3px)" }} />
-      <div style={{
-        position: "relative", zIndex: 1,
-        background: "var(--bg)", border: "1px solid var(--border)",
-        borderRadius: "12px", padding: "1.5rem",
-        width: "100%", maxWidth: "320px",
-        animation: closing ? "modalOut 0.18s ease forwards" : "popUp 0.2s ease",
-        boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
-      }}>
-        <p style={{ fontSize: "0.85rem", color: "var(--text-primary)", fontWeight: 600, margin: "0 0 0.5rem" }}>
-          ¿Eliminar plan?
-        </p>
-        <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", lineHeight: 1.6, margin: "0 0 1.25rem" }}>
-          Se van a borrar todas las materias cargadas. Esta acción no se puede deshacer.
-        </p>
-        <div style={{ display: "flex", gap: "0.5rem" }}>
-          <button className="btn-ghost" onClick={onCancel} style={{ flex: 1 }}>Cancelar</button>
-          <button
-            onClick={onConfirm}
-            style={{
-              flex: 1, padding: "0.6rem 1rem",
-              background: "var(--status-bloqueada-dot)", border: "none",
-              borderRadius: "8px", cursor: "pointer",
-              color: "#fff", fontSize: "0.78rem", fontFamily: "inherit",
-              transition: "opacity 0.15s",
-            }}
-            onMouseEnter={e => e.currentTarget.style.opacity = "0.85"}
-            onMouseLeave={e => e.currentTarget.style.opacity = "1"}
-          >
-            Sí, eliminar todo
+            {confirmLabel}
           </button>
         </div>
       </div>
@@ -244,8 +189,9 @@ export default function PlanSelectorModal({ open, onClose, onImport, onExport, o
           background: "var(--bg)", border: "1px solid var(--border)",
           borderRadius: "14px",
           width: "100%", maxWidth: "420px",
-          maxHeight: "80vh",
-          height: "80vh",
+          // Fix: 80dvh respeta el teclado virtual en móvil
+          maxHeight: "80dvh",
+          height: "80dvh",
           display: "flex", flexDirection: "column",
           animation: closing ? "modalOut 0.18s ease forwards" : "popUp 0.2s ease",
           boxShadow: "0 20px 60px rgba(0,0,0,0.22)",
@@ -370,13 +316,19 @@ export default function PlanSelectorModal({ open, onClose, onImport, onExport, o
         </div>
       </div>
 
-      <ConfirmOverwriteModal
+      <ConfirmModal
         open={confirmOpen}
+        title="¿Reemplazar plan actual?"
+        description="Tenés materias cargadas. Al cargar este plan se van a pisar. ¿Querés continuar?"
+        confirmLabel="Sí, reemplazar"
         onConfirm={handleConfirm}
         onCancel={() => { setConfirmOpen(false); setPendingPlan(null); }}
       />
-      <ConfirmDeleteModal
+      <ConfirmModal
         open={confirmDeleteOpen}
+        title="¿Eliminar plan?"
+        description="Se van a borrar todas las materias cargadas. Esta acción no se puede deshacer."
+        confirmLabel="Sí, eliminar todo"
         onConfirm={() => { setConfirmDeleteOpen(false); onClearPlan(); onClose(); }}
         onCancel={() => setConfirmDeleteOpen(false)}
       />
