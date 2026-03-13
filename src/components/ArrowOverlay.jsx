@@ -130,7 +130,8 @@ export default function ArrowOverlay({ arrows, animKey, exiting, clipRect, hidde
                 data-arrow-id={a.id}
                 d={path}
                 fill="none"
-                stroke="none"
+                stroke={color}
+                strokeOpacity={0}
                 color={color}
                 markerEnd={markerId}
                 style={{ animation: markerAnim }}
