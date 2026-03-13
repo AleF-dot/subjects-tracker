@@ -20,7 +20,7 @@ import { useAuth } from "./context/AuthContext";
 import { useArrows }         from "./hooks/useArrows";
 import { useToast }          from "./hooks/useToast";
 import { computeAllowedStatuses } from "./utils/statusLogic";
-import { PLANES } from "./data/planes";
+import { PLANES, detectPlanId } from "./data/planes";
 import { defaultData, STATUS } from "./utils/constants";
 
 export default function App() {
@@ -48,7 +48,7 @@ export default function App() {
   const [newIds, setNewIds]         = useState(() => new Set());
   const [exitingIds, setExitingIds] = useState(() => new Set());
   const [gridKey, setGridKey]       = useState(0);
-  const activePlanId = data.planId ?? null;
+  const activePlanId = detectPlanId(data);
   // Fix: estado para confirmación de eliminar materia
   const [deleteConfirm, setDeleteConfirm] = useState(null); // { yearId, subjectId, name }
 
@@ -369,7 +369,7 @@ export default function App() {
         onClose={() => setPlanSelectorOpen(false)}
         onImport={() => { setPlanSelectorOpen(false); handleImport(); }}
         onExport={() => { handleExport(); }}
-        onLoadPlan={(plan) => { replaceAll({ ...plan.data, planId: plan.id }, {}); showToast("Plan cargado"); bumpGridKey(); }}
+        onLoadPlan={(plan) => { replaceAll(plan.data, {}); showToast("Plan cargado"); bumpGridKey(); }}
         onClearPlan={handleClearPlan}
         hasData={allSubjects.length > 0}
       />

@@ -652,6 +652,22 @@ function buildPlanData(subjects) {
   return { years };
 }
 
+// Detecta qué plan predefinido coincide exactamente con los datos actuales del usuario.
+// Compara el conjunto de IDs de materias — si coinciden exactamente, es ese plan.
+// Si el usuario modificó el plan (agregó/quitó materias), devuelve null.
+export function detectPlanId(data) {
+  if (!data?.years) return null;
+  const userIds = new Set(data.years.flatMap(y => y.subjects.map(s => s.id)));
+  if (userIds.size === 0) return null;
+  for (const plan of PLANES) {
+    const planIds = new Set(plan.data.years.flatMap(y => y.subjects.map(s => s.id)));
+    if (planIds.size === userIds.size && [...planIds].every(id => userIds.has(id))) {
+      return plan.id;
+    }
+  }
+  return null;
+}
+
 export const PLANES = [
   {
     id: "utn-frro-isi-2023",
