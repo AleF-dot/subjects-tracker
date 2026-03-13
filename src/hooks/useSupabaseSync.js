@@ -6,6 +6,7 @@ import { migrateData } from "./useLocalData";
 const DEBOUNCE_MS    = 800;
 const MAX_WAIT_MS    = 5000;
 const RETRY_DELAYS   = [5_000, 15_000, 30_000];
+const PENDING_KEY    = "_hasPendingLocalChanges";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -98,6 +99,7 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError, onSy
       lastSync.current    = Date.now();
       retryCount.current  = 0;
       syncPending.current = false;
+      localStorage.removeItem(PENDING_KEY);
       onRecoveredRef.current?.();
       setSyncStatus("idle");
     }
@@ -119,6 +121,7 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError, onSy
 
     setSyncStatus("pending");
     syncPending.current = true;
+    localStorage.setItem(PENDING_KEY, "1");
     clearTimeout(syncTimer.current);
     syncTimer.current = setTimeout(doSync, DEBOUNCE_MS);
 
@@ -192,9 +195,20 @@ export function useSupabaseSync({ data, statusMap, replaceAll, onSyncError, onSy
         const hasMismatch = !snapshotEqual(latestData.current, cloudData, latestStatus.current, cloudStatusMap);
 
         if (hasMismatch) {
-          merging.current = true;
-          setMergePrompt({ cloudData, cloudStatusMap });
-          setSyncStatus("idle");
+          const hadPendingChanges = localStorage.getItem(PENDING_KEY);
+          if (hadPendingChanges) {
+            // Los datos locales son más nuevos (el usuario hizo cambios y recargó
+            // antes de que el sync terminara). Confiamos en lo local y subimos.
+            localStorage.removeItem(PENDING_KEY);
+            ready.current = true;
+            push();
+          } else {
+            // Diferencia genuina (ej: otro dispositivo guardó datos distintos).
+            // Preguntar al usuario con cuál versión se queda.
+            merging.current = true;
+            setMergePrompt({ cloudData, cloudStatusMap });
+            setSyncStatus("idle");
+          }
         } else {
           ready.current = true;
           setSyncStatus("idle");
