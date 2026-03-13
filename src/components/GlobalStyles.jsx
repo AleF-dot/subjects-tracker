@@ -27,14 +27,14 @@ export default function GlobalStyles() {
         --modal-backdrop: rgba(20,18,14,0.5);
         --scrollbar:    #B0A898;
         /* status */
-        --status-disponible-bg: #B8B4AA; --status-disponible-border: #706860; --status-disponible-dot: #706860; --status-disponible-color: #302820;
-        --status-cursando-bg:   #9BBBD6; --status-cursando-border:   #2E6098; --status-cursando-dot:   #2E6098; --status-cursando-color:   #082858;
-        --status-regular-bg:    #FCD34D; --status-regular-border:    #D97706; --status-regular-dot:    #D97706; --status-regular-color:    #D97706;
-        --status-aprobada-bg:   #5CB98A; --status-aprobada-border:   #1A7A4A; --status-aprobada-dot:   #1A7A4A; --status-aprobada-color:   #022818;
-        --status-bloqueada-bg:  #D96666; --status-bloqueada-border:  #B02020; --status-bloqueada-dot:  #B02020; --status-bloqueada-color:  #500808;
+        --status-disponible-bg: #C8C4BC; --status-disponible-border: #888078; --status-disponible-dot: #888078; --status-disponible-color: #403830;
+        --status-cursando-bg:   #A8C4DE; --status-cursando-border:   #4070A0; --status-cursando-dot:   #4070A0; --status-cursando-color:   #0A2848;
+        --status-regular-bg:    #F5C842; --status-regular-border:    #C89000; --status-regular-dot:    #C89000; --status-regular-color:    #4A3000;
+        --status-aprobada-bg:   #70C090; --status-aprobada-border:   #287848; --status-aprobada-dot:   #287848; --status-aprobada-color:   #0A3020;
+        --status-bloqueada-bg:  #D88888; --status-bloqueada-border:  #A03030; --status-bloqueada-dot:  #A03030; --status-bloqueada-color:  #400808;
         /* highlight */
-        --hl-regular-border:      #D97706; --hl-regular-bg:      #FCD34D;
-        --hl-aprobada-border:     #1A7A4A; --hl-aprobada-bg:     #5CB98A;
+        --hl-regular-border:      #C89000; --hl-regular-bg:      #F5C842;
+        --hl-aprobada-border:     #287848; --hl-aprobada-bg:     #70C090;
         --hl-final-reg-border:    #1090B0; --hl-final-reg-bg:    #C0E8F4;
         --hl-final-apr-border:    #6030C0; --hl-final-apr-bg:    #DDD0F4;
         /* arrow colors */
