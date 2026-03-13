@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
-
-// Planes hardcodeados — por ahora vacío, se van agregando
-const PLANES = [
-  // { id: "unr-sistemas", universidad: "UNR", carrera: "Ingeniería en Sistemas de Información", years: [...] },
-];
+import { PLANES } from '../data/planes';
 
 const FILTERS = ["Todos", "UNR", "UTN"];
 
@@ -183,7 +179,7 @@ export default function PlanSelectorModal({ open, onClose, onImport, onExport, o
                   onMouseLeave={e => { e.currentTarget.style.background = "var(--bg-elevated)"; e.currentTarget.style.borderColor = "var(--border)"; }}
                 >
                   <span style={{ fontSize: "0.78rem", color: "var(--text-primary)", fontWeight: 500 }}>{plan.carrera}</span>
-                  <span style={{ fontSize: "0.65rem", color: "var(--text-faint)", marginTop: "0.2rem", fontFamily: "'DM Mono', monospace" }}>{plan.universidad}</span>
+                  <span style={{ fontSize: "0.65rem", color: "var(--text-faint)", marginTop: "0.2rem", fontFamily: "'DM Mono', monospace" }}>{plan.universidad} · {plan.plan}</span>
                 </button>
               ))}
             </div>
