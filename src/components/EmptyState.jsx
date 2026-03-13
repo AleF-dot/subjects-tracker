@@ -49,7 +49,7 @@ export default function EmptyState({ onSelectPlan, onNewSubject }) {
           onClick={onSelectPlan}
           style={{ textDecoration: "underline", cursor: "pointer" }}
         >
-          elegí un plan de estudios existente
+          seleccioná un plan de estudios
         </span>
         {" "}y las materias se cargan solas
       </p>

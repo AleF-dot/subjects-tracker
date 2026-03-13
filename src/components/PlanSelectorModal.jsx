@@ -181,7 +181,7 @@ export default function PlanSelectorModal({ open, onClose, onImport, onExport, o
                 fontSize: "0.6rem", letterSpacing: "0.14em", textTransform: "uppercase",
                 color: "var(--text-muted)", fontFamily: "'DM Mono', monospace", margin: 0,
               }}>
-                Seleccionar plan de estudio
+                Seleccionar plan de estudios
               </p>
               <button onClick={onClose} style={{
                 background: "var(--bg-elevated)", border: "none",

@@ -24,7 +24,7 @@ export default function Header({ counts, onSelectPlan, onNewSubject }) {
         ))}
         <div style={{ width: 1, height: 32, background: "var(--border)" }} />
         <div style={{ display: "flex", gap: "0.5rem" }}>
-          <button className="btn-ghost" onClick={onSelectPlan} style={{ fontSize: "0.76rem", padding: "0.55rem 0.95rem" }}>Seleccionar plan de estudio</button>
+          <button className="btn-ghost" onClick={onSelectPlan} style={{ fontSize: "0.76rem", padding: "0.55rem 0.95rem" }}>Seleccionar plan de estudios</button>
           <button className="btn-primary" onClick={onNewSubject}>+ Agregar materia</button>
         </div>
       </div>
