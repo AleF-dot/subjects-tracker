@@ -646,7 +646,7 @@ function buildPlanData(subjects) {
       correlativesParaFinal: s.correlativesParaFinal || [],
     }));
     if (yearSubjects.length > 0) {
-      years.push({ id: `year-${y}`, label: `${y}° Año`, subjects: yearSubjects });
+      years.push({ id: y, label: `${y}° Año`, subjects: yearSubjects });
     }
   }
   return { years };
