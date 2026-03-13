@@ -29,11 +29,11 @@ export default function GlobalStyles() {
         /* status */
         --status-disponible-bg: #D8D4CC; --status-disponible-border: #908880; --status-disponible-dot: #686058; --status-disponible-color: #403830;
         --status-cursando-bg:   #CCDAEC; --status-cursando-border:   #4E7EB8; --status-cursando-dot:   #2860A8; --status-cursando-color:   #103870;
-        --status-regular-bg:    #FDDEC4; --status-regular-border:    #C05C00; --status-regular-dot:    #C05C00; --status-regular-color:    #6B2800;
+        --status-regular-bg:    #FFFBEB; --status-regular-border:    #FBBF24; --status-regular-dot:    #FBBF24; --status-regular-color:    #78350F;
         --status-aprobada-bg:   #AADEC0; --status-aprobada-border:   #1E8858; --status-aprobada-dot:   #0E6840; --status-aprobada-color:   #044028;
         --status-bloqueada-bg:  #E8C4C4; --status-bloqueada-border:  #B04848; --status-bloqueada-dot:  #903030; --status-bloqueada-color:  #581010;
         /* highlight */
-        --hl-regular-border:      #C05C00; --hl-regular-bg:      #FDDEC4;
+        --hl-regular-border:      #FBBF24; --hl-regular-bg:      #FFFBEB;
         --hl-aprobada-border:     #1E8858; --hl-aprobada-bg:     #AADEC0;
         --hl-final-reg-border:    #1090B0; --hl-final-reg-bg:    #C0E8F4;
         --hl-final-apr-border:    #6030C0; --hl-final-apr-bg:    #DDD0F4;
