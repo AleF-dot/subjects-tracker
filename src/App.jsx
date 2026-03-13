@@ -212,7 +212,7 @@ export default function App() {
 
         <main style={{ padding: "2rem", paddingBottom: "4rem" }}>
           {allSubjects.length === 0 ? (
-            <EmptyState onNewSubject={() => { setEditingSubject(null); setModalOpen(true); }} />
+            <EmptyState onSelectPlan={() => setPlanSelectorOpen(true)} onNewSubject={() => { setEditingSubject(null); setModalOpen(true); }} />
           ) : (
           <div ref={scrollContainerRef} style={{ overflowX: "auto", overflowY: "visible", padding: "4px 4px", WebkitOverflowScrolling: "touch" }}>
             <div ref={gridRef} style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(160px, 1fr))", gap: "1.75rem", minWidth: "860px", animation: "gridFadeIn 0.35s ease both" }}>
