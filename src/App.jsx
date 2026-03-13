@@ -14,6 +14,7 @@ import EmptyState    from "./components/EmptyState";
 import InfoModal     from "./components/InfoModal";
 import AuthButton    from "./components/AuthButton";
 import MergePromptModal from "./components/MergePromptModal";
+import PlanSelectorModal from "./components/PlanSelectorModal";
 
 import { useCurriculumData } from "./hooks/useCurriculumData";
 import { useAuth } from "./context/AuthContext";
