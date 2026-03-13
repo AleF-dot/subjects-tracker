@@ -48,8 +48,11 @@ export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete
     setPos(next ?? { top: -9999, left: 0, width: 170 });
 
     const scrollEl = scrollContainerRef?.current;
+    let rafId = null;
     const fn = () => {
-      requestAnimationFrame(() => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
         const p = computePos(anchor, ref.current, scrollContainerRef);
         setPos(p ?? { top: -9999, left: 0, width: 170 });
       });
@@ -59,6 +62,7 @@ export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete
     return () => {
       window.removeEventListener("scroll", fn);
       if (scrollEl) scrollEl.removeEventListener("scroll", fn);
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, [anchor, scrollContainerRef]);
 
@@ -69,7 +73,7 @@ export default function StatusMenu({ anchor, current, onSelect, onEdit, onDelete
       role="menu"
       aria-label="Opciones de materia"
       onClick={e => e.stopPropagation()}
-      style={{ position: "fixed", top: pos.top, left: pos.left, width: pos.width, zIndex: 800 }}
+      style={{ position: "fixed", top: pos.top, left: pos.left, width: pos.width, zIndex: 800, willChange: "transform", transform: "translateZ(0)" }}
     >
       {(allowed.disponible || allowed.cursando || allowed.regular || allowed.aprobada) && STATUS_ORDER.map(s => {
         const blocked  = !allowed[s];

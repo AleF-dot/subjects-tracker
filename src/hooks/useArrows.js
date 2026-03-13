@@ -140,12 +140,17 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
 
   // Scroll: mutación directa del DOM (sin lag de React) + recompute para sincronizar state
   useEffect(() => {
+    let scrollRaf = null;
     const onScroll = () => {
-      // Mutación directa — sin pasar por React, sin lag
-      mutateSvgPaths();
+      if (scrollRaf) return; // ya hay un frame pendiente, no acumular
+      scrollRaf = requestAnimationFrame(() => {
+        scrollRaf = null;
+        mutateSvgPaths();
+      });
     };
     const onScrollEnd = () => {
-      // Al terminar el scroll, sincronizar el state de React
+      cancelAnimationFrame(scrollRaf);
+      scrollRaf = null;
       cancelAnimationFrame(rafRef.current);
       rafRef.current = requestAnimationFrame(() => {
         recomputePositions();
