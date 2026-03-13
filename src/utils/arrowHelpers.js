@@ -46,20 +46,39 @@ function elInfo(el) {
   return { x: r.left + r.width / 2, y: r.top + r.height / 2, rx: r.right };
 }
 
-export function resolveArrowPoints(corrDotEl, targetDotEl) {
+export function resolveArrowPoints(corrDotEl, targetDotEl, containerEl) {
   const c = elInfo(corrDotEl);
   const t = elInfo(targetDotEl);
 
+  // Si hay container, convertir a coordenadas relativas al container
+  // para que el SVG pueda vivir en position:absolute y scrollear nativo
+  let ox = 0, oy = 0;
+  if (containerEl) {
+    const cr = containerEl.getBoundingClientRect();
+    ox = cr.left - containerEl.scrollLeft;
+    oy = cr.top - containerEl.scrollTop;
+    // Ajustar también por el scroll del window
+    oy += window.scrollY;
+  }
+
+  const cx = c.x - (containerEl ? ox : 0);
+  const cy = c.y - (containerEl ? oy : 0);
+  const tx = t.x - (containerEl ? ox : 0);
+  const ty = t.y - (containerEl ? oy : 0);
+  const crx = c.rx - (containerEl ? ox : 0);
+  const trx = t.x - DOT_RADIUS - MARKER_LEN - (containerEl ? ox : 0);
+  const tlx = t.x - DOT_RADIUS - MARKER_LEN - (containerEl ? ox : 0);
+
   let dir;
   const SAME_THRESHOLD = 60;
-  if (Math.abs(c.x - t.x) < SAME_THRESHOLD) dir = "same";
-  else if (c.x < t.x) dir = "ltr";
+  if (Math.abs(cx - tx) < SAME_THRESHOLD) dir = "same";
+  else if (cx < tx) dir = "ltr";
   else dir = "rtl";
 
-  const x1 = c.rx;
-  const y1 = c.y;
-  const x2 = dir === "same" ? t.x + DOT_RADIUS + MARKER_LEN : t.x - DOT_RADIUS - MARKER_LEN;
-  const y2 = t.y;
+  const x1 = crx;
+  const y1 = cy;
+  const x2 = dir === "same" ? tx + DOT_RADIUS + MARKER_LEN : tlx;
+  const y2 = ty;
 
   return { x1, y1, x2, y2, rightEdge1: x1, rightEdge2: x2, dir };
 }

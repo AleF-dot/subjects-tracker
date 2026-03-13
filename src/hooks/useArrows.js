@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useLayoutEffect, useEffect, useMemo } from "react";
-import { resolveArrowPoints, buildPath, estimateLen } from "../utils/arrowHelpers";
+import { resolveArrowPoints } from "../utils/arrowHelpers";
 
 const EXIT_DURATION = 350;
 
@@ -7,12 +7,11 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
   const [arrows, setArrows]   = useState([]);
   const [exiting, setExiting] = useState(false);
   const [animKey, setAnimKey] = useState(0);
-  const [clipRect, setClipRect] = useState(null);
   const rafRef         = useRef(null);
   const exitTimerRef   = useRef(null);
   const filterTimerRef = useRef(null);
-  const svgRef         = useRef(null); // ref al SVG — para mutación directa en scroll
-  const arrowsRef      = useRef([]);   // arrows actuales con arcOffset incluido
+  const svgRef         = useRef(null);
+  const arrowsRef      = useRef([]);
 
   const correlativesRef = useRef(correlatives);
   useEffect(() => { correlativesRef.current = correlatives; }, [correlatives]);
@@ -24,18 +23,19 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
   const computeArrows = useCallback(() => {
     const corrs = correlativesRef.current;
     if (!selectedId || corrs.length === 0) { setArrows([]); return; }
+    const containerEl = scrollContainerRef?.current ?? null;
     const getPoint = (id) => dotRefs?.current?.[id] ?? cardRefs.current[id] ?? null;
     const targetEl = getPoint(selectedId);
     if (!targetEl) { setArrows([]); return; }
     const next = corrs.map(c => {
       const el = getPoint(c.subjectId);
       if (!el) return null;
-      const { x1, y1, x2, y2, dir, rightEdge1, rightEdge2 } = resolveArrowPoints(el, targetEl);
+      const { x1, y1, x2, y2, dir, rightEdge1, rightEdge2 } = resolveArrowPoints(el, targetEl, containerEl);
       const uid = `${selectedId}-${c.subjectId}-${c.forFinal ? "final" : "cursar"}`;
       return { id: uid, corrId: c.subjectId, forFinal: c.forFinal ?? false, x1, y1, x2, y2, dir, rightEdge1, rightEdge2, type: c.type };
     }).filter(Boolean);
     setArrows(next);
-  }, [selectedId, cardRefs, dotRefs]);
+  }, [selectedId, cardRefs, dotRefs, scrollContainerRef]);
 
   useLayoutEffect(() => {
     const prev = prevSelectedRef.current;
@@ -52,7 +52,6 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
       return;
     }
     setExiting(false);
-    updateClipRect();
     rafRef.current = requestAnimationFrame(() => { computeArrows(); setAnimKey(k => k + 1); });
     return () => cancelAnimationFrame(rafRef.current);
   }, [selectedId]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -73,121 +72,20 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterKey, selectedId]);
 
-  // Mutación directa del SVG durante scroll — sin pasar por React state
-  const mutateSvgPaths = useCallback(() => {
-    const svg = svgRef.current;
-    if (!svg || !selectedId) return;
-
-    const currentArrows = arrowsRef.current;
-    if (!currentArrows.length) return;
-
-    const getPoint = (id) => dotRefs?.current?.[id] ?? cardRefs.current[id] ?? null;
-    const targetEl = getPoint(selectedId);
-    if (!targetEl) return;
-
-    // Actualizar clipRect del clipPath directamente
-    const scrollEl = scrollContainerRef?.current;
-    if (scrollEl) {
-      const r = scrollEl.getBoundingClientRect();
-      const clipRectEl = svg.querySelector("#arrow-clip rect");
-      if (clipRectEl) {
-        clipRectEl.setAttribute("x", r.left);
-        clipRectEl.setAttribute("y", r.top);
-        clipRectEl.setAttribute("width", r.right - r.left);
-        clipRectEl.setAttribute("height", r.bottom - r.top);
-      }
-    }
-
-    // Actualizar cada path usando los arrows actuales (con arcOffset correcto)
-    currentArrows.forEach(a => {
-      const el = getPoint(a.corrId);
-      if (!el) return;
-      const { x1, y1, x2, y2, dir, rightEdge1, rightEdge2 } = resolveArrowPoints(el, targetEl);
-      const arcOffset = a.arcOffset ?? 0;
-      const pathD = buildPath(x1, y1, x2, y2, dir, rightEdge1, rightEdge2, arcOffset);
-      const len   = estimateLen(x1, y1, x2, y2, dir);
-
-      svg.querySelectorAll(`[data-arrow-id="${a.id}"]`).forEach(path => {
-        path.setAttribute("d", pathD);
-        if (path.hasAttribute("stroke-dasharray") && path.getAttribute("stroke-dasharray") !== "5 4") {
-          path.setAttribute("stroke-dasharray", len);
-          path.setAttribute("stroke-dashoffset", "0");
-        }
-      });
-    });
-  }, [selectedId, cardRefs, dotRefs, scrollContainerRef]);
-
-  const updateClipRect = useCallback(() => {
-    const el = scrollContainerRef?.current;
-    if (!el) { setClipRect(null); return; }
-    const r = el.getBoundingClientRect();
-    setClipRect({ left: r.left, top: r.top, right: r.right, bottom: r.bottom });
-  }, [scrollContainerRef]);
-
+  // Recompute on resize only — scroll is handled natively by the browser
   const recomputePositions = useCallback(() => {
-    const corrs = correlativesRef.current;
-    if (!selectedId || corrs.length === 0) return;
-    const getPoint = (id) => dotRefs?.current?.[id] ?? cardRefs.current[id] ?? null;
-    const targetEl = getPoint(selectedId);
-    if (!targetEl) return;
-    setArrows(prev => prev.map(a => {
-      const el = getPoint(a.corrId);
-      if (!el) return a;
-      const { x1, y1, x2, y2, dir, rightEdge1, rightEdge2 } = resolveArrowPoints(el, targetEl);
-      return { ...a, x1, y1, x2, y2, dir, rightEdge1, rightEdge2 };
-    }));
-  }, [selectedId, cardRefs, dotRefs]);
+    if (!selectedId) return;
+    cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => { computeArrows(); });
+  }, [selectedId, computeArrows]);
 
-  // Scroll: mutación directa del DOM (sin lag de React) + recompute para sincronizar state
   useEffect(() => {
-    let scrollRaf = null;
-    const onScroll = () => {
-      if (scrollRaf) return; // ya hay un frame pendiente, no acumular
-      scrollRaf = requestAnimationFrame(() => {
-        scrollRaf = null;
-        mutateSvgPaths();
-      });
-    };
-    const onScrollEnd = () => {
-      cancelAnimationFrame(scrollRaf);
-      scrollRaf = null;
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => {
-        recomputePositions();
-        updateClipRect();
-      });
-    };
-
-    const scrollEl = scrollContainerRef?.current;
-    window.addEventListener("scroll", onScroll, { passive: true });
-    document.querySelector("main")?.addEventListener("scroll", onScroll, { passive: true });
-    if (scrollEl) scrollEl.addEventListener("scroll", onScroll, { passive: true });
-
-    window.addEventListener("scrollend", onScrollEnd, { passive: true });
-    if (scrollEl) scrollEl.addEventListener("scrollend", onScrollEnd, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      document.querySelector("main")?.removeEventListener("scroll", onScroll);
-      if (scrollEl) scrollEl.removeEventListener("scroll", onScroll);
-      window.removeEventListener("scrollend", onScrollEnd);
-      if (scrollEl) scrollEl.removeEventListener("scrollend", onScrollEnd);
-    };
-  }, [mutateSvgPaths, recomputePositions, updateClipRect, scrollContainerRef]);
-
-  // ResizeObserver
-  useEffect(() => {
-    const onResize = () => {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => { recomputePositions(); updateClipRect(); });
-    };
+    const onResize = () => { recomputePositions(); };
     const ro = new ResizeObserver(onResize);
     if (gridRef.current) ro.observe(gridRef.current);
     window.addEventListener("resize", onResize);
     return () => { ro.disconnect(); window.removeEventListener("resize", onResize); };
-  }, [recomputePositions, updateClipRect, gridRef]);
-
-  useEffect(() => { updateClipRect(); }, [updateClipRect, selectedId]);
+  }, [recomputePositions, gridRef]);
 
   const arcedArrows = useMemo(() => {
     if (!arrows.length) return arrows;
@@ -211,5 +109,5 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
 
   arrowsRef.current = arcedArrows;
 
-  return { arrows: arcedArrows, animKey, exiting, clipRect, svgRef };
+  return { arrows: arcedArrows, animKey, exiting, svgRef };
 }

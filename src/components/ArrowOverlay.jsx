@@ -1,21 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
 import { buildPath, estimateLen } from "../utils/arrowHelpers";
 
-// Lee las CSS vars del documento para que respondan al tema y modo daltonismo
-function getArrowColor(type, forFinal) {
-  const root = document.documentElement;
-  const style = getComputedStyle(root);
-  if (forFinal) {
-    return type === "aprobada"
-      ? style.getPropertyValue("--arrow-aprobada-final").trim()
-      : style.getPropertyValue("--arrow-regular-final").trim();
-  }
-  return type === "aprobada"
-    ? style.getPropertyValue("--arrow-aprobada-cursar").trim()
-    : style.getPropertyValue("--arrow-regular-cursar").trim();
-}
+const EXIT_DURATION = 350;
 
-// 4 markers genéricos que usan currentColor — el color lo hereda del path
 const MARKERS = [
   { id: "mSolid",  orient: "auto" },
   { id: "mSolidH", orient: "0" },
@@ -26,20 +13,32 @@ const MARKERS = [
 const MARKER_ID   = { solid: "mSolid",  dash: "mDash"  };
 const MARKER_ID_H = { solid: "mSolidH", dash: "mDashH" };
 
-const EXIT_DURATION = 350;
+function getArrowColor(type, isFinal) {
+  const s = getComputedStyle(document.documentElement);
+  const cv = (n) => s.getPropertyValue(n).trim();
+  if (isFinal) return type === "regular" ? cv("--arrow-regular-final") : cv("--arrow-aprobada-final");
+  return type === "regular" ? cv("--arrow-regular-cursar") : cv("--arrow-aprobada-cursar");
+}
 
-// clipRect: { left, top, right, bottom } en viewport space
-export default function ArrowOverlay({ arrows, animKey, exiting, clipRect, hidden, svgRef }) {
+// SVG vive dentro del scroll container en position:absolute
+// Las coordenadas ya vienen relativas al container desde resolveArrowPoints
+export default function ArrowOverlay({ arrows, animKey, exiting, svgRef, containerRef }) {
+  const [size, setSize] = useState({ w: 0, h: 0 });
+
+  // Medir el tamaño del contenido del container para que el SVG lo cubra completo
+  useEffect(() => {
+    const el = containerRef?.current;
+    if (!el) return;
+    const measure = () => setSize({ w: el.scrollWidth, h: el.scrollHeight });
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [containerRef]);
+
   const totalArrows = arrows.length;
 
-  // Definimos un clipPath en viewport space que coincide exactamente
-  // con el área visible del scroll container. Las flechas que salgan
-  // por los bordes horizontales quedan recortadas.
-  const clipId = "arrow-clip";
-  const clipX      = clipRect?.left   ?? 0;
-  const clipY      = clipRect?.top    ?? 0;
-  const clipWidth  = clipRect ? clipRect.right  - clipRect.left : window.innerWidth;
-  const clipHeight = clipRect ? clipRect.bottom - clipRect.top  : window.innerHeight;
+  if (!totalArrows && !exiting) return null;
 
   return (
     <svg
@@ -47,17 +46,15 @@ export default function ArrowOverlay({ arrows, animKey, exiting, clipRect, hidde
       ref={svgRef}
       data-arrows
       style={{
-        position: "fixed",
-        inset: 0,
-        width: "100%",
-        height: "100%",
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: size.w || "100%",
+        height: size.h || "100%",
         pointerEvents: "none",
         zIndex: 500,
         overflow: "visible",
-        transform: "translateZ(0)",
-        willChange: "transform",
-        opacity: hidden ? 0 : 1,
-        transition: "opacity 0.2s ease",
+        willChange: "contents",
       }}
     >
       <defs>
@@ -66,12 +63,9 @@ export default function ArrowOverlay({ arrows, animKey, exiting, clipRect, hidde
             <path d="M0,1.5 L0,6.5 L7,4z" fill="currentColor" />
           </marker>
         ))}
-        <clipPath id={clipId} clipPathUnits="userSpaceOnUse">
-          <rect x={clipX} y={clipY} width={clipWidth} height={clipHeight} />
-        </clipPath>
       </defs>
 
-      <g clipPath={`url(#${clipId})`} style={{ willChange: "transform", transform: "translateZ(0)" }}>
+      <g>
         {arrows.map((a, i) => {
           const isFinal = !!a.forFinal;
           const color   = getArrowColor(a.type, isFinal);
