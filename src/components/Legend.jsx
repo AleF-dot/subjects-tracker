@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { STATUS } from "../utils/constants";
+import { useTheme } from "../context/ThemeContext";
 
 const SolidArrow = ({ color }) => (
   <svg width="22" height="10" style={{ display: "inline-block", verticalAlign: "middle" }}>
@@ -22,6 +23,7 @@ const ChevronIcon = ({ open }) => (
 );
 
 export default function Legend({ showLegend, onToggleLegend, allSubjects = [] }) {
+  const { dark, daltonType } = useTheme(); // eslint-disable-line no-unused-vars — fuerza re-render al cambiar tema
   const usedTypes = useMemo(() => {
     const used = { regularCursar: false, aprobadaCursar: false, regularFinal: false, aprobadaFinal: false };
     for (const s of allSubjects) {
@@ -37,11 +39,15 @@ export default function Legend({ showLegend, onToggleLegend, allSubjects = [] })
     return used;
   }, [allSubjects]);
 
+  // Leer colores desde CSS vars para respetar el modo daltonismo
+  const cssVars = typeof window !== "undefined" ? getComputedStyle(document.documentElement) : null;
+  const cv = (name) => cssVars?.getPropertyValue(name).trim() || "#888";
+
   const arrowItems = [
-    { key: "regularCursar",  Arrow: SolidArrow, color: "#D97706", label: "Regulares necesarias para cursar" },
-    { key: "aprobadaCursar", Arrow: SolidArrow, color: "#059669", label: "Aprobadas necesarias para cursar" },
-    { key: "regularFinal",   Arrow: DashArrow,  color: "#06B6D4", label: "Regulares necesarias para aprobación" },
-    { key: "aprobadaFinal",  Arrow: DashArrow,  color: "#7C3AED", label: "Aprobadas necesarias para aprobación" },
+    { key: "regularCursar",  Arrow: SolidArrow, color: cv("--arrow-regular-cursar"),  label: "Regulares necesarias para cursar" },
+    { key: "aprobadaCursar", Arrow: SolidArrow, color: cv("--arrow-aprobada-cursar"), label: "Aprobadas necesarias para cursar" },
+    { key: "regularFinal",   Arrow: DashArrow,  color: cv("--arrow-regular-final"),   label: "Regulares necesarias para aprobación" },
+    { key: "aprobadaFinal",  Arrow: DashArrow,  color: cv("--arrow-aprobada-final"),  label: "Aprobadas necesarias para aprobación" },
   ];
 
   return (

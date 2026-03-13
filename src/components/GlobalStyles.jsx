@@ -37,6 +37,11 @@ export default function GlobalStyles() {
         --hl-aprobada-border:     #1E8858; --hl-aprobada-bg:     #AADEC0;
         --hl-final-reg-border:    #1090B0; --hl-final-reg-bg:    #C0E8F4;
         --hl-final-apr-border:    #6030C0; --hl-final-apr-bg:    #DDD0F4;
+        /* arrow colors */
+        --arrow-regular-cursar:  #D97706;
+        --arrow-aprobada-cursar: #059669;
+        --arrow-regular-final:   #06B6D4;
+        --arrow-aprobada-final:  #7C3AED;
       }
 
       [data-theme="dark"] {
@@ -71,6 +76,11 @@ export default function GlobalStyles() {
         --hl-aprobada-border:     #059669; --hl-aprobada-bg:     #0D2A1E;
         --hl-final-reg-border:    #06B6D4; --hl-final-reg-bg:    #0A2535;
         --hl-final-apr-border:    #7C3AED; --hl-final-apr-bg:    #1E1535;
+        /* arrow colors */
+        --arrow-regular-cursar:  #D97706;
+        --arrow-aprobada-cursar: #059669;
+        --arrow-regular-final:   #06B6D4;
+        --arrow-aprobada-final:  #7C3AED;
       }
 
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -242,12 +252,20 @@ export default function GlobalStyles() {
         --status-regular-bg:    #F0EBFF; --status-regular-border:    #5B21B6; --status-regular-dot:    #4C1D95; --status-regular-color:    #2E1065;
         --status-aprobada-bg:   #DBEAFE; --status-aprobada-border:   #1D4ED8; --status-aprobada-dot:   #1E3A8A; --status-aprobada-color:   #172554;
         --status-bloqueada-bg:  #FFF0D9; --status-bloqueada-border:  #C2410C; --status-bloqueada-dot:  #9A3412; --status-bloqueada-color:  #7C2D12;
+        --arrow-regular-cursar: #6D28D9;
+        --arrow-aprobada-cursar:#1D4ED8;
+        --arrow-regular-final:  #0891B2;
+        --arrow-aprobada-final: #C2410C;
       }
       [data-theme="dark"][data-dalton="deuteranopia"],
       [data-theme="dark"][data-dalton="protanopia"] {
         --status-regular-bg:    #2D1F5E; --status-regular-border:    #7C3AED; --status-regular-dot:    #A78BFA; --status-regular-color:    #C4B5FD;
         --status-aprobada-bg:   #1E2A5E; --status-aprobada-border:   #3B82F6; --status-aprobada-dot:   #60A5FA; --status-aprobada-color:   #BFDBFE;
         --status-bloqueada-bg:  #3A2200; --status-bloqueada-border:  #FB923C; --status-bloqueada-dot:  #FDBA74; --status-bloqueada-color:  #FED7AA;
+        --arrow-regular-cursar: #A78BFA;
+        --arrow-aprobada-cursar:#60A5FA;
+        --arrow-regular-final:  #22D3EE;
+        --arrow-aprobada-final: #FB923C;
       }
 
       /* ── TRITANOPÍA (azul-amarillo) ────────────────────────────────────
@@ -261,12 +279,20 @@ export default function GlobalStyles() {
         --status-regular-bg:    #FDE8F5; --status-regular-border:    #BE185D; --status-regular-dot:    #9D174D; --status-regular-color:    #831843;
         --status-aprobada-bg:   #D1FAE5; --status-aprobada-border:   #065F46; --status-aprobada-dot:   #064E3B; --status-aprobada-color:   #022C22;
         --status-bloqueada-bg:  #FFE4E4; --status-bloqueada-border:  #B91C1C; --status-bloqueada-dot:  #991B1B; --status-bloqueada-color:  #7F1D1D;
+        --arrow-regular-cursar: #BE185D;
+        --arrow-aprobada-cursar:#065F46;
+        --arrow-regular-final:  #B91C1C;
+        --arrow-aprobada-final: #0891B2;
       }
       [data-theme="dark"][data-dalton="tritanopia"] {
         --status-cursando-bg:   #083344; --status-cursando-border:   #06B6D4; --status-cursando-dot:   #22D3EE; --status-cursando-color:   #A5F3FC;
         --status-regular-bg:    #4A0D2E; --status-regular-border:    #EC4899; --status-regular-dot:    #F472B6; --status-regular-color:    #FBCFE8;
         --status-aprobada-bg:   #022C22; --status-aprobada-border:   #10B981; --status-aprobada-dot:   #34D399; --status-aprobada-color:   #A7F3D0;
         --status-bloqueada-bg:  #450A0A; --status-bloqueada-border:  #EF4444; --status-bloqueada-dot:  #F87171; --status-bloqueada-color:  #FCA5A5;
+        --arrow-regular-cursar: #F472B6;
+        --arrow-aprobada-cursar:#34D399;
+        --arrow-regular-final:  #EF4444;
+        --arrow-aprobada-final: #22D3EE;
       }
 
       /* ── ACROMATOPSIA (sin percepción de color) ────────────────────────
@@ -281,6 +307,10 @@ export default function GlobalStyles() {
         --status-regular-bg:    #C4C2C0; --status-regular-border:    #484644; --status-regular-dot:    #282624; --status-regular-color:    #0A0908;
         --status-aprobada-bg:   #2A2826; --status-aprobada-border:   #888684; --status-aprobada-dot:   #C8C6C4; --status-aprobada-color:   #E8E6E4;
         --status-bloqueada-bg:  #F8F6F4; --status-bloqueada-border:  #1A1816; --status-bloqueada-dot:  #1A1816; --status-bloqueada-color:  #0A0806;
+        --arrow-regular-cursar: #484644;
+        --arrow-aprobada-cursar:#888684;
+        --arrow-regular-final:  #9E9B98;
+        --arrow-aprobada-final: #1A1816;
       }
       [data-theme="dark"][data-dalton="achromatopsia"] {
         --status-disponible-bg: #1E1C1A; --status-disponible-border: #605E5C; --status-disponible-dot: #909090; --status-disponible-color: #B0AEAC;
@@ -288,6 +318,10 @@ export default function GlobalStyles() {
         --status-regular-bg:    #3E3C3A; --status-regular-border:    #A8A6A4; --status-regular-dot:    #C8C6C4; --status-regular-color:    #E8E6E4;
         --status-aprobada-bg:   #E0DEDC; --status-aprobada-border:   #606060; --status-aprobada-dot:   #303030; --status-aprobada-color:   #101010;
         --status-bloqueada-bg:  #080604; --status-bloqueada-border:  #D0CECC; --status-bloqueada-dot:  #F0EEEC; --status-bloqueada-color:  #FEFCFA;
+        --arrow-regular-cursar: #A8A6A4;
+        --arrow-aprobada-cursar:#C8C6C4;
+        --arrow-regular-final:  #D0CECC;
+        --arrow-aprobada-final: #F0EEEC;
       }
     `}</style>
   );

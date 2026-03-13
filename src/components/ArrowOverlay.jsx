@@ -1,33 +1,30 @@
 import React from 'react';
 import { buildPath, estimateLen } from "../utils/arrowHelpers";
 
-const TYPE_COLOR_CURSAR = { regular: "#D97706", aprobada: "#059669" };
-const TYPE_COLOR_FINAL  = { regular: "#06B6D4", aprobada: "#7C3AED" };
+// Lee las CSS vars del documento para que respondan al tema y modo daltonismo
+function getArrowColor(type, forFinal) {
+  const root = document.documentElement;
+  const style = getComputedStyle(root);
+  if (forFinal) {
+    return type === "aprobada"
+      ? style.getPropertyValue("--arrow-aprobada-final").trim()
+      : style.getPropertyValue("--arrow-regular-final").trim();
+  }
+  return type === "aprobada"
+    ? style.getPropertyValue("--arrow-aprobada-cursar").trim()
+    : style.getPropertyValue("--arrow-regular-cursar").trim();
+}
 
+// 4 markers genéricos que usan currentColor — el color lo hereda del path
 const MARKERS = [
-  { id: "mAmberSolid",   color: "#D97706" },
-  { id: "mAmberDash",    color: "#06B6D4" },
-  { id: "mEmeraldSolid", color: "#059669" },
-  { id: "mEmeraldDash",  color: "#7C3AED" },
-  // Versiones con orient fijo (horizontal) para flechas arqueadas
-  { id: "mAmberSolidH",   color: "#D97706", orient: "0" },
-  { id: "mAmberDashH",    color: "#06B6D4", orient: "0" },
-  { id: "mEmeraldSolidH", color: "#059669", orient: "0" },
-  { id: "mEmeraldDashH",  color: "#7C3AED", orient: "0" },
+  { id: "mSolid",  orient: "auto" },
+  { id: "mSolidH", orient: "0" },
+  { id: "mDash",   orient: "auto" },
+  { id: "mDashH",  orient: "0" },
 ];
 
-const MARKER_ID = {
-  "regular-cursar":  "mAmberSolid",
-  "aprobada-cursar": "mEmeraldSolid",
-  "regular-final":   "mAmberDash",
-  "aprobada-final":  "mEmeraldDash",
-};
-const MARKER_ID_H = {
-  "regular-cursar":  "mAmberSolidH",
-  "aprobada-cursar": "mEmeraldSolidH",
-  "regular-final":   "mAmberDashH",
-  "aprobada-final":  "mEmeraldDashH",
-};
+const MARKER_ID   = { solid: "mSolid",  dash: "mDash"  };
+const MARKER_ID_H = { solid: "mSolidH", dash: "mDashH" };
 
 const EXIT_DURATION = 350;
 
@@ -65,8 +62,8 @@ export default function ArrowOverlay({ arrows, animKey, exiting, clipRect, hidde
     >
       <defs>
         {MARKERS.map(m => (
-          <marker key={m.id} id={m.id} markerWidth="8" markerHeight="8" refX="0" refY="4" orient={m.orient ?? "auto"} markerUnits="userSpaceOnUse">
-            <path d="M0,1.5 L0,6.5 L7,4z" fill={m.color} />
+          <marker key={m.id} id={m.id} markerWidth="8" markerHeight="8" refX="0" refY="4" orient={m.orient} markerUnits="userSpaceOnUse">
+            <path d="M0,1.5 L0,6.5 L7,4z" fill="currentColor" />
           </marker>
         ))}
         <clipPath id={clipId} clipPathUnits="userSpaceOnUse">
@@ -77,12 +74,10 @@ export default function ArrowOverlay({ arrows, animKey, exiting, clipRect, hidde
       <g clipPath={`url(#${clipId})`} style={{ willChange: "transform", transform: "translateZ(0)" }}>
         {arrows.map((a, i) => {
           const isFinal = !!a.forFinal;
-          const color   = isFinal
-            ? (TYPE_COLOR_FINAL[a.type]  ?? "#9B6F2F")
-            : (TYPE_COLOR_CURSAR[a.type] ?? "#D97706");
-          const markerKey = `${a.type}-${isFinal ? "final" : "cursar"}`;
-          const isArced   = (a.arcOffset ?? 0) !== 0;
-          const markerId  = `url(#${isArced ? MARKER_ID_H[markerKey] : MARKER_ID[markerKey]})`;
+          const color   = getArrowColor(a.type, isFinal);
+          const shapeKey = isFinal ? "dash" : "solid";
+          const isArced  = (a.arcOffset ?? 0) !== 0;
+          const markerId = `url(#${isArced ? MARKER_ID_H[shapeKey] : MARKER_ID[shapeKey]})`;
           const len       = estimateLen(a.x1, a.y1, a.x2, a.y2, a.dir);
           const path      = buildPath(a.x1, a.y1, a.x2, a.y2, a.dir, a.rightEdge1, a.rightEdge2, a.arcOffset ?? 0);
 
@@ -136,6 +131,7 @@ export default function ArrowOverlay({ arrows, animKey, exiting, clipRect, hidde
                 d={path}
                 fill="none"
                 stroke="none"
+                color={color}
                 markerEnd={markerId}
                 style={{ animation: markerAnim }}
               />

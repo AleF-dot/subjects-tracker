@@ -14,8 +14,15 @@ const corrItemStyle = {
 };
 
 // Colores consistentes con ArrowOverlay
-const COLORS_CURSAR = { regular: "#D97706", aprobada: "#059669" };
-const COLORS_FINAL  = { regular: "#06B6D4", aprobada: "#7C3AED" };
+// Colores leídos desde CSS vars para respetar modo daltonismo
+function getCorrelativeColors() {
+  const s = typeof window !== "undefined" ? getComputedStyle(document.documentElement) : null;
+  const cv = (n) => s?.getPropertyValue(n).trim() || "#888";
+  return {
+    cursar: { regular: cv("--arrow-regular-cursar"), aprobada: cv("--arrow-aprobada-cursar") },
+    final:  { regular: cv("--arrow-regular-final"),  aprobada: cv("--arrow-aprobada-final") },
+  };
+}
 
 function CorrSection({ allSubjects, subjectsByYear, list, setList, forFinal }) {
   const [corrSub, setCorrSub] = useState("");
@@ -55,7 +62,7 @@ function CorrSection({ allSubjects, subjectsByYear, list, setList, forFinal }) {
           {list.map(c => {
             const sub = allSubjects.find(s => s.id === c.subjectId);
             const isReg = c.type === "regular";
-            const colors = forFinal ? COLORS_FINAL : COLORS_CURSAR;
+            const cc = getCorrelativeColors(); const colors = forFinal ? cc.final : cc.cursar;
             const arrowColor = colors[c.type];
             return (
               <div key={c.subjectId} style={corrItemStyle}>
