@@ -4,8 +4,8 @@ import { useTheme } from "../context/ThemeContext";
 
 const DALTON_OPTIONS = [
   { value: "none",          label: "Sin ajuste" },
-  { value: "deuteranopia",  label: "Deuteranopía", desc: "Dificultad rojo-verde (más común)" },
-  { value: "protanopia",    label: "Protanopía",   desc: "Dificultad rojo-verde (sin rojo)" },
+  { value: "deuteranopia",  label: "Deuteranopía", desc: "Dificultad rojo-verde" },
+  { value: "protanopia",    label: "Protanopía",   desc: "Dificultad rojo-verde" },
   { value: "tritanopia",    label: "Tritanopía",   desc: "Dificultad azul-amarillo" },
   { value: "achromatopsia", label: "Acromatopsia", desc: "Sin percepción de color" },
 ];
