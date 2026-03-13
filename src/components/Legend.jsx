@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { STATUS } from "../utils/constants";
 
 const SolidArrow = ({ color }) => (
@@ -15,31 +15,96 @@ const DashArrow = ({ color }) => (
   </svg>
 );
 
-export default function Legend() {
+const ChevronIcon = ({ open }) => (
+  <svg width="12" height="16" viewBox="0 0 12 16" fill="none" style={{ display: "block", transition: "transform 0.2s ease", transform: open ? "rotate(90deg)" : "rotate(0deg)" }}>
+    <polyline points="4,3 9,8 4,13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+export default function Legend({ showLegend, onToggleLegend, allSubjects = [] }) {
+  const usedTypes = useMemo(() => {
+    const used = { regularCursar: false, aprobadaCursar: false, regularFinal: false, aprobadaFinal: false };
+    for (const s of allSubjects) {
+      for (const c of s.correlatives ?? []) {
+        if (c.type === "regular")  used.regularCursar  = true;
+        if (c.type === "aprobada") used.aprobadaCursar = true;
+      }
+      for (const c of s.correlativesParaFinal ?? []) {
+        if (c.type === "regular")  used.regularFinal  = true;
+        if (c.type === "aprobada") used.aprobadaFinal = true;
+      }
+    }
+    return used;
+  }, [allSubjects]);
+
+  const arrowItems = [
+    { key: "regularCursar",  Arrow: SolidArrow, color: "#D97706", label: "Regulares necesarias para cursar" },
+    { key: "aprobadaCursar", Arrow: SolidArrow, color: "#059669", label: "Aprobadas necesarias para cursar" },
+    { key: "regularFinal",   Arrow: DashArrow,  color: "#06B6D4", label: "Regulares necesarias para aprobación" },
+    { key: "aprobadaFinal",  Arrow: DashArrow,  color: "#7C3AED", label: "Aprobadas necesarias para aprobación" },
+  ];
+
   return (
-    <div style={{ padding: "0.55rem 2rem", borderBottom: "1px solid #EAE6DF", fontSize: "0.68rem", color: "var(--text-muted)", display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-      <div style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap", alignItems: "center" }}>
-        {Object.entries(STATUS).map(([key, s]) => (
-          <span key={key} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-            <span style={{ width: 7, height: 7, borderRadius: "50%", background: s.dot, display: "inline-block" }} />
-            <span style={{ color: s.color }}>{s.label}</span>
-          </span>
-        ))}
+    <div style={{ borderBottom: "1px solid #EAE6DF", fontSize: "0.68rem", color: "var(--text-muted)", display: "flex", alignItems: "stretch" }}>
+
+      {/* Chevron — colapsa toda la leyenda */}
+      <button
+        onClick={onToggleLegend}
+        title={showLegend ? "Ocultar leyenda" : "Mostrar leyenda"}
+        style={{
+          background: "none", border: "none",
+          cursor: "pointer", padding: "0.6rem 0.9rem",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          color: "var(--text-ghost)", flexShrink: 0,
+          transition: "color 0.15s",
+        }}
+        onMouseEnter={e => e.currentTarget.style.color = "var(--text-muted)"}
+        onMouseLeave={e => e.currentTarget.style.color = "var(--text-ghost)"}
+      >
+        <ChevronIcon open={showLegend} />
+      </button>
+
+      {/* Contenido colapsable */}
+      <div style={{
+        overflow: "hidden",
+        maxHeight: showLegend ? "120px" : "0px",
+        transition: "max-height 0.25s ease",
+        flex: 1,
+      }}>
+        {/* Estados */}
+        <div style={{ padding: "0.55rem 1rem 0.55rem 0", display: "flex", gap: "1.25rem", flexWrap: "wrap", alignItems: "center" }}>
+          {Object.entries(STATUS).map(([key, s]) => (
+            <span key={key} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <span style={{ width: 7, height: 7, borderRadius: "50%", background: s.dot, display: "inline-block" }} />
+              <span style={{ color: s.color }}>{s.label}</span>
+            </span>
+          ))}
+        </div>
+
+        {/* Flechas — con su propio toggle */}
+        <div style={{ padding: "0.4rem 1rem 0.9rem 0", display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+          {arrowItems.map(({ key, Arrow, color, label }) => (
+            <span key={key} style={{ display: "flex", alignItems: "center", gap: 5, opacity: usedTypes[key] ? 1 : 0.25, transition: "opacity 0.2s" }}>
+              <Arrow color={color} /> {label}
+            </span>
+          ))}
+        </div>
       </div>
-      <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
-        <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <SolidArrow color="#D97706" /> Regulares necesarias para cursar
-        </span>
-        <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <SolidArrow color="#059669" /> Aprobadas necesarias para cursar
-        </span>
-        <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <DashArrow color="#06B6D4" /> Regulares necesarias para aprobación
-        </span>
-        <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <DashArrow color="#7C3AED" /> Aprobadas necesarias para aprobación
-        </span>
-      </div>
+
+      {/* Preview cuando leyenda colapsada */}
+      {!showLegend && (
+        <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0 1rem", opacity: 0.5 }}>
+          {Object.values(STATUS).map((s, i) => (
+            <span key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: s.dot, display: "inline-block", flexShrink: 0 }} />
+          ))}
+          <span style={{ width: 1, height: 12, background: "var(--border-soft)", flexShrink: 0 }} />
+          {arrowItems.map(({ key, Arrow, color }) => (
+            <span key={key} style={{ opacity: usedTypes[key] ? 1 : 0.3 }}>
+              <Arrow color={color} />
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

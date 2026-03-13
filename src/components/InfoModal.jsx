@@ -1,6 +1,93 @@
 import React from 'react';
 import { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
+
+function ExtraModal({ open, onClose }) {
+  const { dalton, toggleDalton } = useTheme();
+  const [visible, setVisible] = useState(false);
+  const [animating, setAnimating] = useState(false);
+
+  React.useEffect(() => {
+    if (open) { setVisible(true); setAnimating(false); }
+    else if (visible) {
+      setAnimating(true);
+      const t = setTimeout(() => { setVisible(false); setAnimating(false); }, 180);
+      return () => clearTimeout(t);
+    }
+  }, [open]);
+
+  if (!visible) return null;
+  const closing = animating && !open;
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 1100,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      padding: "1rem",
+      animation: closing ? "fadeOut 0.18s ease forwards" : "fadeIn 0.15s ease",
+    }}>
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "var(--modal-backdrop)", backdropFilter: "blur(3px)" }} />
+      <div style={{
+        position: "relative", zIndex: 1,
+        background: "var(--bg)", border: "1px solid var(--border)",
+        borderRadius: "12px", padding: "1.25rem 1.5rem",
+        width: "100%", maxWidth: "300px",
+        animation: closing ? "modalOut 0.18s ease forwards" : "popUp 0.2s ease",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.18)",
+      }}>
+        <button
+          onClick={onClose}
+          style={{
+            position: "absolute", top: "0.75rem", right: "0.75rem",
+            background: "var(--bg-elevated)", border: "none",
+            width: 26, height: 26, borderRadius: "6px",
+            cursor: "pointer", fontSize: "0.8rem", color: "var(--text-muted)",
+          }}
+        >✕</button>
+
+        <p style={{ fontSize: "0.6rem", letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-muted)", fontFamily: "'DM Mono', monospace", marginBottom: "1rem", marginTop: 0 }}>
+          Extra
+        </p>
+
+        <button
+          onClick={toggleDalton}
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            width: "100%", background: "var(--bg-elevated)",
+            border: "1px solid var(--border)", borderRadius: "8px",
+            padding: "0.6rem 0.8rem", cursor: "pointer",
+            transition: "background 0.15s", boxSizing: "border-box",
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
+          onMouseLeave={e => e.currentTarget.style.background = "var(--bg-elevated)"}
+        >
+          <span style={{ fontSize: "0.78rem", color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            👁 Modo daltonismo
+          </span>
+          <span style={{
+            width: "36px", height: "20px", borderRadius: "10px",
+            background: dalton ? "var(--btn-primary-bg)" : "var(--border)",
+            position: "relative", display: "inline-block",
+            transition: "background 0.2s", flexShrink: 0,
+          }}>
+            <span style={{
+              position: "absolute", top: "3px",
+              left: dalton ? "19px" : "3px",
+              width: "14px", height: "14px", borderRadius: "50%",
+              background: dalton ? "var(--btn-primary-fg)" : "var(--bg-card)",
+              transition: "left 0.2s",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+            }} />
+          </span>
+        </button>
+
+        <p style={{ fontSize: "0.62rem", color: "var(--text-faint)", margin: "0.6rem 0 0", lineHeight: 1.5 }}>
+          Reemplaza los colores de los estados por una paleta optimizada para daltonismo rojo-verde (deuteranopía/protanopía).
+        </p>
+      </div>
+    </div>
+  );
+}
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 import Modal from "./Modal";
@@ -61,6 +148,7 @@ function PrivacyModal({ open, onClose }) {
 export default function InfoModal() {
   const [open, setOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [extraOpen, setExtraOpen] = useState(false);
   const { dark, toggle } = useTheme();
   const { session } = useAuth();
   const [deleteStep, setDeleteStep] = useState(0); // 0: idle, 1: confirm, 2: deleting
@@ -328,7 +416,7 @@ export default function InfoModal() {
           <p style={{ fontSize: "0.62rem", color: "var(--text-ghost)", margin: "0.25rem 0 0", textAlign: "center", fontFamily: "'DM Mono', monospace" }}>
             v1.3 · {new Date().getFullYear()}
           </p>
-          <p style={{ fontSize: "0.62rem", margin: "0.4rem 0 0", textAlign: "center" }}>
+          <p style={{ fontSize: "0.62rem", margin: "0.4rem 0 0", textAlign: "center", display: "flex", gap: "0.75rem", justifyContent: "center" }}>
             <button
               onClick={() => setPrivacyOpen(true)}
               style={{
@@ -340,11 +428,23 @@ export default function InfoModal() {
             >
               Privacidad
             </button>
+            <button
+              onClick={() => setExtraOpen(true)}
+              style={{
+                background: "none", border: "none", padding: 0, cursor: "pointer",
+                color: "var(--text-faint)", fontSize: "0.62rem",
+                fontFamily: "'DM Mono', monospace",
+                textDecoration: "underline", textUnderlineOffset: "2px",
+              }}
+            >
+              Extra
+            </button>
           </p>
         </div>
       </Modal>
 
       <PrivacyModal open={privacyOpen} onClose={() => setPrivacyOpen(false)} />
+      <ExtraModal open={extraOpen} onClose={() => setExtraOpen(false)} />
     </>
   );
 }

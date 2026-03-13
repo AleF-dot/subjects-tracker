@@ -35,6 +35,7 @@ export default function App() {
   });
 
   const [selectedId, setSelectedId] = useState(null);
+  const [showLegend, setShowLegend] = useState(true);
   const [modalOpen, setModalOpen]   = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [editingSubject, setEditingSubject] = useState(null);
@@ -82,7 +83,7 @@ export default function App() {
     return true;
   });
 
-  const { arrows, animKey, exiting, clipRect } = useArrows({
+  const { arrows, animKey, exiting, clipRect, svgRef } = useArrows({
     selectedId,
     correlatives: filteredCorrelatives,
     cardRefs,
@@ -196,7 +197,7 @@ export default function App() {
   return (
     <>
       <GlobalStyles />
-      <ArrowOverlay arrows={arrows} animKey={animKey} exiting={exiting} clipRect={clipRect} />
+      <ArrowOverlay arrows={arrows} animKey={animKey} exiting={exiting} clipRect={clipRect} svgRef={svgRef} />
 
       <div style={{ minHeight: "100vh", background: "var(--bg-card)" }}>
         <Header
@@ -206,7 +207,7 @@ export default function App() {
           onNewSubject={() => { setEditingSubject(null); setModalOpen(true); }}
         />
 
-        <Legend />
+        <Legend showLegend={showLegend} onToggleLegend={() => setShowLegend(v => !v)} allSubjects={allSubjects} />
 
         <main style={{ padding: "2rem", paddingBottom: "4rem" }}>
           {allSubjects.length === 0 ? (
@@ -235,6 +236,7 @@ export default function App() {
                   newIds={newIds}
                   exitingIds={exitingIds}
                   onReorder={(fromIndex, toIndex) => reorderSubjects(year.id, fromIndex, toIndex)}
+                  onDragStart={() => { setMenuAnchor({ subjectId: null, el: null }); setSelectedId(null); }}
                 />
               ))}
             </div>

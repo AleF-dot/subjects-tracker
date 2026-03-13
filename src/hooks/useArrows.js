@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useLayoutEffect, useEffect, useMemo } from "react";
-import { resolveArrowPoints } from "../utils/arrowHelpers";
+import { resolveArrowPoints, buildPath, estimateLen } from "../utils/arrowHelpers";
 
 const EXIT_DURATION = 350;
 
@@ -7,27 +7,26 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
   const [arrows, setArrows]   = useState([]);
   const [exiting, setExiting] = useState(false);
   const [animKey, setAnimKey] = useState(0);
-  const [clipRect, setClipRect] = useState(null); // rect del scroll container en viewport space
-  const rafRef        = useRef(null);
-  const exitTimerRef  = useRef(null);
+  const [clipRect, setClipRect] = useState(null);
+  const rafRef         = useRef(null);
+  const exitTimerRef   = useRef(null);
   const filterTimerRef = useRef(null);
+  const svgRef         = useRef(null); // ref al SVG — para mutación directa en scroll
+  const arrowsRef      = useRef([]);   // arrows actuales con arcOffset incluido
 
   const correlativesRef = useRef(correlatives);
   useEffect(() => { correlativesRef.current = correlatives; }, [correlatives]);
 
-  const prevSelectedRef = useRef(selectedId);
-
+  const prevSelectedRef  = useRef(selectedId);
   const filterKey = correlatives.map(c => `${c.subjectId}-${c.forFinal ? "f" : "c"}`).join(",");
   const prevFilterKeyRef = useRef(filterKey);
 
   const computeArrows = useCallback(() => {
     const corrs = correlativesRef.current;
     if (!selectedId || corrs.length === 0) { setArrows([]); return; }
-
     const getPoint = (id) => dotRefs?.current?.[id] ?? cardRefs.current[id] ?? null;
     const targetEl = getPoint(selectedId);
     if (!targetEl) { setArrows([]); return; }
-
     const next = corrs.map(c => {
       const el = getPoint(c.subjectId);
       if (!el) return null;
@@ -35,49 +34,34 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
       const uid = `${selectedId}-${c.subjectId}-${c.forFinal ? "final" : "cursar"}`;
       return { id: uid, corrId: c.subjectId, forFinal: c.forFinal ?? false, x1, y1, x2, y2, dir, rightEdge1, rightEdge2, type: c.type };
     }).filter(Boolean);
-
     setArrows(next);
   }, [selectedId, cardRefs, dotRefs]);
 
-  // Effect principal: cambio de selección
   useLayoutEffect(() => {
     const prev = prevSelectedRef.current;
     prevSelectedRef.current = selectedId;
     prevFilterKeyRef.current = filterKey;
-
     clearTimeout(exitTimerRef.current);
     clearTimeout(filterTimerRef.current);
     cancelAnimationFrame(rafRef.current);
-
     if (!selectedId) {
       if (prev && arrows.length > 0) {
         setExiting(true);
-        exitTimerRef.current = setTimeout(() => {
-          setArrows([]);
-          setExiting(false);
-        }, EXIT_DURATION);
+        exitTimerRef.current = setTimeout(() => { setArrows([]); setExiting(false); }, EXIT_DURATION);
       }
       return;
     }
-
     setExiting(false);
     updateClipRect();
-    rafRef.current = requestAnimationFrame(() => {
-      computeArrows();
-      setAnimKey(k => k + 1);
-    });
+    rafRef.current = requestAnimationFrame(() => { computeArrows(); setAnimKey(k => k + 1); });
     return () => cancelAnimationFrame(rafRef.current);
   }, [selectedId]); // eslint-disable-line react-hooks/exhaustive-deps
-  // Intencional: este effect maneja exclusivamente el cambio de selección.
-  // computeArrows y updateClipRect son estables (useCallback); arrows se lee
-  // directamente del estado en el momento de ejecución. Agregarlos causaría
-  // re-animaciones no deseadas ante cambios de filtro (manejados en el effect secundario).
+
   useLayoutEffect(() => {
     if (!selectedId) return;
     if (filterKey === prevFilterKeyRef.current) return;
     prevFilterKeyRef.current = filterKey;
     correlativesRef.current = correlatives;
-
     clearTimeout(filterTimerRef.current);
     cancelAnimationFrame(rafRef.current);
     setExiting(true);
@@ -87,9 +71,58 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
       rafRef.current = requestAnimationFrame(() => { computeArrows(); });
     }, EXIT_DURATION);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // Intencional: computeArrows es estable (useCallback) y correlatives se lee via
-  // correlativesRef para evitar que su referencia sea una dep que dispare este effect.
   }, [filterKey, selectedId]);
+
+  // Mutación directa del SVG durante scroll — sin pasar por React state
+  const mutateSvgPaths = useCallback(() => {
+    const svg = svgRef.current;
+    if (!svg || !selectedId) return;
+
+    const currentArrows = arrowsRef.current;
+    if (!currentArrows.length) return;
+
+    const getPoint = (id) => dotRefs?.current?.[id] ?? cardRefs.current[id] ?? null;
+    const targetEl = getPoint(selectedId);
+    if (!targetEl) return;
+
+    // Actualizar clipRect del clipPath directamente
+    const scrollEl = scrollContainerRef?.current;
+    if (scrollEl) {
+      const r = scrollEl.getBoundingClientRect();
+      const clipRectEl = svg.querySelector("#arrow-clip rect");
+      if (clipRectEl) {
+        clipRectEl.setAttribute("x", r.left);
+        clipRectEl.setAttribute("y", r.top);
+        clipRectEl.setAttribute("width", r.right - r.left);
+        clipRectEl.setAttribute("height", r.bottom - r.top);
+      }
+    }
+
+    // Actualizar cada path usando los arrows actuales (con arcOffset correcto)
+    currentArrows.forEach(a => {
+      const el = getPoint(a.corrId);
+      if (!el) return;
+      const { x1, y1, x2, y2, dir, rightEdge1, rightEdge2 } = resolveArrowPoints(el, targetEl);
+      const arcOffset = a.arcOffset ?? 0;
+      const pathD = buildPath(x1, y1, x2, y2, dir, rightEdge1, rightEdge2, arcOffset);
+      const len   = estimateLen(x1, y1, x2, y2, dir);
+
+      svg.querySelectorAll(`[data-arrow-id="${a.id}"]`).forEach(path => {
+        path.setAttribute("d", pathD);
+        if (path.hasAttribute("stroke-dasharray") && path.getAttribute("stroke-dasharray") !== "5 4") {
+          path.setAttribute("stroke-dasharray", len);
+          path.setAttribute("stroke-dashoffset", "0");
+        }
+      });
+    });
+  }, [selectedId, cardRefs, dotRefs, scrollContainerRef]);
+
+  const updateClipRect = useCallback(() => {
+    const el = scrollContainerRef?.current;
+    if (!el) { setClipRect(null); return; }
+    const r = el.getBoundingClientRect();
+    setClipRect({ left: r.left, top: r.top, right: r.right, bottom: r.bottom });
+  }, [scrollContainerRef]);
 
   const recomputePositions = useCallback(() => {
     const corrs = correlativesRef.current;
@@ -100,27 +133,48 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
     setArrows(prev => prev.map(a => {
       const el = getPoint(a.corrId);
       if (!el) return a;
-      const corr = corrs.find(c => c.subjectId === a.corrId && (c.forFinal ?? false) === a.forFinal);
       const { x1, y1, x2, y2, dir, rightEdge1, rightEdge2 } = resolveArrowPoints(el, targetEl);
       return { ...a, x1, y1, x2, y2, dir, rightEdge1, rightEdge2 };
     }));
   }, [selectedId, cardRefs, dotRefs]);
 
-  const updateClipRect = useCallback(() => {
-    const el = scrollContainerRef?.current;
-    if (!el) { setClipRect(null); return; }
-    const r = el.getBoundingClientRect();
-    setClipRect({ left: r.left, top: r.top, right: r.right, bottom: r.bottom });
-  }, [scrollContainerRef]);
-
-  // ResizeObserver para grid
+  // Scroll: mutación directa del DOM (sin lag de React) + recompute para sincronizar state
   useEffect(() => {
-    const onResize = () => {
+    const onScroll = () => {
+      // Mutación directa — sin pasar por React, sin lag
+      mutateSvgPaths();
+    };
+    const onScrollEnd = () => {
+      // Al terminar el scroll, sincronizar el state de React
       cancelAnimationFrame(rafRef.current);
       rafRef.current = requestAnimationFrame(() => {
         recomputePositions();
         updateClipRect();
       });
+    };
+
+    const scrollEl = scrollContainerRef?.current;
+    window.addEventListener("scroll", onScroll, { passive: true });
+    document.querySelector("main")?.addEventListener("scroll", onScroll, { passive: true });
+    if (scrollEl) scrollEl.addEventListener("scroll", onScroll, { passive: true });
+
+    window.addEventListener("scrollend", onScrollEnd, { passive: true });
+    if (scrollEl) scrollEl.addEventListener("scrollend", onScrollEnd, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      document.querySelector("main")?.removeEventListener("scroll", onScroll);
+      if (scrollEl) scrollEl.removeEventListener("scroll", onScroll);
+      window.removeEventListener("scrollend", onScrollEnd);
+      if (scrollEl) scrollEl.removeEventListener("scrollend", onScrollEnd);
+    };
+  }, [mutateSvgPaths, recomputePositions, updateClipRect, scrollContainerRef]);
+
+  // ResizeObserver
+  useEffect(() => {
+    const onResize = () => {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => { recomputePositions(); updateClipRect(); });
     };
     const ro = new ResizeObserver(onResize);
     if (gridRef.current) ro.observe(gridRef.current);
@@ -128,39 +182,13 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
     return () => { ro.disconnect(); window.removeEventListener("resize", onResize); };
   }, [recomputePositions, updateClipRect, gridRef]);
 
-  // Scroll listeners — window, main, y el scroll container horizontal
-  useEffect(() => {
-    const fn = () => {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => {
-        recomputePositions();
-        updateClipRect();
-      });
-    };
-    const scrollEl = scrollContainerRef?.current;
-    window.addEventListener("scroll", fn, { passive: true });
-    document.querySelector("main")?.addEventListener("scroll", fn, { passive: true });
-    if (scrollEl) scrollEl.addEventListener("scroll", fn, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", fn);
-      document.querySelector("main")?.removeEventListener("scroll", fn);
-      if (scrollEl) scrollEl.removeEventListener("scroll", fn);
-    };
-  }, [recomputePositions, updateClipRect, scrollContainerRef]);
+  useEffect(() => { updateClipRect(); }, [updateClipRect, selectedId]);
 
-  // Calcular clipRect inicial y cuando cambia selectedId
-  useEffect(() => {
-    updateClipRect();
-  }, [updateClipRect, selectedId]);
-
-  // ── Arco separador para flechas con trayecto similar ────────────────
   const arcedArrows = useMemo(() => {
     if (!arrows.length) return arrows;
     const ARC_STEP = 35;
     const groups = {};
     arrows.forEach((a, i) => {
-      // Agrupa por origen y destino aproximados
-      // Agrupar por destino + fila de origen (y1 similar) — solo las que realmente se pisan
       const key = `${Math.round(a.x2/20)},${Math.round(a.y2/20)},${Math.round(a.y1/20)},${a.dir}`;
       if (!groups[key]) groups[key] = [];
       groups[key].push(i);
@@ -168,8 +196,6 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
     const result = [...arrows];
     Object.values(groups).forEach(indices => {
       if (indices.length < 2) return;
-      // La flecha más corta (origen más cercano) va recta.
-      // Las más largas se arquean hacia arriba, en orden de distancia.
       indices.sort((a, b) => Math.abs(result[a].x2 - result[a].x1) - Math.abs(result[b].x2 - result[b].x1));
       indices.forEach((idx, pos) => {
         result[idx] = { ...result[idx], arcOffset: pos === 0 ? 0 : -(pos * ARC_STEP) };
@@ -178,5 +204,7 @@ export function useArrows({ selectedId, correlatives, cardRefs, dotRefs, gridRef
     return result;
   }, [arrows]);
 
-  return { arrows: arcedArrows, animKey, exiting, clipRect };
+  arrowsRef.current = arcedArrows;
+
+  return { arrows: arcedArrows, animKey, exiting, clipRect, svgRef };
 }

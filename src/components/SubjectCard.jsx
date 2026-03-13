@@ -47,7 +47,7 @@ export default function SubjectCard({
   const filterOptions = isSelected
     ? ["T", hasCursar && "C", hasAprobar && "A"].filter(Boolean)
     : [];
-  const showBadge = filterOptions.length > 1;
+  const showBadge = hasCursar && hasAprobar;
 
   const handleBadgeClick = (e) => {
     e.stopPropagation();

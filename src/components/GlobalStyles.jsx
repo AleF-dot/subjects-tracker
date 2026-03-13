@@ -102,6 +102,10 @@ export default function GlobalStyles() {
       @keyframes panelIn    { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
       @keyframes undrawPath { from { stroke-dashoffset: 0 } to { stroke-dashoffset: var(--path-len) } }
 
+      .drag-floating {
+        transition: transform 0.15s ease-out;
+      }
+
       @keyframes cardEnter {
         0%   { opacity: 0; transform: scale(0.88) translateY(4px); }
         70%  { opacity: 1; transform: scale(1.02); }
@@ -221,6 +225,27 @@ export default function GlobalStyles() {
       .contact-row .contact-btn { flex-shrink: 0; }
       @media (max-width: 360px) {
         .contact-row .contact-btn { flex: 1 0 100%; text-align: center; }
+      }
+
+      /* ── Modo daltonismo (light) ───────────────────────────────────────
+         Deuteranopía/protanopía: reemplazamos rojo/verde por azul/naranja/violeta.
+         Disponible  → gris (sin cambio)
+         Cursando    → celeste fuerte (sin cambio, ya es azul)
+         Regular     → violeta  (era amarillo/naranja — confundible con verde)
+         Aprobada    → azul índigo  (era verde — problema principal)
+         Bloqueada   → naranja fuerte  (era rojo — confundible con verde)
+      ──────────────────────────────────────────────────────────────────── */
+      [data-theme="light"][data-dalton="true"] {
+        --status-regular-bg:    #EDE8F8; --status-regular-border:    #7C3AED; --status-regular-dot:    #6D28D9; --status-regular-color:    #3B0764;
+        --status-aprobada-bg:   #DBEAFE; --status-aprobada-border:   #1D4ED8; --status-aprobada-dot:   #1E40AF; --status-aprobada-color:   #1E3A8A;
+        --status-bloqueada-bg:  #FEF3C7; --status-bloqueada-border:  #D97706; --status-bloqueada-dot:  #B45309; --status-bloqueada-color:  #78350F;
+      }
+
+      /* ── Modo daltonismo (dark) ────────────────────────────────────────*/
+      [data-theme="dark"][data-dalton="true"] {
+        --status-regular-bg:    #2D1F5E; --status-regular-border:    #7C3AED; --status-regular-dot:    #A78BFA; --status-regular-color:    #C4B5FD;
+        --status-aprobada-bg:   #1E2A5E; --status-aprobada-border:   #3B82F6; --status-aprobada-dot:   #60A5FA; --status-aprobada-color:   #BFDBFE;
+        --status-bloqueada-bg:  #3A2200; --status-bloqueada-border:  #F59E0B; --status-bloqueada-dot:  #FBBF24; --status-bloqueada-color:  #FDE68A;
       }
     `}</style>
   );

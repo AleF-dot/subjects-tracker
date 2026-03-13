@@ -32,9 +32,7 @@ const MARKER_ID_H = {
 const EXIT_DURATION = 350;
 
 // clipRect: { left, top, right, bottom } en viewport space
-export default function ArrowOverlay({ arrows, animKey, exiting, clipRect }) {
-  if (!arrows.length) return null;
-
+export default function ArrowOverlay({ arrows, animKey, exiting, clipRect, hidden, svgRef }) {
   const totalArrows = arrows.length;
 
   // Definimos un clipPath en viewport space que coincide exactamente
@@ -49,6 +47,7 @@ export default function ArrowOverlay({ arrows, animKey, exiting, clipRect }) {
   return (
     <svg
       key={animKey}
+      ref={svgRef}
       data-arrows
       style={{
         position: "fixed",
@@ -60,6 +59,8 @@ export default function ArrowOverlay({ arrows, animKey, exiting, clipRect }) {
         overflow: "visible",
         transform: "translateZ(0)",
         willChange: "transform",
+        opacity: hidden ? 0 : 1,
+        transition: "opacity 0.2s ease",
       }}
     >
       <defs>
@@ -96,6 +97,7 @@ export default function ArrowOverlay({ arrows, animKey, exiting, clipRect }) {
             return (
               <path
                 key={a.id}
+                data-arrow-id={a.id}
                 d={path}
                 fill="none"
                 stroke={color}
@@ -119,6 +121,7 @@ export default function ArrowOverlay({ arrows, animKey, exiting, clipRect }) {
           return (
             <g key={a.id}>
               <path
+                data-arrow-id={a.id}
                 d={path}
                 fill="none"
                 stroke={color}
@@ -129,6 +132,7 @@ export default function ArrowOverlay({ arrows, animKey, exiting, clipRect }) {
                 style={{ "--path-len": len, animation }}
               />
               <path
+                data-arrow-id={a.id}
                 d={path}
                 fill="none"
                 stroke="none"
