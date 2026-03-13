@@ -48,7 +48,7 @@ export default function App() {
   const [newIds, setNewIds]         = useState(() => new Set());
   const [exitingIds, setExitingIds] = useState(() => new Set());
   const [gridKey, setGridKey]       = useState(0);
-  const [activePlanId, setActivePlanId] = useState(() => localStorage.getItem("activePlanId") || null);
+  const activePlanId = data.planId ?? null;
   // Fix: estado para confirmación de eliminar materia
   const [deleteConfirm, setDeleteConfirm] = useState(null); // { yearId, subjectId, name }
 
@@ -56,13 +56,11 @@ export default function App() {
 
   const handleClearPlan = () => {
     const ids = allSubjects.map(s => s.id);
-    if (ids.length === 0) { replaceAll(defaultData, {}); setActivePlanId(null); localStorage.removeItem("activePlanId"); showToast("Plan eliminado"); return; }
+    if (ids.length === 0) { replaceAll(defaultData, {}); showToast("Plan eliminado"); return; }
     setExitingIds(new Set(ids));
     setTimeout(() => {
       replaceAll(defaultData, {});
       setExitingIds(new Set());
-      setActivePlanId(null);
-      localStorage.removeItem("activePlanId");
       bumpGridKey();
       showToast("Plan eliminado");
     }, 400);
@@ -371,7 +369,7 @@ export default function App() {
         onClose={() => setPlanSelectorOpen(false)}
         onImport={() => { setPlanSelectorOpen(false); handleImport(); }}
         onExport={() => { handleExport(); }}
-        onLoadPlan={(plan) => { replaceAll(plan.data, {}); setActivePlanId(plan.id); localStorage.setItem("activePlanId", plan.id); showToast("Plan cargado"); bumpGridKey(); }}
+        onLoadPlan={(plan) => { replaceAll({ ...plan.data, planId: plan.id }, {}); showToast("Plan cargado"); bumpGridKey(); }}
         onClearPlan={handleClearPlan}
         hasData={allSubjects.length > 0}
       />
