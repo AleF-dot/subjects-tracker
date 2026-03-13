@@ -30,5 +30,6 @@ export function useCurriculumData({ onSyncError } = {}) {
     reorderSubjects: local.reorderSubjects,
     exportJSON:    local.exportJSON,
     importJSON:    local.importJSON,
+    replaceAll:    local.replaceAll,
   };
 }
