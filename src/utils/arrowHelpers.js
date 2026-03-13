@@ -17,7 +17,6 @@ export function buildPath(x1, y1, x2, y2, dir, rightEdge1, rightEdge2, arcOffset
   if (dir === "ltr") {
     const span = Math.abs(x2 - x1);
     const ctrl = Math.max(span * 0.35, 50);
-    // Con arcOffset: ctrl points desplazados verticalmente para un arco suave
     return `M ${ox} ${y1} C ${ox + ctrl} ${y1 + ao}, ${ix - ctrl} ${y2 + ao}, ${ix} ${y2}`;
   }
 
@@ -50,24 +49,24 @@ export function resolveArrowPoints(corrDotEl, targetDotEl, containerEl) {
   const c = elInfo(corrDotEl);
   const t = elInfo(targetDotEl);
 
-  // Si hay container, convertir a coordenadas relativas al container
-  // para que el SVG pueda vivir en position:absolute y scrollear nativo
-  let ox = 0, oy = 0;
+  // Convertir coordenadas de viewport a coordenadas dentro del contenido del container.
+  // El SVG está en position:absolute dentro del container con overflow:auto,
+  // por lo que las coords deben ser relativas al origen del contenido scrolleable.
+  //
+  // viewport_pos = content_pos + container_rect.top - scrollTop
+  // => content_pos = viewport_pos - container_rect.top + scrollTop
+  let offX = 0, offY = 0;
   if (containerEl) {
     const cr = containerEl.getBoundingClientRect();
-    ox = cr.left - containerEl.scrollLeft;
-    oy = cr.top - containerEl.scrollTop;
-    // Ajustar también por el scroll del window
-    oy += window.scrollY;
+    offX = cr.left - containerEl.scrollLeft;
+    offY = cr.top  - containerEl.scrollTop;
   }
 
-  const cx = c.x - (containerEl ? ox : 0);
-  const cy = c.y - (containerEl ? oy : 0);
-  const tx = t.x - (containerEl ? ox : 0);
-  const ty = t.y - (containerEl ? oy : 0);
-  const crx = c.rx - (containerEl ? ox : 0);
-  const trx = t.x - DOT_RADIUS - MARKER_LEN - (containerEl ? ox : 0);
-  const tlx = t.x - DOT_RADIUS - MARKER_LEN - (containerEl ? ox : 0);
+  const cx  = c.x  - offX;
+  const cy  = c.y  - offY;
+  const tx  = t.x  - offX;
+  const ty  = t.y  - offY;
+  const crx = c.rx - offX;
 
   let dir;
   const SAME_THRESHOLD = 60;
@@ -77,7 +76,7 @@ export function resolveArrowPoints(corrDotEl, targetDotEl, containerEl) {
 
   const x1 = crx;
   const y1 = cy;
-  const x2 = dir === "same" ? tx + DOT_RADIUS + MARKER_LEN : tlx;
+  const x2 = dir === "same" ? tx + DOT_RADIUS + MARKER_LEN : tx - DOT_RADIUS - MARKER_LEN;
   const y2 = ty;
 
   return { x1, y1, x2, y2, rightEdge1: x1, rightEdge2: x2, dir };
