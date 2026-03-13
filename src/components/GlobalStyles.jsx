@@ -29,11 +29,11 @@ export default function GlobalStyles() {
         /* status */
         --status-disponible-bg: #C8C4BC; --status-disponible-border: #888078; --status-disponible-dot: #888078; --status-disponible-color: #403830;
         --status-cursando-bg:   #A8C4DE; --status-cursando-border:   #4070A0; --status-cursando-dot:   #4070A0; --status-cursando-color:   #0A2848;
-        --status-regular-bg:    #F5C842; --status-regular-border:    #C89000; --status-regular-dot:    #C89000; --status-regular-color:    #4A3000;
+        --status-regular-bg:    #F5D060; --status-regular-border:    #C89000; --status-regular-dot:    #C89000; --status-regular-color:    #4A3000;
         --status-aprobada-bg:   #70C090; --status-aprobada-border:   #287848; --status-aprobada-dot:   #287848; --status-aprobada-color:   #0A3020;
         --status-bloqueada-bg:  #D88888; --status-bloqueada-border:  #A03030; --status-bloqueada-dot:  #A03030; --status-bloqueada-color:  #400808;
         /* highlight */
-        --hl-regular-border:      #C89000; --hl-regular-bg:      #F5C842;
+        --hl-regular-border:      #C89000; --hl-regular-bg:      #F5D060;
         --hl-aprobada-border:     #287848; --hl-aprobada-bg:     #70C090;
         --hl-final-reg-border:    #1090B0; --hl-final-reg-bg:    #C0E8F4;
         --hl-final-apr-border:    #6030C0; --hl-final-apr-bg:    #DDD0F4;
