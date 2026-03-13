@@ -1,4 +1,4 @@
-# Mi Currícula
+# Tracker académico
 
 Tracker visual de plan de estudios universitario. Permite seguir el estado de cada materia, visualizar correlatividades y gestionar el progreso a lo largo de la carrera.
 

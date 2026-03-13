@@ -71,7 +71,7 @@ const ISI_UTN_SUBJECTS = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// UNR FCA — Ingeniería Agronómica — Plan 2023 (Res. C.S. Nº 416/2023)
+// UNR FCA — Ingeniería Agronómica — Plan 2023
 // 4 columnas: cursar/regular | cursar/aprobada | rendir/regular | rendir/aprobada
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -664,7 +664,7 @@ export const PLANES = [
     id: "unr-fca-agr-2023",
     universidad: "UNR",
     carrera: "Ingeniería Agronómica",
-    plan: "Plan 2023 · Res. C.S. Nº 416",
+    plan: "Plan 2023",
     data: buildPlanData(AGR_UNR_SUBJECTS),
   },
   {

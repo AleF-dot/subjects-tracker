@@ -6,7 +6,7 @@ export default function Header({ counts, onSelectPlan, onNewSubject }) {
     <header style={{ borderBottom: "1px solid #D5D0C8", padding: "1.5rem 2rem", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
       <div>
         <div style={{ fontSize: "0.65rem", letterSpacing: "0.18em", color: "var(--text-faint)", textTransform: "uppercase", marginBottom: "0.3rem", fontFamily: "'DM Mono', monospace" }}>
-          Gestión académica de
+          Tracker académico de
         </div>
         <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.6rem, 4vw, 2.2rem)", fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1 }}>
           Materias

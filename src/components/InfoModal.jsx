@@ -424,7 +424,7 @@ export default function InfoModal() {
           </>)}
 
           <p style={{ fontSize: "0.62rem", color: "var(--text-ghost)", margin: "0.25rem 0 0", textAlign: "center", fontFamily: "'DM Mono', monospace" }}>
-            v1.3 · {new Date().getFullYear()}
+            v1.4 · {new Date().getFullYear()}
           </p>
           <p style={{ fontSize: "0.62rem", margin: "0.4rem 0 0", textAlign: "center", display: "flex", gap: "0.75rem", justifyContent: "center" }}>
             <button

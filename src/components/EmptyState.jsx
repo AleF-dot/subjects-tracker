@@ -45,7 +45,7 @@ export default function EmptyState({ onSelectPlan, onNewSubject }) {
           fontSize: "0.72rem", color: "var(--text-ghost)",
           fontFamily: "'DM Mono', monospace",
         }}>
-          o
+          o crealo
         </span>
 
         <button
