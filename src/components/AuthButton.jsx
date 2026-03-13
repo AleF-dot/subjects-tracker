@@ -27,8 +27,15 @@ const SYNC_DOT = {
 export default function AuthButton({ showToast, syncStatus = "idle", forceOpen = false, onForceOpenHandled }) {
   const { session } = useAuth();
   const [open, setOpen] = useState(false);
-  // Fix: confirmación de logout
   const [confirmLogout, setConfirmLogout] = useState(false);
+  const [confirmVisible, setConfirmVisible] = useState(false);
+  const [confirmClosing, setConfirmClosing] = useState(false);
+
+  const openConfirm = () => { setConfirmVisible(true); setConfirmClosing(false); setConfirmLogout(true); };
+  const closeConfirm = () => {
+    setConfirmClosing(true);
+    setTimeout(() => { setConfirmLogout(false); setConfirmVisible(false); setConfirmClosing(false); }, 180);
+  };
 
   useEffect(() => {
     if (forceOpen) {
@@ -55,7 +62,7 @@ export default function AuthButton({ showToast, syncStatus = "idle", forceOpen =
   }, [syncStatus]);
 
   const handleLogout = async () => {
-    setConfirmLogout(false);
+    closeConfirm();
     await supabase.auth.signOut();
     showToast?.("Sesión cerrada", "error");
   };
@@ -66,7 +73,7 @@ export default function AuthButton({ showToast, syncStatus = "idle", forceOpen =
   return (
     <>
       <button
-        onClick={isLoggedIn ? () => setConfirmLogout(true) : () => setOpen(true)}
+        onClick={isLoggedIn ? openConfirm : () => setOpen(true)}
         title={isLoggedIn ? "Cerrar sesión" : "Iniciar sesión"}
         style={{
           position: "fixed", bottom: "1rem", right: "1rem", zIndex: 600,
@@ -104,15 +111,14 @@ export default function AuthButton({ showToast, syncStatus = "idle", forceOpen =
         )}
       </button>
 
-      {/* Fix: modal de confirmación de logout */}
       {confirmLogout && (
         <div style={{
           position: "fixed", inset: 0, zIndex: 1200,
           display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem",
-          animation: "fadeIn 0.15s ease",
+          animation: confirmClosing ? "fadeOut 0.18s ease forwards" : "fadeIn 0.15s ease",
         }}>
           <div
-            onClick={() => setConfirmLogout(false)}
+            onClick={closeConfirm}
             style={{ position: "fixed", inset: 0, background: "var(--modal-backdrop)", backdropFilter: "blur(3px)" }}
           />
           <div style={{
@@ -120,17 +126,14 @@ export default function AuthButton({ showToast, syncStatus = "idle", forceOpen =
             background: "var(--bg)", border: "1px solid var(--border)",
             borderRadius: "12px", padding: "1.5rem",
             width: "100%", maxWidth: "300px",
-            animation: "popUp 0.2s ease",
+            animation: confirmClosing ? "modalOut 0.18s ease forwards" : "popUp 0.2s ease",
             boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
           }}>
-            <p style={{ fontSize: "0.85rem", color: "var(--text-primary)", fontWeight: 600, margin: "0 0 0.4rem" }}>
+            <p style={{ fontSize: "0.85rem", color: "var(--text-primary)", fontWeight: 600, margin: "0 0 1.25rem" }}>
               ¿Cerrar sesión?
             </p>
-            <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", lineHeight: 1.6, margin: "0 0 1.25rem" }}>
-              {session?.user?.email}
-            </p>
             <div style={{ display: "flex", gap: "0.5rem" }}>
-              <button className="btn-ghost" onClick={() => setConfirmLogout(false)} style={{ flex: 1 }}>Cancelar</button>
+              <button className="btn-ghost" onClick={closeConfirm} style={{ flex: 1 }}>Cancelar</button>
               <button
                 onClick={handleLogout}
                 style={{

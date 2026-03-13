@@ -20,6 +20,7 @@ import { useAuth } from "./context/AuthContext";
 import { useArrows }         from "./hooks/useArrows";
 import { useToast }          from "./hooks/useToast";
 import { computeAllowedStatuses } from "./utils/statusLogic";
+import { PLANES } from "./data/planes";
 import { defaultData, STATUS } from "./utils/constants";
 
 export default function App() {
@@ -46,8 +47,26 @@ export default function App() {
   const [arrowFilter, setArrowFilter] = useState("T");
   const [newIds, setNewIds]         = useState(() => new Set());
   const [exitingIds, setExitingIds] = useState(() => new Set());
+  const [gridKey, setGridKey]       = useState(0);
+  const [activePlanId, setActivePlanId] = useState(() => localStorage.getItem("activePlanId") || null);
   // Fix: estado para confirmación de eliminar materia
   const [deleteConfirm, setDeleteConfirm] = useState(null); // { yearId, subjectId, name }
+
+  const bumpGridKey = () => setGridKey(k => k + 1);
+
+  const handleClearPlan = () => {
+    const ids = allSubjects.map(s => s.id);
+    if (ids.length === 0) { replaceAll(defaultData, {}); setActivePlanId(null); localStorage.removeItem("activePlanId"); showToast("Plan eliminado"); return; }
+    setExitingIds(new Set(ids));
+    setTimeout(() => {
+      replaceAll(defaultData, {});
+      setExitingIds(new Set());
+      setActivePlanId(null);
+      localStorage.removeItem("activePlanId");
+      bumpGridKey();
+      showToast("Plan eliminado");
+    }, 400);
+  };
 
   useEffect(() => { if (passwordRecovery) setAuthModalOpen(true); }, [passwordRecovery]);
 
@@ -174,7 +193,7 @@ export default function App() {
       deleteSubject(yearId, subjectId);
       setExitingIds(s => { const n = new Set(s); n.delete(subjectId); return n; });
       showToast("Materia eliminada", "error");
-    }, 280);
+    }, 300);
   };
 
   const handleAdd = (payload) => {
@@ -198,7 +217,7 @@ export default function App() {
   };
 
   const handleImport = () => importJSON(
-    () => { setSelectedId(null); showToast("Plan importado"); },
+    () => { setSelectedId(null); showToast("Plan importado"); bumpGridKey(); },
     () => showToast("Archivo inválido", "error")
   );
 
@@ -235,11 +254,12 @@ export default function App() {
            */
           <div ref={scrollContainerRef} style={{ overflowX: "auto", overflowY: "hidden", padding: "4px 4px", WebkitOverflowScrolling: "touch", position: "relative" }}>
             <ArrowOverlay arrows={arrows} animKey={animKey} exiting={exiting} svgRef={svgRef} containerRef={scrollContainerRef} />
-            <div ref={gridRef} style={{ display: "grid", gridTemplateColumns: `repeat(${data.years.filter(y => y.subjects.length > 0).length}, minmax(160px, 1fr))`, gap: "1.75rem", minWidth: `${data.years.filter(y => y.subjects.length > 0).length * 180}px`, animation: "gridFadeIn 0.35s ease both" }}>
-              {data.years.filter(y => y.subjects.length > 0).map((year) => (
+            <div key={gridKey} ref={gridRef} style={{ display: "grid", gridTemplateColumns: `repeat(${data.years.filter(y => y.subjects.length > 0).length}, minmax(160px, 1fr))`, gap: "1.75rem", minWidth: `${data.years.filter(y => y.subjects.length > 0).length * 180}px` }}>
+              {data.years.filter(y => y.subjects.length > 0).map((year, colIndex) => (
                 <YearColumn
                   key={year.id}
                   year={year}
+                  colIndex={colIndex}
                   selectedId={selectedId}
                   highlightMap={highlightMap}
                   dimmedIds={dimmedIds}
@@ -284,6 +304,7 @@ export default function App() {
         onResolve={(choice) => {
           resolveMerge(choice);
           showToast(choice === "local" ? "Usando plan local" : "Usando plan de la nube");
+          bumpGridKey();
         }}
       />
 
@@ -299,6 +320,28 @@ export default function App() {
           <InfoModal />
         </div>
       </div>
+
+      {allSubjects.length > 0 && (() => {
+        const match = PLANES.find(p => p.id === activePlanId);
+        const label = match ? match.carrera : "Personalizado";
+        return (
+          <div style={{
+            position: "fixed", bottom: "1rem", left: "1rem", zIndex: 1500,
+            pointerEvents: "none",
+          }}>
+            <div style={{
+              fontSize: "0.62rem", fontFamily: "'DM Mono', monospace",
+              color: "var(--text-ghost)",
+              letterSpacing: "0.04em",
+              lineHeight: 1.4,
+            }}>
+              <span style={{ color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Plan actual</span>
+              <br />
+              <span style={{ color: "var(--text-muted)", fontSize: "0.65rem" }}>{label}</span>
+            </div>
+          </div>
+        );
+      })()}
 
       {menuAnchor.subjectId && menuAnchor.el && (() => {
         const sid     = menuAnchor.subjectId;
@@ -328,8 +371,8 @@ export default function App() {
         onClose={() => setPlanSelectorOpen(false)}
         onImport={() => { setPlanSelectorOpen(false); handleImport(); }}
         onExport={() => { handleExport(); }}
-        onLoadPlan={(plan) => { replaceAll(plan.data, {}); showToast("Plan cargado"); }}
-        onClearPlan={() => { replaceAll(defaultData, {}); showToast("Plan eliminado"); }}
+        onLoadPlan={(plan) => { replaceAll(plan.data, {}); setActivePlanId(plan.id); localStorage.setItem("activePlanId", plan.id); showToast("Plan cargado"); bumpGridKey(); }}
+        onClearPlan={handleClearPlan}
         hasData={allSubjects.length > 0}
       />
 

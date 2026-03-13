@@ -4,15 +4,65 @@ import SubjectCard from "./SubjectCard";
 
 const LONG_PRESS_MS = 200;
 
+function CardWrapper({ isExiting, exitDelay, waveDelay, alreadyAnimated, onAnimated, children }) {
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    if (isExiting) {
+      const frame = requestAnimationFrame(() => setCollapsed(true));
+      return () => cancelAnimationFrame(frame);
+    } else {
+      setCollapsed(false);
+    }
+  }, [isExiting]);
+
+  if (isExiting) {
+    const delay = `${exitDelay ?? 0}ms`;
+    return (
+      <div
+        style={{
+          display: "grid",
+          gridTemplateRows: collapsed ? "0fr" : "1fr",
+          transition: `grid-template-rows 0.25s ease ${delay}`,
+        }}
+        onAnimationEnd={onAnimated}
+      >
+        <div style={{
+          minHeight: 0,
+          overflow: "hidden",
+          opacity: collapsed ? 0 : 1,
+          transition: `opacity 0.15s ease ${delay}`,
+        }}>
+          {children}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        overflow: "visible",
+        animation: alreadyAnimated ? "none" : "colFadeIn 0.18s ease both",
+        animationDelay: alreadyAnimated ? undefined : waveDelay,
+      }}
+      onAnimationEnd={onAnimated}
+    >
+      {children}
+    </div>
+  );
+}
+
 export default function YearColumn({
   year, selectedId, menuOpenId, highlightMap, dimmedIds, statusMap,
   onCardClick, onChevronToggle, onSetStatus, onDelete,
   registerRef, registerDotRef, arrowFilter, onArrowFilterChange, selectedSubject,
-  newIds, exitingIds, onReorder, onDragStart,
+  newIds, exitingIds, onReorder, onDragStart, colIndex,
 }) {
   const [dragIndex,  setDragIndex]  = useState(null);
   const [overIndex,  setOverIndex]  = useState(null);
   const [dragging,   setDragging]   = useState(false);
+  const animatedIds = useRef(new Set());
   const [mousePos,   setMousePos]   = useState({ x: 0, y: 0 });
   const [cardSize,   setCardSize]   = useState({ w: 0, h: 0 });
   const [grabOffset, setGrabOffset] = useState({ x: 0, y: 0 });
@@ -21,6 +71,7 @@ export default function YearColumn({
 
   const longPressTimer = useRef(null);
   const itemRefs       = useRef([]);
+  const exitingHeightRef = useRef(0);
   const pressOrigin    = useRef(null);
   const MOVE_THRESHOLD = 6;
 
@@ -130,15 +181,26 @@ export default function YearColumn({
       return year.subjects.map((s, index) => {
         const hlEntry = highlightMap[s.id];
         const status  = statusMap[s.id] ?? "disponible";
+        const isExiting = exitingIds?.has(s.id);
+        const alreadyAnimated = animatedIds.current.has(s.id);
+        const waveDelay = `${index * 0.045 + (colIndex ?? 0) * 0.035}s`;
+        const exitDelay = isExiting ? index * 35 : 0;
         return (
-          <div
+          <CardWrapper
             key={s.id}
-            ref={el => { itemRefs.current[index] = el; }}
-            onMouseDown={e => startLongPress(index, e)}
-            onTouchStart={e => startLongPress(index, e)}
-            onMouseUp={cancelLongPress}
-            onTouchEnd={() => { cancelLongPress(); onEnd(); }}
+            isExiting={isExiting}
+            exitDelay={exitDelay}
+            waveDelay={waveDelay}
+            alreadyAnimated={alreadyAnimated}
+            onAnimated={() => { animatedIds.current.add(s.id); }}
           >
+            <div
+              ref={el => { itemRefs.current[index] = el; }}
+              onMouseDown={e => startLongPress(index, e)}
+              onTouchStart={e => startLongPress(index, e)}
+              onMouseUp={cancelLongPress}
+              onTouchEnd={() => { cancelLongPress(); onEnd(); }}
+            >
             <SubjectCard
               subject={s} status={status}
               highlighted={!!hlEntry}
@@ -151,9 +213,10 @@ export default function YearColumn({
               arrowFilter={s.id === selectedId ? arrowFilter : undefined}
               onArrowFilterChange={s.id === selectedId ? onArrowFilterChange : undefined}
               selectedSubject={s.id === selectedId ? selectedSubject : undefined}
-              isNew={newIds?.has(s.id)} isExiting={exitingIds?.has(s.id)}
+              isNew={newIds?.has(s.id)} isExiting={false}
             />
-          </div>
+            </div>
+          </CardWrapper>
         );
       });
     }
@@ -241,8 +304,14 @@ export default function YearColumn({
     : null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", minWidth: 0, flex: 1 }}>
-      <div style={{ paddingBottom: "0.5rem", borderBottom: "1px solid #D5D0C8", marginBottom: "0.25rem" }}>
+    <div style={{
+      display: "flex", flexDirection: "column", gap: "0.5rem", minWidth: 0, flex: 1,
+    }}>
+      <div style={{
+        paddingBottom: "0.5rem", borderBottom: "1px solid var(--border)", marginBottom: "0.25rem",
+        animation: "colFadeIn 0.18s ease both",
+        animationDelay: `${(colIndex ?? 0) * 0.05}s`,
+      }}>
         <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "0.95rem", fontWeight: 600 }}>{year.label}</div>
         <div style={{ fontSize: "0.65rem", color: "var(--text-faint)", marginTop: 2, fontFamily: "'DM Mono', monospace" }}>
           {year.subjects.length} materia{year.subjects.length !== 1 ? "s" : ""}

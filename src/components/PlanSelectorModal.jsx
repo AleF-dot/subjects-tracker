@@ -215,14 +215,14 @@ export default function PlanSelectorModal({ open, onClose, onImport, onExport, o
                 <button
                   onClick={() => setSuggestOpen(true)}
                   style={{
-                    background: "var(--bg-elevated)", border: "none",
+                    background: "#C13020", border: "1px solid #C13020",
                     width: 26, height: 26, borderRadius: "6px",
-                    cursor: "pointer", fontSize: "0.78rem", fontWeight: 600, color: "var(--text-muted)",
+                    cursor: "pointer", fontSize: "0.72rem", fontWeight: 700, color: "#fff",
                     fontFamily: "inherit", transition: "background 0.15s",
                   }}
-                  onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
-                  onMouseLeave={e => e.currentTarget.style.background = "var(--bg-elevated)"}
-                >?</button>
+                  onMouseEnter={e => e.currentTarget.style.background = "#A82818"}
+                  onMouseLeave={e => e.currentTarget.style.background = "#C13020"}
+                >!?</button>
                 <button onClick={onClose} style={{
                   background: "var(--bg-elevated)", border: "none",
                   width: 26, height: 26, borderRadius: "6px",
@@ -251,6 +251,20 @@ export default function PlanSelectorModal({ open, onClose, onImport, onExport, o
                     fontSize: "0.72rem", cursor: "pointer",
                     fontFamily: "inherit",
                     transition: "all 0.15s",
+                  }}
+                  onMouseEnter={e => {
+                    if (filter !== f) {
+                      e.currentTarget.style.borderColor = "var(--text-muted)";
+                      e.currentTarget.style.color = "var(--text-secondary)";
+                      e.currentTarget.style.background = "var(--bg-elevated)";
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (filter !== f) {
+                      e.currentTarget.style.borderColor = "var(--border)";
+                      e.currentTarget.style.color = "var(--text-muted)";
+                      e.currentTarget.style.background = "transparent";
+                    }
                   }}
                 >
                   {f}

@@ -3,7 +3,7 @@ import { STATUS } from "../utils/constants";
 
 export default function Header({ counts, onSelectPlan, onNewSubject }) {
   return (
-    <header style={{ borderBottom: "1px solid var(--border)", padding: "1.5rem 2rem", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
+    <header style={{ borderBottom: "1px solid var(--border)", padding: "1.5rem 2rem", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap", animation: "headerFadeIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both" }}>
       <div>
         <div style={{ fontSize: "0.65rem", letterSpacing: "0.18em", color: "var(--text-faint)", textTransform: "uppercase", marginBottom: "0.3rem", fontFamily: "'DM Mono', monospace" }}>
           Tracker académico de

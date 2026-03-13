@@ -3,11 +3,10 @@ import { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 
 const DALTON_OPTIONS = [
-  { value: "none",          label: "Sin ajuste" },
-  { value: "deuteranopia",  label: "Deuteranopía", desc: "Dificultad rojo-verde" },
-  { value: "protanopia",    label: "Protanopía",   desc: "Dificultad rojo-verde" },
-  { value: "tritanopia",    label: "Tritanopía",   desc: "Dificultad azul-amarillo" },
-  { value: "achromatopsia", label: "Acromatopsia", desc: "Sin percepción de color" },
+  { value: "none",          label: "Clásica"  },
+  { value: "oceano",        label: "Vívida"   },
+  { value: "deuteranopia",  label: "Cálida"   },
+  { value: "achromatopsia", label: "Gris"     },
 ];
 
 function ExtraModal({ open, onClose }) {
@@ -56,10 +55,6 @@ function ExtraModal({ open, onClose }) {
           onMouseLeave={e => e.currentTarget.style.background = "var(--bg-elevated)"}
         >✕</button>
 
-        <p style={{ fontSize: "0.6rem", letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-muted)", fontFamily: "'DM Mono', monospace", marginBottom: "1rem", marginTop: 0 }}>
-          Accesibilidad
-        </p>
-
         <p style={{ fontSize: "0.72rem", color: "var(--text-secondary)", margin: "0 0 0.75rem", lineHeight: 1.5 }}>
           Paleta de colores
         </p>
@@ -86,9 +81,6 @@ function ExtraModal({ open, onClose }) {
                   <span style={{ fontSize: "0.78rem", color: active ? "var(--text-primary)" : "var(--text-secondary)", fontWeight: active ? 500 : 400 }}>
                     {opt.label}
                   </span>
-                  {opt.desc && (
-                    <span style={{ fontSize: "0.62rem", color: "var(--text-faint)" }}>{opt.desc}</span>
-                  )}
                 </span>
                 {active && (
                   <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", flexShrink: 0 }}>✓</span>
@@ -135,7 +127,7 @@ function PrivacyModal({ open, onClose }) {
       <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "var(--modal-backdrop)", backdropFilter: "blur(3px)" }} />
       <div style={{
         position: "relative", zIndex: 1,
-        background: "var(--bg)", border: "1px solid #D5D0C8",
+        background: "var(--bg)", border: "1px solid var(--border)",
         borderRadius: "12px", padding: "1.25rem 1.5rem",
         width: "100%", maxWidth: "340px",
         animation: closing ? "modalOut 0.18s ease forwards" : "popUp 0.2s ease",
@@ -375,6 +367,10 @@ export default function InfoModal() {
           {session && (<>
             <hr style={{ border: "none", borderTop: "1px solid var(--border)", margin: "0.5rem 0 1.25rem" }} />
             <>
+              <p style={{ fontSize: "0.72rem", color: "var(--text-muted)", margin: "0 0 1rem", lineHeight: 1.5 }}>
+                <span style={{ fontFamily: "'DM Mono', monospace" }}>Correo de la cuenta:</span>{" "}
+                <span style={{ color: "var(--text-secondary)" }}>{session.user?.email}</span>
+              </p>
               {deleteStep === 0 && (
                 <button
                   onClick={() => setDeleteStep(1)}
@@ -430,7 +426,7 @@ export default function InfoModal() {
           </>)}
 
           <p style={{ fontSize: "0.62rem", color: "var(--text-ghost)", margin: "0.25rem 0 0", textAlign: "center", fontFamily: "'DM Mono', monospace" }}>
-            v1.4 · {new Date().getFullYear()}
+            v1.5 · {new Date().getFullYear()}
           </p>
           <p style={{ fontSize: "0.62rem", margin: "0.4rem 0 0", textAlign: "center", display: "flex", gap: "0.75rem", justifyContent: "center" }}>
             <button

@@ -17,11 +17,6 @@ export default function Modal({ open, onClose, children, title, hideClose = fals
   }, [open]);
 
   useEffect(() => {
-    document.body.style.overflow = visible ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [visible]);
-
-  useEffect(() => {
     if (!visible || !lockClose) return;
     const onKeyDown = (e) => { if (e.key === "Escape") e.stopPropagation(); };
     document.addEventListener("keydown", onKeyDown, true);
