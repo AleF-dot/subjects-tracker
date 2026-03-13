@@ -91,8 +91,21 @@ export default function Legend({ showLegend, onToggleLegend, allSubjects = [] })
         {/* Flechas */}
         <div style={{ padding: "0.4rem 1rem 0.9rem 0", display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
           {arrowItems.map(({ key, Arrow, color, label }) => (
-            <span key={key} style={{ display: "flex", alignItems: "center", gap: 5, opacity: usedTypes[key] ? 1 : 0.25, transition: "opacity 0.2s" }}>
+            <span key={key} style={{
+              display: "flex", alignItems: "center", gap: 5,
+              opacity: usedTypes[key] ? 1 : 0.35,
+              transition: "opacity 0.2s",
+              position: "relative",
+            }}>
               <Arrow color={color} /> {label}
+              {!usedTypes[key] && (
+                <span style={{
+                  position: "absolute", left: 0, right: 0,
+                  top: "50%", height: "1px",
+                  background: "var(--text-muted)",
+                  pointerEvents: "none",
+                }} />
+              )}
             </span>
           ))}
         </div>
