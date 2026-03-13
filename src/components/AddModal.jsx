@@ -193,7 +193,7 @@ export default function AddModal({ open, onClose, data, onAdd, editSubject, onEd
 
         {/* Correlativas para cursar */}
         {allSubjects.length > 0 && (
-          <div style={{ borderTop: "1px solid #E0DAD0", paddingTop: "0.85rem" }}>
+          <div style={{ borderTop: "1px solid var(--border)", paddingTop: "0.85rem" }}>
             <label style={{ ...lbl, color: "var(--text-muted)", marginBottom: "0.6rem" }}>
               Para <strong>cursar / regularizar</strong>
             </label>
@@ -203,7 +203,7 @@ export default function AddModal({ open, onClose, data, onAdd, editSubject, onEd
 
         {/* Correlativas para final */}
         {allSubjects.length > 0 && (
-          <div style={{ borderTop: "1px solid #E0DAD0", paddingTop: "0.85rem" }}>
+          <div style={{ borderTop: "1px solid var(--border)", paddingTop: "0.85rem" }}>
             <label style={{ ...lbl, color: "var(--text-muted)", marginBottom: "0.6rem" }}>
               Para <strong>aprobar</strong>
             </label>

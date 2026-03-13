@@ -46,7 +46,7 @@ export default function Modal({ open, onClose, children, title, hideClose = fals
       />
       <div style={{
         position: "relative",
-        background: "var(--bg)", border: "1px solid #D5D0C8",
+        background: "var(--bg)", border: "1px solid var(--border)",
         borderRadius: "12px", padding: "2rem",
         width: "100%", maxWidth: "480px",
         margin: "auto",
@@ -55,7 +55,10 @@ export default function Modal({ open, onClose, children, title, hideClose = fals
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
           <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.2rem" }}>{title}</h3>
-          {!hideClose && <button onClick={onClose} style={{ background: "var(--bg-elevated)", border: "none", width: 28, height: 28, borderRadius: "6px", cursor: "pointer", fontSize: "0.85rem", color: "var(--text-muted)" }}>✕</button>}
+          {!hideClose && <button onClick={onClose} style={{ background: "var(--bg-elevated)", border: "none", width: 28, height: 28, borderRadius: "6px", cursor: "pointer", fontSize: "0.85rem", color: "var(--text-muted)", transition: "background 0.15s" }}
+            onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
+            onMouseLeave={e => e.currentTarget.style.background = "var(--bg-elevated)"}
+          >✕</button>}
         </div>
         {children}
       </div>

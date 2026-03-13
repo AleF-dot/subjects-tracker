@@ -3,7 +3,7 @@ import { STATUS } from "../utils/constants";
 
 export default function Header({ counts, onSelectPlan, onNewSubject }) {
   return (
-    <header style={{ borderBottom: "1px solid #D5D0C8", padding: "1.5rem 2rem", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
+    <header style={{ borderBottom: "1px solid var(--border)", padding: "1.5rem 2rem", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
       <div>
         <div style={{ fontSize: "0.65rem", letterSpacing: "0.18em", color: "var(--text-faint)", textTransform: "uppercase", marginBottom: "0.3rem", fontFamily: "'DM Mono', monospace" }}>
           Tracker académico de
@@ -23,7 +23,7 @@ export default function Header({ counts, onSelectPlan, onNewSubject }) {
           </div>
         ))}
         <div style={{ width: 1, height: 32, background: "var(--border)" }} />
-        <div style={{ display: "flex", gap: "0.5rem" }}>
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
           <button className="btn-ghost" onClick={onSelectPlan} style={{ fontSize: "0.76rem", padding: "0.55rem 0.95rem" }}>Seleccionar plan de estudios</button>
           <button className="btn-primary" onClick={onNewSubject}>+ Agregar materia</button>
         </div>
