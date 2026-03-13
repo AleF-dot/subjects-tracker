@@ -1,7 +1,7 @@
 import React from 'react';
 import { STATUS } from "../utils/constants";
 
-export default function Header({ counts, onImport, onExport, onNewSubject, showArrows, onToggleArrows }) {
+export default function Header({ counts, onSelectPlan, onNewSubject }) {
   return (
     <header style={{ borderBottom: "1px solid #D5D0C8", padding: "1.5rem 2rem", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
       <div>
@@ -24,9 +24,8 @@ export default function Header({ counts, onImport, onExport, onNewSubject, showA
         ))}
         <div style={{ width: 1, height: 32, background: "var(--border)" }} />
         <div style={{ display: "flex", gap: "0.5rem" }}>
-          <button className="btn-ghost" onClick={onImport} style={{ fontSize: "0.76rem", padding: "0.55rem 0.95rem" }}>↓ Importar plan</button>
-          <button className="btn-ghost" onClick={onExport} style={{ fontSize: "0.76rem", padding: "0.55rem 0.95rem" }}>↑ Exportar plan</button>
-          <button className="btn-primary" onClick={onNewSubject}>+ Nueva materia</button>
+          <button className="btn-ghost" onClick={onSelectPlan} style={{ fontSize: "0.76rem", padding: "0.55rem 0.95rem" }}>Seleccionar plan de estudio</button>
+          <button className="btn-primary" onClick={onNewSubject}>+ Agregar materia</button>
         </div>
       </div>
     </header>

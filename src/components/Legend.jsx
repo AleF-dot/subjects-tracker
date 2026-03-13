@@ -74,7 +74,8 @@ export default function Legend({ showLegend, onToggleLegend, allSubjects = [] })
       <div style={{
         overflow: "hidden",
         maxHeight: showLegend ? "120px" : "0px",
-        transition: "max-height 0.25s ease",
+        opacity: showLegend ? 1 : 0,
+        transition: "max-height 0.25s ease, opacity 0.2s ease",
         flex: 1,
       }}>
         {/* Estados */}
@@ -87,7 +88,7 @@ export default function Legend({ showLegend, onToggleLegend, allSubjects = [] })
           ))}
         </div>
 
-        {/* Flechas — con su propio toggle */}
+        {/* Flechas */}
         <div style={{ padding: "0.4rem 1rem 0.9rem 0", display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
           {arrowItems.map(({ key, Arrow, color, label }) => (
             <span key={key} style={{ display: "flex", alignItems: "center", gap: 5, opacity: usedTypes[key] ? 1 : 0.25, transition: "opacity 0.2s" }}>
@@ -97,20 +98,26 @@ export default function Legend({ showLegend, onToggleLegend, allSubjects = [] })
         </div>
       </div>
 
-      {/* Preview cuando leyenda colapsada */}
-      {!showLegend && (
-        <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0 1rem", opacity: 0.5 }}>
-          {Object.values(STATUS).map((s, i) => (
-            <span key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: s.dot, display: "inline-block", flexShrink: 0 }} />
-          ))}
-          <span style={{ width: 1, height: 12, background: "var(--border-soft)", flexShrink: 0 }} />
-          {arrowItems.map(({ key, Arrow, color }) => (
-            <span key={key} style={{ opacity: usedTypes[key] ? 1 : 0.3 }}>
-              <Arrow color={color} />
-            </span>
-          ))}
-        </div>
-      )}
+      {/* Preview cuando leyenda colapsada — siempre montado, animado con opacity */}
+      <div style={{
+        display: "flex", alignItems: "center", gap: "0.6rem", padding: "0 1rem",
+        opacity: showLegend ? 0 : 0.5,
+        pointerEvents: showLegend ? "none" : "auto",
+        transition: "opacity 0.2s ease",
+        position: showLegend ? "absolute" : "relative",
+        visibility: showLegend ? "hidden" : "visible",
+        flexShrink: 0,
+      }}>
+        {Object.values(STATUS).map((s, i) => (
+          <span key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: s.dot, display: "inline-block", flexShrink: 0 }} />
+        ))}
+        <span style={{ width: 1, height: 12, background: "var(--border-soft)", flexShrink: 0 }} />
+        {arrowItems.map(({ key, Arrow, color }) => (
+          <span key={key} style={{ opacity: usedTypes[key] ? 1 : 0.3 }}>
+            <Arrow color={color} />
+          </span>
+        ))}
+      </div>
     </div>
   );
 }

@@ -29,13 +29,14 @@ export default function App() {
     data, effectiveStatus, allSubjects, syncStatus,
     mergePrompt, resolveMerge,
     addSubject, editSubject, deleteSubject, setStatus,
-    reorderSubjects, exportJSON, importJSON,
+    reorderSubjects, exportJSON, importJSON, replaceAll,
   } = useCurriculumData({
     onSyncError: (msg) => showToast(msg, "error", true),
   });
 
   const [selectedId, setSelectedId] = useState(null);
   const [showLegend, setShowLegend] = useState(true);
+  const [planSelectorOpen, setPlanSelectorOpen] = useState(false);
   const [modalOpen, setModalOpen]   = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [editingSubject, setEditingSubject] = useState(null);
@@ -304,6 +305,14 @@ export default function App() {
           document.body
         );
       })()}
+      <PlanSelectorModal
+        open={planSelectorOpen}
+        onClose={() => setPlanSelectorOpen(false)}
+        onImport={() => { setPlanSelectorOpen(false); handleImport(); }}
+        onExport={() => { handleExport(); }}
+        onLoadPlan={(plan) => { replaceAll(plan.data, {}); showToast("Plan cargado"); }}
+        hasData={allSubjects.length > 0}
+      />
     </>
   );
 }
