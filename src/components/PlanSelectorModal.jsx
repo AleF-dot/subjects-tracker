@@ -125,7 +125,7 @@ function SuggestPlanModal({ open, onClose }) {
   }, [open]);
   if (!visible) return null;
   const closing = animating && !open;
-  const mailtoHref = `mailto:${MAIL}?subject=${encodeURIComponent("Sugerencia de plan de estudios")}&body=${encodeURIComponent("Hola, me gustaría que agreguen el siguiente plan de estudios:\n\nUniversidad: \nCarrera: \nPlan: \n\nAdjunto o detallo las materias y correlativas a continuación:\n")}`;
+  const gmailHref = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(MAIL)}&su=${encodeURIComponent("Sugerencia de plan de estudios")}&body=${encodeURIComponent("Hola, me gustaría que agreguen el siguiente plan de estudios:\n\nUniversidad: \nCarrera: \nPlan: \n\nAdjunto o detallo las materias y correlativas a continuación:\n")}`;
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 1300,
@@ -154,7 +154,9 @@ function SuggestPlanModal({ open, onClose }) {
           Mandanos tu plan de estudios por correo — universidad, carrera, materias y correlativas — y lo revisamos para agregarlo.
         </p>
         <a
-          href={mailtoHref}
+          href={gmailHref}
+          target="_blank"
+          rel="noopener noreferrer"
           style={{
             display: "block", textAlign: "center",
             padding: "0.6rem 1rem", borderRadius: "8px",
@@ -249,12 +251,17 @@ export default function PlanSelectorModal({ open, onClose, onImport, onExport, o
                 Seleccionar plan de estudios
               </p>
               <div style={{ display: "flex", gap: "0.35rem" }}>
-                <button onClick={() => setSuggestOpen(true)} style={{
-                  background: "var(--bg-elevated)", border: "none",
-                  width: 26, height: 26, borderRadius: "6px",
-                  cursor: "pointer", fontSize: "0.78rem", fontWeight: 600, color: "var(--text-muted)",
-                  fontFamily: "inherit",
-                }}>?</button>
+                <button
+                  onClick={() => setSuggestOpen(true)}
+                  style={{
+                    background: "var(--bg-elevated)", border: "none",
+                    width: 26, height: 26, borderRadius: "6px",
+                    cursor: "pointer", fontSize: "0.78rem", fontWeight: 600, color: "var(--text-muted)",
+                    fontFamily: "inherit", transition: "background 0.15s",
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
+                  onMouseLeave={e => e.currentTarget.style.background = "var(--bg-elevated)"}
+                >?</button>
                 <button onClick={onClose} style={{
                   background: "var(--bg-elevated)", border: "none",
                   width: 26, height: 26, borderRadius: "6px",

@@ -216,17 +216,15 @@ export default function InfoModal() {
     transition: "border-color 0.15s",
   };
 
-  const mailtoHref = () => {
+  const gmailHref = () => {
     const subject = encodeURIComponent(`Reporte de ${form.name || "usuario"}`);
-    const body = encodeURIComponent(
-      `${form.message}`
-    );
-    return `mailto:${MAIL}?subject=${subject}&body=${body}`;
+    const body = encodeURIComponent(form.message);
+    return `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(MAIL)}&su=${subject}&body=${body}`;
   };
 
   const handleSend = () => {
     if (!form.message.trim()) return;
-    window.location.href = mailtoHref();
+    window.open(gmailHref(), "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -320,7 +318,9 @@ export default function InfoModal() {
                 {MAIL}
               </span>
               <a
-                href={`mailto:${MAIL}`}
+                href={`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(MAIL)}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="contact-btn"
                 style={{
                   fontSize: "0.7rem", color: "#fff", background: "var(--text-muted)",
