@@ -215,7 +215,7 @@ export default function App() {
           {allSubjects.length === 0 ? (
             <EmptyState onSelectPlan={() => setPlanSelectorOpen(true)} onNewSubject={() => { setEditingSubject(null); setModalOpen(true); }} />
           ) : (
-          <div ref={scrollContainerRef} style={{ overflowX: "auto", overflowY: "visible", padding: "4px 4px", WebkitOverflowScrolling: "touch", position: "relative", clipPath: "inset(0)" }}>
+          <div ref={scrollContainerRef} style={{ overflowX: "auto", overflowY: "visible", padding: "4px 4px", WebkitOverflowScrolling: "touch", position: "relative" }}>
             <ArrowOverlay arrows={arrows} animKey={animKey} exiting={exiting} svgRef={svgRef} containerRef={scrollContainerRef} />
             <div ref={gridRef} style={{ display: "grid", gridTemplateColumns: `repeat(${data.years.filter(y => y.subjects.length > 0).length}, minmax(160px, 1fr))`, gap: "1.75rem", minWidth: `${data.years.filter(y => y.subjects.length > 0).length * 180}px`, animation: "gridFadeIn 0.35s ease both" }}>
               {data.years.filter(y => y.subjects.length > 0).map((year) => (
@@ -282,7 +282,7 @@ export default function App() {
         </div>
       </footer>
 
-      {menuAnchor.subjectId && menuAnchor.el && (() => {
+      {menuAnchor.subjectId && menuAnchor.el && scrollContainerRef.current && (() => {
         const sid     = menuAnchor.subjectId;
         const st      = effectiveStatus[sid];
         const yearId  = data.years.find(y => y.subjects.some(s => s.id === sid))?.id;
@@ -304,7 +304,7 @@ export default function App() {
               scrollContainerRef={scrollContainerRef}
             />
           </div>,
-          document.body
+          scrollContainerRef.current
         );
       })()}
       <PlanSelectorModal
