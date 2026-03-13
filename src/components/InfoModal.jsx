@@ -2,8 +2,16 @@ import React from 'react';
 import { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 
+const DALTON_OPTIONS = [
+  { value: "none",          label: "Sin ajuste" },
+  { value: "deuteranopia",  label: "Deuteranopía", desc: "Dificultad rojo-verde (más común)" },
+  { value: "protanopia",    label: "Protanopía",   desc: "Dificultad rojo-verde (sin rojo)" },
+  { value: "tritanopia",    label: "Tritanopía",   desc: "Dificultad azul-amarillo" },
+  { value: "achromatopsia", label: "Acromatopsia", desc: "Sin percepción de color" },
+];
+
 function ExtraModal({ open, onClose }) {
-  const { dalton, toggleDalton } = useTheme();
+  const { daltonType, setDaltonType } = useTheme();
   const [visible, setVisible] = useState(false);
   const [animating, setAnimating] = useState(false);
 
@@ -31,7 +39,7 @@ function ExtraModal({ open, onClose }) {
         position: "relative", zIndex: 1,
         background: "var(--bg)", border: "1px solid var(--border)",
         borderRadius: "12px", padding: "1.25rem 1.5rem",
-        width: "100%", maxWidth: "300px",
+        width: "100%", maxWidth: "320px",
         animation: closing ? "modalOut 0.18s ease forwards" : "popUp 0.2s ease",
         boxShadow: "0 20px 60px rgba(0,0,0,0.18)",
       }}>
@@ -46,44 +54,46 @@ function ExtraModal({ open, onClose }) {
         >✕</button>
 
         <p style={{ fontSize: "0.6rem", letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-muted)", fontFamily: "'DM Mono', monospace", marginBottom: "1rem", marginTop: 0 }}>
-          Extra
+          Accesibilidad
         </p>
 
-        <button
-          onClick={toggleDalton}
-          style={{
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            width: "100%", background: "var(--bg-elevated)",
-            border: "1px solid var(--border)", borderRadius: "8px",
-            padding: "0.6rem 0.8rem", cursor: "pointer",
-            transition: "background 0.15s", boxSizing: "border-box",
-          }}
-          onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
-          onMouseLeave={e => e.currentTarget.style.background = "var(--bg-elevated)"}
-        >
-          <span style={{ fontSize: "0.78rem", color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            👁 Modo daltonismo
-          </span>
-          <span style={{
-            width: "36px", height: "20px", borderRadius: "10px",
-            background: dalton ? "var(--btn-primary-bg)" : "var(--border)",
-            position: "relative", display: "inline-block",
-            transition: "background 0.2s", flexShrink: 0,
-          }}>
-            <span style={{
-              position: "absolute", top: "3px",
-              left: dalton ? "19px" : "3px",
-              width: "14px", height: "14px", borderRadius: "50%",
-              background: dalton ? "var(--btn-primary-fg)" : "var(--bg-card)",
-              transition: "left 0.2s",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-            }} />
-          </span>
-        </button>
-
-        <p style={{ fontSize: "0.62rem", color: "var(--text-faint)", margin: "0.6rem 0 0", lineHeight: 1.5 }}>
-          Reemplaza los colores de los estados por una paleta optimizada para daltonismo rojo-verde (deuteranopía/protanopía).
+        <p style={{ fontSize: "0.72rem", color: "var(--text-secondary)", margin: "0 0 0.75rem", lineHeight: 1.5 }}>
+          Paleta de colores
         </p>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+          {DALTON_OPTIONS.map(opt => {
+            const active = daltonType === opt.value;
+            return (
+              <button
+                key={opt.value}
+                onClick={() => setDaltonType(opt.value)}
+                style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  width: "100%", background: active ? "var(--bg-hover)" : "var(--bg-elevated)",
+                  border: active ? "1px solid var(--text-muted)" : "1px solid var(--border)",
+                  borderRadius: "8px", padding: "0.55rem 0.8rem",
+                  cursor: "pointer", transition: "all 0.15s", boxSizing: "border-box",
+                  textAlign: "left",
+                }}
+                onMouseEnter={e => { if (!active) e.currentTarget.style.background = "var(--bg-hover)"; }}
+                onMouseLeave={e => { if (!active) e.currentTarget.style.background = "var(--bg-elevated)"; }}
+              >
+                <span style={{ display: "flex", flexDirection: "column", gap: "0.1rem" }}>
+                  <span style={{ fontSize: "0.78rem", color: active ? "var(--text-primary)" : "var(--text-secondary)", fontWeight: active ? 500 : 400 }}>
+                    {opt.label}
+                  </span>
+                  {opt.desc && (
+                    <span style={{ fontSize: "0.62rem", color: "var(--text-faint)" }}>{opt.desc}</span>
+                  )}
+                </span>
+                {active && (
+                  <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", flexShrink: 0 }}>✓</span>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

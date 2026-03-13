@@ -1,7 +1,8 @@
 import React from 'react';
 import { createContext, useContext, useState, useEffect } from "react";
 
-const ThemeContext = createContext({ dark: false, toggle: () => {}, dalton: false, toggleDalton: () => {} });
+// daltonType: "none" | "deuteranopia" | "protanopia" | "tritanopia" | "achromatopsia"
+const ThemeContext = createContext({ dark: false, toggle: () => {}, daltonType: "none", setDaltonType: () => {} });
 
 export function ThemeProvider({ children }) {
   const [dark, setDark] = useState(() => {
@@ -10,7 +11,7 @@ export function ThemeProvider({ children }) {
     return window.matchMedia("(prefers-color-scheme: dark)").matches;
   });
 
-  const [dalton, setDalton] = useState(() => localStorage.getItem("dalton") === "true");
+  const [daltonType, setDaltonTypeState] = useState(() => localStorage.getItem("daltonType") || "none");
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
@@ -18,12 +19,14 @@ export function ThemeProvider({ children }) {
   }, [dark]);
 
   useEffect(() => {
-    document.documentElement.setAttribute("data-dalton", dalton ? "true" : "false");
-    localStorage.setItem("dalton", dalton ? "true" : "false");
-  }, [dalton]);
+    document.documentElement.setAttribute("data-dalton", daltonType);
+    localStorage.setItem("daltonType", daltonType);
+  }, [daltonType]);
+
+  const setDaltonType = (type) => setDaltonTypeState(type);
 
   return (
-    <ThemeContext.Provider value={{ dark, toggle: () => setDark(d => !d), dalton, toggleDalton: () => setDalton(d => !d) }}>
+    <ThemeContext.Provider value={{ dark, toggle: () => setDark(d => !d), daltonType, setDaltonType }}>
       {children}
     </ThemeContext.Provider>
   );

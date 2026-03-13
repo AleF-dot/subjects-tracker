@@ -227,25 +227,67 @@ export default function GlobalStyles() {
         .contact-row .contact-btn { flex: 1 0 100%; text-align: center; }
       }
 
-      /* ── Modo daltonismo (light) ───────────────────────────────────────
-         Deuteranopía/protanopía: reemplazamos rojo/verde por azul/naranja/violeta.
-         Disponible  → gris (sin cambio)
-         Cursando    → celeste fuerte (sin cambio, ya es azul)
-         Regular     → violeta  (era amarillo/naranja — confundible con verde)
-         Aprobada    → azul índigo  (era verde — problema principal)
-         Bloqueada   → naranja fuerte  (era rojo — confundible con verde)
-      ──────────────────────────────────────────────────────────────────── */
-      [data-theme="light"][data-dalton="true"] {
-        --status-regular-bg:    #EDE8F8; --status-regular-border:    #7C3AED; --status-regular-dot:    #6D28D9; --status-regular-color:    #3B0764;
-        --status-aprobada-bg:   #DBEAFE; --status-aprobada-border:   #1D4ED8; --status-aprobada-dot:   #1E40AF; --status-aprobada-color:   #1E3A8A;
-        --status-bloqueada-bg:  #FEF3C7; --status-bloqueada-border:  #D97706; --status-bloqueada-dot:  #B45309; --status-bloqueada-color:  #78350F;
-      }
+      /* ══════════════════════════════════════════════════════════════════
+         PALETAS PARA DALTONISMO
+         Estados afectados: regular (amarillo), aprobada (verde), bloqueada (rojo)
+         Disponible (gris) y cursando (azul) son seguros en todos los tipos.
 
-      /* ── Modo daltonismo (dark) ────────────────────────────────────────*/
-      [data-theme="dark"][data-dalton="true"] {
+         DEUTERANOPÍA / PROTANOPÍA (rojo-verde, el más común)
+           → regular:   violeta   (distinguible de azul y naranja)
+           → aprobada:  azul índigo (distinguible de violeta)
+           → bloqueada: naranja   (distinguible de azul y violeta)
+         ══════════════════════════════════════════════════════════════════ */
+      [data-theme="light"][data-dalton="deuteranopia"],
+      [data-theme="light"][data-dalton="protanopia"] {
+        --status-regular-bg:    #F0EBFF; --status-regular-border:    #5B21B6; --status-regular-dot:    #4C1D95; --status-regular-color:    #2E1065;
+        --status-aprobada-bg:   #DBEAFE; --status-aprobada-border:   #1D4ED8; --status-aprobada-dot:   #1E3A8A; --status-aprobada-color:   #172554;
+        --status-bloqueada-bg:  #FFF0D9; --status-bloqueada-border:  #C2410C; --status-bloqueada-dot:  #9A3412; --status-bloqueada-color:  #7C2D12;
+      }
+      [data-theme="dark"][data-dalton="deuteranopia"],
+      [data-theme="dark"][data-dalton="protanopia"] {
         --status-regular-bg:    #2D1F5E; --status-regular-border:    #7C3AED; --status-regular-dot:    #A78BFA; --status-regular-color:    #C4B5FD;
         --status-aprobada-bg:   #1E2A5E; --status-aprobada-border:   #3B82F6; --status-aprobada-dot:   #60A5FA; --status-aprobada-color:   #BFDBFE;
-        --status-bloqueada-bg:  #3A2200; --status-bloqueada-border:  #F59E0B; --status-bloqueada-dot:  #FBBF24; --status-bloqueada-color:  #FDE68A;
+        --status-bloqueada-bg:  #3A2200; --status-bloqueada-border:  #FB923C; --status-bloqueada-dot:  #FDBA74; --status-bloqueada-color:  #FED7AA;
+      }
+
+      /* ── TRITANOPÍA (azul-amarillo) ────────────────────────────────────
+           → regular:   magenta/fucsia  (problem: amarillo confundible con blanco)
+           → aprobada:  verde oscuro    (el verde sí es distinguible en tritanopía)
+           → bloqueada: rojo carmín     (sí distinguible en tritanopía)
+           → cursando:  reemplazamos azul por cian fuerte (el azul se ve distorsionado)
+      ────────────────────────────────────────────────────────────────── */
+      [data-theme="light"][data-dalton="tritanopia"] {
+        --status-cursando-bg:   #CCEFF8; --status-cursando-border:   #0891B2; --status-cursando-dot:   #0E7490; --status-cursando-color:   #164E63;
+        --status-regular-bg:    #FDE8F5; --status-regular-border:    #BE185D; --status-regular-dot:    #9D174D; --status-regular-color:    #831843;
+        --status-aprobada-bg:   #D1FAE5; --status-aprobada-border:   #065F46; --status-aprobada-dot:   #064E3B; --status-aprobada-color:   #022C22;
+        --status-bloqueada-bg:  #FFE4E4; --status-bloqueada-border:  #B91C1C; --status-bloqueada-dot:  #991B1B; --status-bloqueada-color:  #7F1D1D;
+      }
+      [data-theme="dark"][data-dalton="tritanopia"] {
+        --status-cursando-bg:   #083344; --status-cursando-border:   #06B6D4; --status-cursando-dot:   #22D3EE; --status-cursando-color:   #A5F3FC;
+        --status-regular-bg:    #4A0D2E; --status-regular-border:    #EC4899; --status-regular-dot:    #F472B6; --status-regular-color:    #FBCFE8;
+        --status-aprobada-bg:   #022C22; --status-aprobada-border:   #10B981; --status-aprobada-dot:   #34D399; --status-aprobada-color:   #A7F3D0;
+        --status-bloqueada-bg:  #450A0A; --status-bloqueada-border:  #EF4444; --status-bloqueada-dot:  #F87171; --status-bloqueada-color:  #FCA5A5;
+      }
+
+      /* ── ACROMATOPSIA (sin percepción de color) ────────────────────────
+           Todo en escala de grises con alto contraste.
+           La diferenciación es por luminosidad, no por tono.
+           Disponible: gris claro · Cursando: gris medio-azulado · Regular: gris cálido
+           Aprobada: casi negro · Bloqueada: blanco con borde oscuro
+      ────────────────────────────────────────────────────────────────── */
+      [data-theme="light"][data-dalton="achromatopsia"] {
+        --status-disponible-bg: #F0EFEE; --status-disponible-border: #9E9B98; --status-disponible-dot: #6B6865; --status-disponible-color: #3A3835;
+        --status-cursando-bg:   #D8D6D4; --status-cursando-border:   #5A5855; --status-cursando-dot:   #3A3835; --status-cursando-color:   #1A1815;
+        --status-regular-bg:    #C4C2C0; --status-regular-border:    #484644; --status-regular-dot:    #282624; --status-regular-color:    #0A0908;
+        --status-aprobada-bg:   #2A2826; --status-aprobada-border:   #888684; --status-aprobada-dot:   #C8C6C4; --status-aprobada-color:   #E8E6E4;
+        --status-bloqueada-bg:  #F8F6F4; --status-bloqueada-border:  #1A1816; --status-bloqueada-dot:  #1A1816; --status-bloqueada-color:  #0A0806;
+      }
+      [data-theme="dark"][data-dalton="achromatopsia"] {
+        --status-disponible-bg: #1E1C1A; --status-disponible-border: #605E5C; --status-disponible-dot: #909090; --status-disponible-color: #B0AEAC;
+        --status-cursando-bg:   #2E2C2A; --status-cursando-border:   #888684; --status-cursando-dot:   #AEACAA; --status-cursando-color:   #CECCC8;
+        --status-regular-bg:    #3E3C3A; --status-regular-border:    #A8A6A4; --status-regular-dot:    #C8C6C4; --status-regular-color:    #E8E6E4;
+        --status-aprobada-bg:   #E0DEDC; --status-aprobada-border:   #606060; --status-aprobada-dot:   #303030; --status-aprobada-color:   #101010;
+        --status-bloqueada-bg:  #080604; --status-bloqueada-border:  #D0CECC; --status-bloqueada-dot:  #F0EEEC; --status-bloqueada-color:  #FEFCFA;
       }
     `}</style>
   );
