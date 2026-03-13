@@ -21,6 +21,7 @@ import { useAuth } from "./context/AuthContext";
 import { useArrows }         from "./hooks/useArrows";
 import { useToast }          from "./hooks/useToast";
 import { computeAllowedStatuses } from "./utils/statusLogic";
+import { defaultData } from "./utils/constants";
 
 export default function App() {
   const { passwordRecovery } = useAuth();
@@ -311,7 +312,7 @@ export default function App() {
         onImport={() => { setPlanSelectorOpen(false); handleImport(); }}
         onExport={() => { handleExport(); }}
         onLoadPlan={(plan) => { replaceAll(plan.data, {}); showToast("Plan cargado"); }}
-        onClearPlan={() => { replaceAll({ years: [] }, {}); showToast("Plan eliminado"); }}
+        onClearPlan={() => { replaceAll(defaultData, {}); showToast("Plan eliminado"); }}
         hasData={allSubjects.length > 0}
       />
     </>

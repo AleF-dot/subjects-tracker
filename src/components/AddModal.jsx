@@ -100,7 +100,7 @@ function CorrSection({ allSubjects, subjectsByYear, list, setList, forFinal }) {
 export default function AddModal({ open, onClose, data, onAdd, editSubject, onEdit }) {
   const isEdit = !!editSubject;
 
-  const [yearId, setYearId]               = useState(1);
+  const [yearId, setYearId]               = useState(() => data.years[0]?.id ?? null);
   const [name, setName]                   = useState("");
   const [corrList, setCorrList]           = useState([]);
   const [corrFinalList, setCorrFinalList] = useState([]);
@@ -127,7 +127,7 @@ export default function AddModal({ open, onClose, data, onAdd, editSubject, onEd
       setCorrList(editSubject.correlatives ?? []);
       setCorrFinalList(editSubject.correlativesParaFinal ?? []);
     } else if (!isEdit) {
-      setYearId(1); setName(""); setCorrList([]); setCorrFinalList([]);
+      setYearId(data.years[0]?.id ?? null); setName(""); setCorrList([]); setCorrFinalList([]);
     }
     setError("");
   }, [open, editSubject?.id]); // eslint-disable-line react-hooks/exhaustive-deps

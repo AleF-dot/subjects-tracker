@@ -27,32 +27,35 @@ export default function EmptyState({ onSelectPlan, onNewSubject }) {
 
       <p style={{
         fontSize: "0.85rem", color: "var(--text-muted)", lineHeight: 1.6,
-        maxWidth: "340px", marginBottom: "2rem",
+        maxWidth: "340px", marginBottom: "1.5rem",
       }}>
         Agregá tus materias, definí correlatividades y visualizá qué podés cursar o rendir en el momento.
       </p>
 
-      <button
-        className="btn-primary"
-        onClick={onNewSubject}
-        style={{ fontSize: "0.88rem", padding: "0.75rem 1.5rem" }}
-      >
-        + Agregar materia manualmente
-      </button>
-
-      <p style={{
-        fontSize: "0.68rem", color: "var(--text-ghost)", marginTop: "1.25rem",
-        fontFamily: "'DM Mono', monospace",
-      }}>
-        o{" "}
-        <span
+      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+        <button
+          className="btn-primary"
           onClick={onSelectPlan}
-          style={{ textDecoration: "underline", cursor: "pointer" }}
+          style={{ fontSize: "0.85rem", padding: "0.65rem 1.25rem" }}
         >
-          seleccioná un plan de estudios
+          Seleccioná tu plan de estudios
+        </button>
+
+        <span style={{
+          fontSize: "0.72rem", color: "var(--text-ghost)",
+          fontFamily: "'DM Mono', monospace",
+        }}>
+          o
         </span>
-        {" "}y las materias se cargan solas
-      </p>
+
+        <button
+          className="btn-ghost"
+          onClick={onNewSubject}
+          style={{ fontSize: "0.85rem", padding: "0.65rem 1.25rem" }}
+        >
+          + Agregando materias
+        </button>
+      </div>
     </div>
   );
 }
