@@ -216,7 +216,7 @@ export default function App() {
             <EmptyState onSelectPlan={() => setPlanSelectorOpen(true)} onNewSubject={() => { setEditingSubject(null); setModalOpen(true); }} />
           ) : (
           <div ref={scrollContainerRef} style={{ overflowX: "auto", overflowY: "visible", padding: "4px 4px", WebkitOverflowScrolling: "touch" }}>
-            <div ref={gridRef} style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(160px, 1fr))", gap: "1.75rem", minWidth: "860px", animation: "gridFadeIn 0.35s ease both" }}>
+            <div ref={gridRef} style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(160px, 1fr))", gap: "1.75rem", minWidth: "1020px", animation: "gridFadeIn 0.35s ease both" }}>
               {data.years.map((year) => (
                 <YearColumn
                   key={year.id}

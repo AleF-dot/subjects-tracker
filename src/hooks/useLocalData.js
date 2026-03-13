@@ -14,13 +14,15 @@ function loadFromStorage(key, fallback) {
 
 export function migrateData(raw) {
   if (!raw || !Array.isArray(raw.years)) return null;
-  return {
-    ...raw,
-    years: raw.years.map(y => ({
-      ...y,
-      subjects: (y.subjects ?? []).map(s => ({ correlativesParaFinal: [], ...s })),
-    })),
-  };
+  const migratedYears = raw.years.map(y => ({
+    ...y,
+    subjects: (y.subjects ?? []).map(s => ({ correlativesParaFinal: [], ...s })),
+  }));
+  // Asegurar que exista el 6to año (para usuarios con datos previos de 5 años)
+  if (!migratedYears.find(y => y.id === 6)) {
+    migratedYears.push({ id: 6, label: "6to Año", subjects: [] });
+  }
+  return { ...raw, years: migratedYears };
 }
 
 export function loadLocalData() {
