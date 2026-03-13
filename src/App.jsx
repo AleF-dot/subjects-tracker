@@ -204,8 +204,7 @@ export default function App() {
       <div style={{ minHeight: "100vh", background: "var(--bg-card)" }}>
         <Header
           counts={counts}
-          onImport={handleImport}
-          onExport={handleExport}
+          onSelectPlan={() => setPlanSelectorOpen(true)}
           onNewSubject={() => { setEditingSubject(null); setModalOpen(true); }}
         />
 
