@@ -110,13 +110,77 @@ function ConfirmDeleteModal({ open, onConfirm, onCancel }) {
   );
 }
 
-export default function PlanSelectorModal({ open, onClose, onImport, onExport, onLoadPlan, onClearPlan, hasData }) {
+const MAIL = "subjectstracker@gmail.com";
+
+function SuggestPlanModal({ open, onClose }) {
+  const [visible, setVisible] = useState(false);
+  const [animating, setAnimating] = useState(false);
+  React.useEffect(() => {
+    if (open) { setVisible(true); setAnimating(false); }
+    else if (visible) {
+      setAnimating(true);
+      const t = setTimeout(() => { setVisible(false); setAnimating(false); }, 180);
+      return () => clearTimeout(t);
+    }
+  }, [open]);
+  if (!visible) return null;
+  const closing = animating && !open;
+  const mailtoHref = `mailto:${MAIL}?subject=${encodeURIComponent("Sugerencia de plan de estudios")}&body=${encodeURIComponent("Hola, me gustaría que agreguen el siguiente plan de estudios:\n\nUniversidad: \nCarrera: \nPlan: \n\nAdjunto o detallo las materias y correlativas a continuación:\n")}`;
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 1300,
+      display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem",
+      animation: closing ? "fadeOut 0.18s ease forwards" : "fadeIn 0.15s ease",
+    }}>
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "var(--modal-backdrop)", backdropFilter: "blur(3px)" }} />
+      <div style={{
+        position: "relative", zIndex: 1,
+        background: "var(--bg)", border: "1px solid var(--border)",
+        borderRadius: "12px", padding: "1.5rem",
+        width: "100%", maxWidth: "320px",
+        animation: closing ? "modalOut 0.18s ease forwards" : "popUp 0.2s ease",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+      }}>
+        <button onClick={onClose} style={{
+          position: "absolute", top: "0.75rem", right: "0.75rem",
+          background: "var(--bg-elevated)", border: "none",
+          width: 26, height: 26, borderRadius: "6px",
+          cursor: "pointer", fontSize: "0.8rem", color: "var(--text-muted)",
+        }}>✕</button>
+        <p style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-primary)", margin: "0 0 0.5rem", paddingRight: "1.5rem" }}>
+          ¿No encontraste tu plan?
+        </p>
+        <p style={{ fontSize: "0.76rem", color: "var(--text-secondary)", lineHeight: 1.65, margin: "0 0 1.25rem" }}>
+          Mandanos tu plan de estudios por correo — universidad, carrera, materias y correlativas — y lo revisamos para agregarlo.
+        </p>
+        <a
+          href={mailtoHref}
+          style={{
+            display: "block", textAlign: "center",
+            padding: "0.6rem 1rem", borderRadius: "8px",
+            background: "var(--bg-elevated)", border: "1px solid var(--border)",
+            color: "var(--text-primary)", fontSize: "0.78rem",
+            fontFamily: "inherit", textDecoration: "none",
+            transition: "background 0.15s",
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
+          onMouseLeave={e => e.currentTarget.style.background = "var(--bg-elevated)"}
+        >
+          Enviar por correo
+        </a>
+      </div>
+    </div>
+  );
+}
+
+ open, onClose, onImport, onExport, onLoadPlan, onClearPlan, hasData }) {
   const [visible, setVisible] = useState(false);
   const [animating, setAnimating] = useState(false);
   const [filter, setFilter] = useState("Todos");
   const [pendingPlan, setPendingPlan] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [suggestOpen, setSuggestOpen] = useState(false);
   const { dark } = useTheme(); // eslint-disable-line no-unused-vars
 
   React.useEffect(() => {
@@ -184,11 +248,19 @@ export default function PlanSelectorModal({ open, onClose, onImport, onExport, o
               }}>
                 Seleccionar plan de estudios
               </p>
-              <button onClick={onClose} style={{
-                background: "var(--bg-elevated)", border: "none",
-                width: 26, height: 26, borderRadius: "6px",
-                cursor: "pointer", fontSize: "0.8rem", color: "var(--text-muted)",
-              }}>✕</button>
+              <div style={{ display: "flex", gap: "0.35rem" }}>
+                <button onClick={() => setSuggestOpen(true)} style={{
+                  background: "var(--bg-elevated)", border: "none",
+                  width: 26, height: 26, borderRadius: "6px",
+                  cursor: "pointer", fontSize: "0.78rem", fontWeight: 600, color: "var(--text-muted)",
+                  fontFamily: "inherit",
+                }}>?</button>
+                <button onClick={onClose} style={{
+                  background: "var(--bg-elevated)", border: "none",
+                  width: 26, height: 26, borderRadius: "6px",
+                  cursor: "pointer", fontSize: "0.8rem", color: "var(--text-muted)",
+                }}>✕</button>
+              </div>
             </div>
 
             {/* Filtro tabs */}
@@ -282,6 +354,7 @@ export default function PlanSelectorModal({ open, onClose, onImport, onExport, o
         onConfirm={() => { setConfirmDeleteOpen(false); onClearPlan(); onClose(); }}
         onCancel={() => setConfirmDeleteOpen(false)}
       />
+      <SuggestPlanModal open={suggestOpen} onClose={() => setSuggestOpen(false)} />
     </>
   );
 }
