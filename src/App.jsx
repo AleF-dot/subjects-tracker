@@ -1,6 +1,5 @@
 import React from 'react';
 import { useState, useRef, useCallback, useEffect } from "react";
-import { createPortal } from "react-dom";
 
 import GlobalStyles  from "./components/GlobalStyles";
 import Header        from "./components/Header";
@@ -113,12 +112,11 @@ export default function App() {
     });
   }
 
-  const menuPortalRef = useRef(null);
-
   useEffect(() => {
     const fn = e => {
-      const inMenu = menuPortalRef.current?.contains(e.target);
-      if (inMenu) return;
+      // StatusMenu está portalado a document.body — no podemos usar ref.contains.
+      // En cambio buscamos el atributo data-status-menu en el ancestro del target.
+      if (e.target.closest("[data-status-menu]")) return;
       setMenuAnchor({ subjectId: null, el: null });
       setSelectedId(null);
     };
@@ -227,7 +225,15 @@ export default function App() {
           {allSubjects.length === 0 ? (
             <EmptyState onSelectPlan={() => setPlanSelectorOpen(true)} onNewSubject={() => { setEditingSubject(null); setModalOpen(true); }} />
           ) : (
-          <div ref={scrollContainerRef} style={{ overflowX: "auto", overflowY: "visible", padding: "4px 4px", WebkitOverflowScrolling: "touch", position: "relative" }}>
+          /*
+           * overflow-y:hidden en lugar de visible:
+           *   - CSS spec convierte overflow-x:auto + overflow-y:visible → overflow-y:auto,
+           *     lo que creaba scroll vertical no deseado en las columnas.
+           *   - Con overflow-y:hidden, el container nunca tiene scrollbar vertical.
+           *   - El menú (portalado a body con position:fixed) no afecta el layout.
+           *   - El SVG de flechas es position:absolute y no agrega height al container.
+           */
+          <div ref={scrollContainerRef} style={{ overflowX: "auto", overflowY: "hidden", padding: "4px 4px", WebkitOverflowScrolling: "touch", position: "relative" }}>
             <ArrowOverlay arrows={arrows} animKey={animKey} exiting={exiting} svgRef={svgRef} containerRef={scrollContainerRef} />
             <div ref={gridRef} style={{ display: "grid", gridTemplateColumns: `repeat(${data.years.filter(y => y.subjects.length > 0).length}, minmax(160px, 1fr))`, gap: "1.75rem", minWidth: `${data.years.filter(y => y.subjects.length > 0).length * 180}px`, animation: "gridFadeIn 0.35s ease both" }}>
               {data.years.filter(y => y.subjects.length > 0).map((year) => (
@@ -294,7 +300,7 @@ export default function App() {
         </div>
       </div>
 
-      {menuAnchor.subjectId && menuAnchor.el && scrollContainerRef.current && (() => {
+      {menuAnchor.subjectId && menuAnchor.el && (() => {
         const sid     = menuAnchor.subjectId;
         const st      = effectiveStatus[sid];
         const yearId  = data.years.find(y => y.subjects.some(s => s.id === sid))?.id;
@@ -303,20 +309,17 @@ export default function App() {
           ? computeAllowedStatuses(subject, effectiveStatus)
           : { disponible: true, cursando: true, regular: true, aprobada: true };
         const closeMenu = () => setMenuAnchor({ subjectId: null, el: null });
-        return createPortal(
-          <div ref={menuPortalRef} onClick={e => e.stopPropagation()}>
-            <StatusMenu
-              anchor={menuAnchor.el}
-              current={st === "bloqueada" ? null : st}
-              onSelect={s => handleSetStatus(sid, s)}
-              onEdit={() => handleOpenEdit(sid)}
-              onDelete={() => handleDeleteRequest(yearId, sid)}
-              onClose={closeMenu}
-              allowedStatuses={allowedStatuses}
-              scrollContainerRef={scrollContainerRef}
-            />
-          </div>,
-          scrollContainerRef.current
+        return (
+          <StatusMenu
+            anchor={menuAnchor.el}
+            current={st === "bloqueada" ? null : st}
+            onSelect={s => handleSetStatus(sid, s)}
+            onEdit={() => handleOpenEdit(sid)}
+            onDelete={() => handleDeleteRequest(yearId, sid)}
+            onClose={closeMenu}
+            allowedStatuses={allowedStatuses}
+            scrollContainerRef={scrollContainerRef}
+          />
         );
       })()}
 
