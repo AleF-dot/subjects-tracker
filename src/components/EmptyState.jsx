@@ -41,12 +41,12 @@ export default function EmptyState({ onSelectPlan, onNewSubject }) {
           Seleccioná tu plan de estudios
         </button>
 
-        <span style={{
-          fontSize: "0.72rem", color: "var(--text-ghost)",
-          fontFamily: "'DM Mono', monospace",
+        <p style={{
+          fontSize: "0.85rem", color: "var(--text-muted)", lineHeight: 1.6,
+          maxWidth: "340px", marginBottom: "1.5rem",
         }}>
           o crealo
-        </span>
+        </p>
 
         <button
           className="btn-ghost"
