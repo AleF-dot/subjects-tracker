@@ -173,7 +173,7 @@ function SuggestPlanModal({ open, onClose }) {
   );
 }
 
- open, onClose, onImport, onExport, onLoadPlan, onClearPlan, hasData }) {
+export default function PlanSelectorModal({ open, onClose, onImport, onExport, onLoadPlan, onClearPlan, hasData }) {
   const [visible, setVisible] = useState(false);
   const [animating, setAnimating] = useState(false);
   const [filter, setFilter] = useState("Todos");
