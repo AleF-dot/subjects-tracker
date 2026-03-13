@@ -311,6 +311,7 @@ export default function App() {
         onImport={() => { setPlanSelectorOpen(false); handleImport(); }}
         onExport={() => { handleExport(); }}
         onLoadPlan={(plan) => { replaceAll(plan.data, {}); showToast("Plan cargado"); }}
+        onClearPlan={() => { replaceAll({ years: [] }, {}); showToast("Plan eliminado"); }}
         hasData={allSubjects.length > 0}
       />
     </>

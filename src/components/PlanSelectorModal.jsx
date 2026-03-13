@@ -57,12 +57,66 @@ function ConfirmOverwriteModal({ open, onConfirm, onCancel }) {
   );
 }
 
-export default function PlanSelectorModal({ open, onClose, onImport, onExport, onLoadPlan, hasData }) {
+function ConfirmDeleteModal({ open, onConfirm, onCancel }) {
+  const [visible, setVisible] = useState(false);
+  const [animating, setAnimating] = useState(false);
+  React.useEffect(() => {
+    if (open) { setVisible(true); setAnimating(false); }
+    else if (visible) {
+      setAnimating(true);
+      const t = setTimeout(() => { setVisible(false); setAnimating(false); }, 180);
+      return () => clearTimeout(t);
+    }
+  }, [open]);
+  if (!visible) return null;
+  const closing = animating && !open;
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 1200,
+      display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem",
+      animation: closing ? "fadeOut 0.18s ease forwards" : "fadeIn 0.15s ease",
+    }}>
+      <div onClick={onCancel} style={{ position: "fixed", inset: 0, background: "var(--modal-backdrop)", backdropFilter: "blur(3px)" }} />
+      <div style={{
+        position: "relative", zIndex: 1,
+        background: "var(--bg)", border: "1px solid var(--border)",
+        borderRadius: "12px", padding: "1.5rem",
+        width: "100%", maxWidth: "320px",
+        animation: closing ? "modalOut 0.18s ease forwards" : "popUp 0.2s ease",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+      }}>
+        <p style={{ fontSize: "0.85rem", color: "var(--text-primary)", fontWeight: 600, margin: "0 0 0.5rem" }}>
+          ¿Eliminar plan?
+        </p>
+        <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", lineHeight: 1.6, margin: "0 0 1.25rem" }}>
+          Se van a borrar todas las materias cargadas. Esta acción no se puede deshacer.
+        </p>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          <button className="btn-ghost" onClick={onCancel} style={{ flex: 1 }}>Cancelar</button>
+          <button
+            onClick={onConfirm}
+            style={{
+              flex: 1, padding: "0.6rem 1rem",
+              background: "var(--status-bloqueada-dot)", border: "none",
+              borderRadius: "8px", cursor: "pointer",
+              color: "#fff", fontSize: "0.78rem", fontFamily: "inherit",
+            }}
+          >
+            Sí, eliminar todo
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function PlanSelectorModal({ open, onClose, onImport, onExport, onLoadPlan, onClearPlan, hasData }) {
   const [visible, setVisible] = useState(false);
   const [animating, setAnimating] = useState(false);
   const [filter, setFilter] = useState("Todos");
   const [pendingPlan, setPendingPlan] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const { dark } = useTheme(); // eslint-disable-line no-unused-vars
 
   React.useEffect(() => {
@@ -185,7 +239,7 @@ export default function PlanSelectorModal({ open, onClose, onImport, onExport, o
             </div>
           </div>
 
-          {/* Footer con importar/exportar */}
+          {/* Footer con importar/exportar/eliminar */}
           <div style={{
             borderTop: "1px solid var(--border)",
             padding: "0.9rem 1.5rem",
@@ -194,6 +248,25 @@ export default function PlanSelectorModal({ open, onClose, onImport, onExport, o
           }}>
             <button className="btn-ghost" onClick={onImport} style={{ flex: 1, fontSize: "0.74rem" }}>↓ Importar plan</button>
             <button className="btn-ghost" onClick={onExport} style={{ flex: 1, fontSize: "0.74rem" }}>↑ Exportar plan</button>
+            {hasData && (
+              <button
+                onClick={() => setConfirmDeleteOpen(true)}
+                style={{
+                  flex: 1, fontSize: "0.74rem",
+                  padding: "0.5rem 0.75rem",
+                  background: "transparent",
+                  border: "1px solid var(--status-bloqueada-dot)",
+                  borderRadius: "8px", cursor: "pointer",
+                  color: "var(--status-bloqueada-dot)",
+                  fontFamily: "inherit", fontWeight: 500,
+                  transition: "background 0.15s, color 0.15s",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = "var(--status-bloqueada-dot)"; e.currentTarget.style.color = "#fff"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--status-bloqueada-dot)"; }}
+              >
+                ✕ Eliminar plan
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -202,6 +275,11 @@ export default function PlanSelectorModal({ open, onClose, onImport, onExport, o
         open={confirmOpen}
         onConfirm={handleConfirm}
         onCancel={() => { setConfirmOpen(false); setPendingPlan(null); }}
+      />
+      <ConfirmDeleteModal
+        open={confirmDeleteOpen}
+        onConfirm={() => { setConfirmDeleteOpen(false); onClearPlan(); onClose(); }}
+        onCancel={() => setConfirmDeleteOpen(false)}
       />
     </>
   );
